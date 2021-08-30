@@ -1,0 +1,2 @@
+video.png filter=lfs diff=lfs merge=lfs -text
+image.png filter=lfs diff=lfs merge=lfs -text

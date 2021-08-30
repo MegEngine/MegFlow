@@ -1,0 +1,13 @@
+[workspace]
+members = [
+    "flow-rs",
+    "flow-derive",
+    "flow-plugins"
+]
+
+[profile.dev]
+incremental = false
+panic = 'abort'
+
+[profile.release]
+panic = 'abort'

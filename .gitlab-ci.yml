@@ -1,0 +1,41 @@
+stages:
+  - format
+  - build
+  - test
+  - deploy
+
+before_script:
+  - export PATH=~/.cargo/bin:$PATH
+  - rustup component add rustfmt
+  - rustup component add clippy
+  - ci/link_cache.sh ${CI_PIPELINE_IID}
+
+format:
+  stage: format
+  script:
+    - cargo clean
+    - cargo fmt -- --check
+    - cargo clippy
+
+build:
+  stage: build
+  script:
+    - cargo build
+
+test:
+  stage: test
+  script:
+    - cargo test
+
+pages:
+  stage: deploy
+  script:
+    - cargo doc --no-deps
+    - echo '<meta http-equiv=refresh content=0;url=flow_rs/index.html>' > target/doc/index.html
+    - mv target/doc public
+  artifacts:
+    expire_in: 3 days
+    paths:
+      - public
+  only:
+    - master

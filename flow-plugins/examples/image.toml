@@ -1,0 +1,10 @@
+main = "image"
+
+[[graphs]]
+name = "image"
+connections = [{ cap=16, ports=["server:inp", "server:out"] }]
+
+    [[graphs.nodes]]
+    name = "server"
+    ty = "ImageServer"
+    port = 3030

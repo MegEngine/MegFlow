@@ -1,0 +1,274 @@
+/**
+ * \file flow-rs/src/graph/mod.rs
+ * MegFlow is Licensed under the Apache License, Version 2.0 (the "License")
+ *
+ * Copyright (c) 2019-2021 Megvii Inc. All rights reserved.
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT ARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ */
+mod channel;
+mod context;
+mod debug;
+mod node;
+mod subgraph;
+
+use crate::broker::Broker;
+use crate::config::interlayer as config;
+use crate::prelude::*;
+use crate::rt::task::JoinHandle;
+use anyhow::{anyhow, Result};
+use channel::*;
+pub use context::*;
+use futures_util::{pin_mut, select, FutureExt};
+use node::AnyNode;
+use std::collections::HashMap;
+
+pub(crate) struct GraphSlice {
+    pub cons: Box<dyn Fn(String) -> Result<Graph> + Send + Sync>,
+    pub info: NodeInfo,
+}
+crate::collect!(String, GraphSlice);
+
+/// Represents a graph with nodes and connections, which implement `Node` and `Actor`.
+pub struct Graph {
+    main: bool,
+    nodes: HashMap<String, AnyNode>,
+    conns: HashMap<String, AnyChannel>,
+    inputs: Vec<String>,
+    outputs: Vec<String>,
+    broker: Broker,
+    shares: HashMap<String, SharedProxy>,
+    ctx: Context,
+    resources: ResourceCollection,
+}
+
+impl Graph {
+    pub(crate) fn load(ctx: Context, config: &config::Graph) -> Result<Graph> {
+        let mut nodes = HashMap::new();
+        let mut conns = HashMap::new();
+        let mut broker = Broker::new();
+        let mut shares = HashMap::new();
+
+        let mut resources = ResourceCollection::new(ctx.local_key);
+
+        for (name, res) in &config.resources {
+            resources.insert(name.clone(), res.ty.as_str(), &res.args);
+        }
+
+        let global_res = GLOBAL_RESOURCES.read().unwrap();
+        resources = resources.chain(global_res.get(&ctx.local_key).unwrap());
+
+        for (name, res) in &config.resources {
+            resources.insert(name.clone(), res.ty.as_str(), &res.args);
+        }
+
+        for (name, cfg) in &config.nodes {
+            if !cfg.is_dyn {
+                nodes.insert(name.clone(), AnyNode::new(ctx.local_key, cfg)?);
+            }
+        }
+
+        for (k, cfg) in &config.connections {
+            let dyn_rxn = cfg.rx.iter().filter(|rx| rx.is_dyn()).count();
+            let dyn_txn = cfg.tx.iter().filter(|tx| tx.is_dyn()).count();
+
+            if !config.inputs.contains(k) && !config.outputs.contains(k) {
+                if dyn_rxn > 0 && dyn_txn > 0 {
+                    return Err(anyhow!("rx & tx of channel both are dyn"));
+                }
+                if (dyn_rxn > 0 && cfg.tx.len() != 1) || (dyn_txn > 0 && cfg.rx.len() != 1) {
+                    return Err(anyhow!("dyn port shared with multiple subgraphs"));
+                }
+                if (dyn_rxn != 0 && dyn_rxn != cfg.rx.len())
+                    || (dyn_txn != 0 && dyn_txn != cfg.tx.len())
+                {
+                    return Err(anyhow!("dyn port shared with multiple subgraphs"));
+                }
+
+                if dyn_rxn > 0 || dyn_txn > 0 {
+                    let subgraph = cfg
+                        .rx
+                        .iter()
+                        .chain(cfg.tx.iter())
+                        .find(|p| !p.is_dyn())
+                        .unwrap();
+                    for port in cfg.rx.iter().chain(cfg.tx.iter()) {
+                        if port.is_dyn() {
+                            let mut res =
+                                config.nodes.get(&subgraph.node_name).unwrap().res.clone();
+                            let nodes = nodes.get_mut(&port.node_name).unwrap();
+                            let info = nodes.info_mut();
+                            info.res.append(&mut res);
+                            for node in nodes.get_mut().iter_mut() {
+                                let client = broker.subscribe(subgraph.node_type.clone());
+                                node.set_port_dynamic(
+                                    ctx.local_key,
+                                    &port.port_name,
+                                    subgraph.port_name.clone(),
+                                    cfg.cap,
+                                    client,
+                                );
+                            }
+                        }
+                    }
+                } else {
+                    let mut channel = AnyChannel::new(cfg)?;
+                    channel.set(channel.make());
+                    let info = channel.info();
+                    for port in info.rx.iter().chain(info.tx.iter()) {
+                        if let Some(nodes) = nodes.get_mut(&port.node_name) {
+                            for node in nodes.get_mut().iter_mut() {
+                                node.set_port(&port.port_name, port.port_tag, channel.get());
+                            }
+                        } else {
+                            let shared_proxy =
+                                shares.entry(port.node_name.clone()).or_insert_with(|| {
+                                    SharedProxy::registry_local()
+                                        .get(ctx.local_key)
+                                        .get(&port.node_name)
+                                        .unwrap()
+                                        .as_ref()
+                                        .clone()
+                                });
+                            shared_proxy.set_port(&port.port_name, channel.get());
+                        }
+                    }
+                    conns.insert(k.clone(), channel);
+                }
+            } else {
+                if dyn_rxn > 0 || dyn_txn > 0 {
+                    return Err(anyhow!("dyn inputs or outputs of graph"));
+                }
+                for port in cfg.rx.iter().chain(cfg.tx.iter()) {
+                    if let Some(node) = config.nodes.get(&port.node_name) {
+                        if node.is_dyn {
+                            return Err(anyhow!(
+                                "dyn nodes connect with inputs or outputs of graph"
+                            ));
+                        }
+                    }
+                }
+                let channel = AnyChannel::new(cfg)?;
+                conns.insert(k.clone(), channel);
+            }
+        }
+
+        Ok(Graph {
+            ctx,
+            resources,
+            main: false,
+            nodes,
+            conns,
+            broker,
+            inputs: config.inputs.clone(),
+            outputs: config.outputs.clone(),
+            shares,
+        })
+    }
+    /// Run the graph, and return a `JoinHandle`, which can be cancel or wait
+    pub fn start(&mut self, resource: Option<ResourceCollection>) -> JoinHandle<()> {
+        let resource = resource.unwrap_or_else(|| ResourceCollection::new(self.ctx.local_key));
+        let res = resource.chain(&self.resources);
+        let shares = std::mem::take(&mut self.shares);
+        for (_, shared) in shares {
+            shared.build();
+        }
+        let mut handles = vec![self.broker.run()];
+        let mut alone_tasks = vec![self.dmon()];
+
+        for node in self.nodes.values_mut() {
+            let res_names: Vec<_> = node.info().res.to_vec();
+            let is_alone = node.info().inputs.is_empty() && node.info().outputs.is_empty();
+            for node in node.get_into() {
+                let res = res.filter(
+                    res_names
+                        .iter()
+                        .map(|x| x.as_str())
+                        .collect::<Vec<_>>()
+                        .as_slice(),
+                );
+                if is_alone {
+                    alone_tasks.push(node.start(self.ctx.clone(), res));
+                } else {
+                    handles.push(node.start(self.ctx.clone(), res));
+                }
+            }
+        }
+
+        let is_main = self.main;
+        let context = self.ctx.clone();
+        let inputs: Vec<_> = self
+            .inputs
+            .iter()
+            .map(|name| self.conns[name].get().clone())
+            .collect();
+
+        crate::rt::task::spawn(async move {
+            let wait_ctx = context.wait().fuse();
+            let wait_tasks = futures_util::future::join_all(handles).fuse();
+            pin_mut!(wait_ctx, wait_tasks);
+
+            loop {
+                select! {
+                    _ = wait_ctx => {
+                        for input in &inputs {
+                            input.close();
+                        }
+                    }
+                    _ = wait_tasks => context.close(),
+                    complete => break,
+                }
+            }
+
+            for task in alone_tasks {
+                task.cancel().await;
+            }
+
+            if is_main {
+                SharedProxy::registry_local()
+                    .get(context.local_key)
+                    .for_each(|proxy| proxy.close());
+                let handles = crate::node::SharedStopNotify::registry_local()
+                    .get(context.local_key)
+                    .to_vec();
+                for handle in handles {
+                    let handle = std::sync::Arc::try_unwrap(handle)
+                        .unwrap_or_else(|_| panic!("internal error"));
+                    handle.0.await.ok();
+                }
+                // clear graph local resources
+                finalize(context.local_key);
+            }
+        })
+    }
+    /// Get an input port from the graph by name
+    pub fn input(&self, name: &str) -> Option<Sender> {
+        self.conns.get(name).map(|x| x.get().sender())
+    }
+    /// Get an output port from the graph by name
+    pub fn output(&self, name: &str) -> Option<Receiver> {
+        self.conns.get(name).map(|x| x.get().receiver())
+    }
+    /// Stop the graph, it is equivalent to drop all inputs of the graph
+    pub fn stop(&mut self) {
+        self.close()
+    }
+
+    pub(crate) fn mark_main(&mut self) {
+        let mut v = vec![];
+        for name in &self.inputs {
+            v.push((name.clone(), self.conns[name].make()));
+        }
+        for name in &self.outputs {
+            v.push((name.clone(), self.conns[name].make()));
+        }
+
+        for (name, conn) in v {
+            self.set_port(name.as_str(), None, &conn);
+        }
+
+        self.main = true;
+    }
+}

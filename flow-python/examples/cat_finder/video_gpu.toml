@@ -1,0 +1,66 @@
+main = "cat_finder_video"
+
+[[nodes]]
+name = "det"
+ty = "Detect"
+model = "yolox-s"
+conf = 0.25
+nms = 0.45
+tsize = 640
+path = "models/cat_finder_models/yolox_s.mge"
+interval = 5
+visualize = 0
+device = "gpu"
+device_id = 0
+
+[[nodes]]
+name = "reid_video"
+ty = "ReIDVideo"
+path = "models/cat_finder_models/resnet50.mge"
+device = "gpu"
+device_id = 0
+
+[[nodes]]
+name = "redis_proxy"
+ty = "RedisProxy"
+ip = "127.0.0.1"
+port = "6379"
+mode = "search"
+prefix = "feature."
+
+[[graphs]]
+name = "subgraph"
+inputs = [{ name = "inp", cap = 16, ports = ["det:inp"] }]
+outputs = [{ name = "out", cap = 16, ports = ["redis_proxy:out"] }]
+connections = [
+  { cap = 16, ports = ["det:out", "track:inp"] },
+  { cap = 16, ports = ["track:out", "shaper:inp"] },
+  { cap = 16, ports = ["shaper:out", "reid_video:inp"] },
+  { cap = 16, ports = ["reid_video:out", "redis_proxy:inp"] },
+]
+
+    [[graphs.nodes]]
+    name = "track"
+    ty = "Track"
+
+    [[graphs.nodes]]
+    name = "shaper"
+    ty = "Shaper"
+    mode = "BEST"
+
+
+[[graphs]]
+name = "cat_finder_video"
+connections = [
+  { cap = 16, ports = ["source:out", "destination:inp"] },
+  { cap = 16, ports = ["source:inp", "destination:out"] }
+]
+
+    [[graphs.nodes]]
+    name = "source"
+    ty = "VideoServer"
+    port = 8082
+    
+    [[graphs.nodes]]
+    name = "destination"
+    ty = "subgraph"

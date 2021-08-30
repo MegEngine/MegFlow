@@ -1,0 +1,53 @@
+main = "electric_bicycle"
+
+[[nodes]]
+name = "det"
+ty = "Detect"
+path = "models/memd_models/model.onnx"
+interval = 5
+visualize = 0
+score_thres = 0.5
+nms_thres = 0.5
+
+[[nodes]]
+name = "redis_proxy"
+ty = "RedisProxy"
+ip = "127.0.0.1"
+port = "6379"
+key = "notification.electric_bicycle"
+
+[[graphs]]
+name = "subgraph"
+inputs = [{ name = "inp", cap = 16, ports = ["det:inp"] }]
+outputs = [{ name = "out", cap = 16, ports = ["redis_proxy:out"] }]
+connections = [
+  { cap = 16, ports = ["det:out", "track:inp"] },
+  { cap = 16, ports = ["track:out", "shaper:inp"] },
+  { cap = 16, ports = ["shaper:out", "redis_proxy:inp"] },
+]
+
+    [[graphs.nodes]]
+    name = "track"
+    ty = "Track"
+
+    [[graphs.nodes]]
+    name = "shaper"
+    ty = "Shaper"
+    mode = "FAST"
+
+
+[[graphs]]
+name = "electric_bicycle"
+connections = [
+  { cap = 16, ports = ["source:out", "destination:inp"] },
+  { cap = 16, ports = ["source:inp", "destination:out"] }
+]
+
+    [[graphs.nodes]]
+    name = "source"
+    ty = "VideoServer"
+    port = 8083
+    
+    [[graphs.nodes]]
+    name = "destination"
+    ty = "subgraph"

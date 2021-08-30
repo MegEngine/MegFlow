@@ -1,0 +1,7 @@
+models/det_image.mgb filter=lfs diff=lfs merge=lfs -text
+models/det_video.mgb filter=lfs diff=lfs merge=lfs -text
+models/lmk.mgb filter=lfs diff=lfs merge=lfs -text
+models/pf.mgb filter=lfs diff=lfs merge=lfs -text
+face_image/face_image.png filter=lfs diff=lfs merge=lfs -text
+face_video/face_video.png filter=lfs diff=lfs merge=lfs -text
+logical_test/logical_test.png filter=lfs diff=lfs merge=lfs -text
