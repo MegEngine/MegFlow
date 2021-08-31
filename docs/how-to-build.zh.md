@@ -44,13 +44,6 @@ $ conda create --name py38 python=3.8
 $ conda activate py38
 ```
 
-## Clone
-```bash
-$ git clone --recursive https://github.com/MegEngine/MegFlow --depth=1
-$ cd MegFlow
-$ git submodule update
-```
-
 ## Build
 
 MegFlow 需要编译 ffmpeg。考虑到 ffmpeg 依赖较多、本身又是常用工具，最简单的办法就是直接装 ffmpeg 把编译依赖装上
@@ -68,6 +61,7 @@ clang version 6.0.0-1ubuntu2...
 编译底层 Rust 组件，安装 Python module 
 
 ```bash
+$ git clone --recursive https://github.com/MegEngine/MegFlow --depth=1
 $ cd MegFlow
 $ cargo build
 $ cd flow-python
@@ -90,11 +84,11 @@ $ export LD_LIBRARY_PATH=/home/`whoami`/miniconda3/pkgs/python-3.8.11-h12debd9_0
 
 ## Python Built-in Applications
 
-*  [猫猫围栏运行手册](flow-python/examples/cat_finder/README.zh.md)
+*  [猫猫围栏运行手册](../flow-python/examples/cat_finder/README.zh.md)
    *  图片注册猫猫
    *  部署视频围栏，注册的猫猫离开围栏时会发通知
    *  未注册的不会提示
-*  [电梯电瓶车告警](flow-python/examples/electric_bicycle/README.zh.md)
+*  [电梯电瓶车告警](../flow-python/examples/electric_bicycle/README.zh.md)
    *  电梯里看到电瓶车立即报警
 *  Comming Soon
    *  OCR： 通用字符识别

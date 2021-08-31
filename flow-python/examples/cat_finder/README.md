@@ -5,7 +5,12 @@
 
 ## 模型下载
 
-下载 [google](https://drive.google.com/file/d/1Ff8oxBer135L-wKnkgOewa91lF5EV05P/view?usp=sharing) 解压，软链到 examples/models 目录
+
+| 云盘 | google drive | dropbox |
+| - | - | - |
+| [链接](https://pan.baidu.com/s/1SoxHZjdWyPRIAwfcHWUQTQ) 提取码: ebcn  | [google](https://drive.google.com/file/d/1EwMJFjNp2kuNglutoleZOVsqccSOW2Z4/view?usp=sharing)  |  [dropbox](https://www.dropbox.com/s/akhkxedyo2ubmys/models.zip?dl=0) |
+
+解压，软链到 examples/models 目录
 
 ```bash
 $ cd flow-python/examples
@@ -51,7 +56,7 @@ $ cargo run --example run_with_plugins -- -c cat_finder/image_gpu.toml  -p cat_f
 $ cargo run --example run_with_plugins -- -c cat_finder/image_cpu.toml  -p cat_finder    # 无 GPU 的 laptop 执行这句
 ```
 
-服务配置文件在`cat_finder/image_gpu.toml`，详细解释见 [how-to-add-graph](docs/how-to-add-graph.zh.md) 。这里只需要浏览器打开主机所在 8081 端口服务。
+服务配置文件在`cat_finder/image_gpu.toml`，详细解释见 [how-to-add-graph](../../../docs/how-to-add-graph.zh.md) 。这里只需要浏览器打开主机所在 8081 端口服务。
 
 ```bash
 $ google-chrome-stable  http://127.0.0.1:8081/docs 
@@ -71,8 +76,8 @@ $ google-chrome-stable  http://127.0.0.1:8081/docs
 准备一个 rtsp 视频流地址，做测试输入。
 
 * MegFlow 提供了现成的测试地址 `rtsp://10.122.101.175:8554/test1.ts`，可用播放器测试是否可用
-* laptop 或树莓派可搜索 Camera 推流教程。见 [如何生成自己的 rtsp 流地址](docs/how-to-generate-rtsp.zh.md)
-* 也可以手机拍摄视频，再用 ffmpeg 转成 .ts 格式放到 live555 server。见 [如何生成自己的 rtsp 流地址](docs/how-to-generate-rtsp.zh.md)
+* laptop 或树莓派可搜索 Camera 推流教程。见 [如何生成自己的 rtsp 流地址](../../../docs/how-to-generate-rtsp.zh.md)
+* 也可以手机拍摄视频，再用 ffmpeg 转成 .ts 格式放到 live555 server。见 [如何生成自己的 rtsp 流地址](../../../docs/how-to-generate-rtsp.zh.md)
 * 模型包目录同样提供了测试视频，在`models/cat_finder_testdata`，需要自行部署 live555 服务
 
 启动视频识别服务
@@ -81,7 +86,7 @@ $ cd flow-python/examples
 $ cargo run --example run_with_plugins -- -c cat_finder/video_gpu.toml  -p cat_finder  # 有 GPU 的机器
 $ cargo run --example run_with_plugins -- -c cat_finder/video_cpu.toml  -p cat_finder  # 无 GPU 的设备用这句
 ```
-服务配置文件在`cat_finder/video_gpu.toml`，详细解释见 [how-to-add-graph](docs/how-to-add-graph.zh.md) 。这里只需要打开 8082 端口服务。
+服务配置文件在`cat_finder/video_gpu.toml`，详细解释见 [how-to-add-graph](../../../docs/how-to-add-graph.zh.md) 。这里只需要打开 8082 端口服务。
 
 ```bash
 $ google-chrome-stable  http://127.0.0.1:8082/docs 

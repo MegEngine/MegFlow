@@ -42,5 +42,4 @@ MegFlow也提供了一系列异步工具
 
 # Rust Plugins
 
-API文档见[MegFlow](http://coreteam.pages-git-core.megvii-inc.com/megflow)
-// TODO: 具体的例子分析
+Coming soon
