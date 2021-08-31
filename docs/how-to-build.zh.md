@@ -20,7 +20,7 @@ $ cargo --version
 cargo 1.53.0 (4369396ce 2021-04-27)
 ```
 
-> `cargo` 是 Rust 的包管理器兼编译辅助工具。类似 Java maven/ go pkg/ C++ CMake 的角色，更易使用。
+> `cargo` 是 Rust 的包管理器兼编译辅助工具。类似 Java maven/go pkg/C++ CMake 的角色，更易使用。
 
 ### 安装 python3.8 （推荐 conda）
 
@@ -33,7 +33,7 @@ $ ./Miniconda3-latest-Linux-x86_64.sh
 ```
 
 安装时接受 conda 修改默认 .bashrc 环境变量（zsh 用户还需自行修改 .zshrc 中的 conda initialize 配置）。成功后 `conda` 可正常运行
-```
+```bash
 $ conda --version
 conda 4.10.3
 ```
@@ -105,7 +105,7 @@ $ cargo run --example graph -- ${args} # 测试 MegFlow 的延迟/吞吐/调度�
 $ cargo run --example run_with_plugins -- ${args} # 基于插件 + 参数文件形式运行 MegFlow, 更多说明通过--help 查看
 ```
 
-## Development
+## 其他开发选项
 ```bash
 $ export RUST_LOG=LOG_LEVEL // 设置日志级别, 例如 INFO, TRACE..
 $ cargo build [--release] // 编译
