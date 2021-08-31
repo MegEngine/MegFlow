@@ -3,7 +3,7 @@
 ## 功能概述
 注册的猫猫离开围栏，会收到一条告警信息。未注册的不会报警。
 
-## 模型下载
+## 模型和自测数据下载
 
 
 | 云盘 | google drive | dropbox |
@@ -73,12 +73,19 @@ $ google-chrome-stable  http://127.0.0.1:8081/docs
 
 ## 视频识别
 
-准备一个 rtsp 视频流地址，做测试输入。
+准备一个 rtsp 视频流地址，做测试输入（因不可抗力 MegFlow 无法提供现成地址）。模型包目录提供了测试视频，在 `models/cat_finder_testdata`，需要用户自行部署 live555 服务。最直接的办法：
+```bash
+$ wget https://github.com/aler9/rtsp-simple-server/releases/download/v0.17.2/rtsp-simple-server_v0.17.2_linux_amd64.tar.gz
+$ 
+$ tar xvf rtsp-simple-server_v0.17.2_linux_amd64.tar.gz && ./rtsp-simple-server 
+$ ffmpeg -re -stream_loop -1 -i ${models}/cat_finder_testdata/test1.ts -c copy -f rtsp rtsp://127.0.0.1:8554/test1.ts
+```
 
-* MegFlow 提供了现成的测试地址 `rtsp://10.122.101.175:8554/test1.ts`，可用播放器测试是否可用
-* laptop 或树莓派可搜索 Camera 推流教程。见 [如何生成自己的 rtsp 流地址](../../../docs/how-to-generate-rtsp.zh.md)
-* 也可以手机拍摄视频，再用 ffmpeg 转成 .ts 格式放到 live555 server。见 [如何生成自己的 rtsp 流地址](../../../docs/how-to-generate-rtsp.zh.md)
-* 模型包目录同样提供了测试视频，在`models/cat_finder_testdata`，需要自行部署 live555 服务
+
+* 想用 laptop/树莓派摄像头可搜索 Camera 推流教程
+* 也可以手机拍摄视频，再用 ffmpeg 转成 .ts 格式推到 live555 server
+
+相关教程已整合在 [如何生成自己的 rtsp 流地址](../../../docs/how-to-generate-rtsp.zh.md) 。
 
 启动视频识别服务
 ```bash
@@ -99,7 +106,7 @@ $ google-chrome-stable  http://127.0.0.1:8082/docs
 * 服务将打印相关日志
 
 ```bash
-021-08-30 15:17:30.361 | DEBUG    | cat_finder.shaper:exec:82 - shaper recv failed_ids [1]
+2021-08-30 15:17:30.361 | DEBUG    | cat_finder.shaper:exec:82 - shaper recv failed_ids [1]
 2021-08-30 15:17:31.760 | DEBUG    | warehouse.detection_yolox.lite:inference:157 - YOLOX infer time: 0.4643s
 2021-08-30 15:17:34.094 | INFO     | cat_finder.track:exec:27 - stream tracker finish
 2021-08-30 15:17:34.094 | INFO     | cat_finder.shaper:exec:47 - stream shaper finish

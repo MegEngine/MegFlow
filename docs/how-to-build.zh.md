@@ -64,6 +64,7 @@ clang version 6.0.0-1ubuntu2...
 $ git clone --recursive https://github.com/MegEngine/MegFlow --depth=1
 $ cd MegFlow
 $ cargo build
+waiting ...
 $ cd flow-python
 $ python3 setup.py install --user
 ```
@@ -86,7 +87,7 @@ $ export LD_LIBRARY_PATH=/home/`whoami`/miniconda3/pkgs/python-3.8.11-h12debd9_0
 
 *  [猫猫围栏运行手册](../flow-python/examples/cat_finder/README.zh.md)
    *  图片注册猫猫
-   *  部署视频围栏，注册的猫猫离开围栏时会发通知
+   *  部署视频围栏，注册的猫离开围栏时会发通知
    *  未注册的不会提示
 *  [电梯电瓶车告警](../flow-python/examples/electric_bicycle/README.zh.md)
    *  电梯里看到电瓶车立即报警
