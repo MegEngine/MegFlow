@@ -1,6 +1,0 @@
-positive1.jpg filter=lfs diff=lfs merge=lfs -text
-positive2.jpg filter=lfs diff=lfs merge=lfs -text
-negative.jpg filter=lfs diff=lfs merge=lfs -text
-badcase_tiger.jpg filter=lfs diff=lfs merge=lfs -text
-pinggai_1.jpg filter=lfs diff=lfs merge=lfs -text
-positive_pinggai.jpg filter=lfs diff=lfs merge=lfs -text

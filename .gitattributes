@@ -1,2 +1,0 @@
-*.toml gitlab-language=text
-docs/*.png filter=lfs diff=lfs merge=lfs -text
