@@ -21,10 +21,13 @@ $ ln -s ${DOWNLOAD_DIR}/models models
 ```
 ## 启动服务
 
-安装 redis-server
+安装运行依赖
 ```bash
 $ sudo apt install redis-server
 $ redis-server
+...
+$ conda activate py38
+$ pip3 install onnxruntime --user
 ```
 
 准备一个 rtsp 视频流地址，做测试输入。

@@ -67,7 +67,6 @@ class Detect:
                 item["cls"] = 0
                 item["score"] = output[4]
                 items.append(item)
-
             image['items'] = items
 
             self.out.send(envelope)

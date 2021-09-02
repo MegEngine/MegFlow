@@ -37,13 +37,14 @@ $ redis-server
 
 安装 megengine（1.6.0 引入 lite 接口，简化推理并提供模型加密方案）
 ```bash
+$ conda activate py38
 $ python3 -m pip install --upgrade pip
-$ python3 -m pip install megengine -f https://megengine.org.cn/whl/mge.html
+$ python3 -m pip install megengine==1.6.0rc1 -f https://megengine.org.cn/whl/mge.html
 $ python3
 ...
 >>> import megengine as mge
 >>> mge.__version__
-'1.6.0...'
+'1.6.0'
 ```
 
 ## 图片注册
