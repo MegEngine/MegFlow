@@ -4,10 +4,13 @@
 
 ### 软硬件环境
 
-*nix 系统（Linux/Mac），x86 芯片。
+| 目前测过的环境 | 备注 |
+| - | - |
+| MacPro | - |
+| x86 Ubuntu16.04 服务器 T4 卡 | - |
+| x86 Ubuntu18.04 无 GPU | 运行时选 CPU config |
 
-* 普通 laptop 可用 megenginelite CPU 模式运行，每个 application 的 README 会提供 CPU config
-* MegFlow 原理上支持 ARM，coming soon
+原则上 x86 *nix 系统可不修改编译选项运行；arm 环境未测试，不排除要修改编译选项，兼容性 CI 增加中。
 
 ### 安装 Rust
 ```bash
