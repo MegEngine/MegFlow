@@ -1,5 +1,5 @@
 ---
-name: "compatibility issue ¿ⓧ_ⓧﮌ "
+name: "compatibility issue ┬─┬ノ( ゜-゜ノ)"
 about: build error
 ---
 

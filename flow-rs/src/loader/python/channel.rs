@@ -13,7 +13,7 @@ use super::envelope::PyEnvelope;
 use crate::channel::{Receiver, Sender};
 use pyo3::prelude::*;
 use stackful::wait;
-use std::{sync::Arc};
+use std::sync::Arc;
 
 #[pyclass]
 pub(crate) struct PySender {
