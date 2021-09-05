@@ -12,7 +12,7 @@ use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::Arc;
 
 use super::inner::Receiver as RecvImpl;
-use super::{RecvError};
+use super::RecvError;
 use crate::envelope::{DummyEnvelope, Envelope, SealedEnvelope};
 
 use super::ChannelBase;
