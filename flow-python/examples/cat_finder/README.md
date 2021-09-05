@@ -57,13 +57,10 @@ $ cargo run --example run_with_plugins -- -c cat_finder/image_gpu.toml  -p cat_f
 $ cargo run --example run_with_plugins -- -c cat_finder/image_cpu.toml  -p cat_finder    # 无 GPU 的 laptop 执行这句
 ```
 
-服务配置文件在`cat_finder/image_gpu.toml`，详细解释见 [how-to-add-graph](../../../docs/how-to-add-graph.zh.md) 。这里只需要浏览器打开主机所在 8081 端口服务。
-
-```bash
-$ google-chrome-stable  http://127.0.0.1:8081/docs 
-```
+现在 8081 端口部署了“猫体注册”服务，只需要打开浏览器上传图片、猫咪名称即可。`cat_finder/image_gpu.toml` 详细解释见 [how-to-add-graph](../../../docs/how-to-add-graph.zh.md) 。这里只需要浏览器打开主机所在 8081 端口服务。
 
 ![](images/cat_finder_image_select.jpg)
+
 
 测试图片在软链接后的 `models/cat_finder_testdata` 目录。打开浏览器 UI 中选择图片、填写名称，提交即可。成功后
 * 用 redis-cli `keys *`可查到对应 BASE64 特征
@@ -71,6 +68,19 @@ $ google-chrome-stable  http://127.0.0.1:8081/docs
 
 ![](images/cat_finder_image_result.jpg)
 
+
+FAQ：如果服务部署在 docker 里,，运行时容器使用端口映射，把内部的 8081 端口映射到宿主机。例如把内部容器的 8081 映射成外部物理机的 18081、把 8082 映射成 18082
+```bash
+$ docker run -p 18081:8081 -p 18082:8082  -it ubuntu /bin/bash
+```
+此时用`docker ps`可以看到 PORTS 映射关系
+```bash
+$ docker ps
+CONTAINER ID   IMAGE     COMMAND       CREATED         STATUS         PORTS                                                                                      NAMES
+d4b5b563051e   ubuntu    "/bin/bash"   9 seconds ago   Up 8 seconds   0.0.0.0:18081->8081/tcp, :::18081->8081/tcp, 0.0.0.0:18082->8082/tcp, :::18082->8082/tcp   nostalgic_swartz
+
+```
+浏览器打开宿主机的 ip:18081 端口即可使用
 
 ## 视频识别
 
@@ -126,6 +136,9 @@ $ redis-cli
 3) "feature.pingai"
 ```
 用 `brpop notification.cat_finder` 可消费报警消息。
+
+
+FAQ：如果服务部署在 docker 里，同样可以把 8082 端口映射到宿主机端口。
 
 ## 模型列表
 

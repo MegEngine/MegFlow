@@ -74,12 +74,12 @@ $ python3 setup.py install --user
 
 P.S. 默认 ffmpeg 依赖自动从 github 上拉取源码构建，这会使得首次构建的时间较长。若希望缩短首次构建时间，或者希望依赖一个指定版本的 ffmpeg，可以启用环境变量`CARGO_FEATURE_PREBUILD`并参考[rust-ffmpeg](https://github.com/zmwangx/rust-ffmpeg/wiki/Notes-on-building)自行构建
 
-## Python Examples 基础用例
+## Python “开机自检”用例
 ```bash
 $ cd examples
 $ cargo run --example run_with_plugins -- -p logical_test
 ```
-`logical_test` 就是 examples 下的测试用例名称，默认使用和目录同名的`logical_test.toml`做配置文件。
+`logical_test` 是 examples 下最基本的计算图测试用例，`logical_test`能正常结束表示 MegFlow 编译成功、基础功能无问题。
 
 此处常见问题：`error while loading shared libraries: libpython3.8.xxx`。如果使用 conda 只需要
 ```bash
@@ -87,6 +87,8 @@ $ export LD_LIBRARY_PATH=/home/`whoami`/miniconda3/pkgs/python-3.8.11-h12debd9_0
 ```
 
 ## Python Built-in Applications
+
+接下来开始运行好玩的 Python 应用
 
 *  [猫猫围栏运行手册](../flow-python/examples/cat_finder/README.md)
    *  图片注册猫猫
