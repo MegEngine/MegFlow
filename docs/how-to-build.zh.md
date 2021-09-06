@@ -4,13 +4,13 @@
 
 ### 软硬件环境
 
-| 目前测过的环境 | 备注 |
+| 测试通过的环境 | 备注 |
 | - | - |
-| MacPro | - |
-| x86 Ubuntu16.04 服务器 T4 卡 | - |
+| win10 WSL ubuntu18.04 | - |
+| x86 Ubuntu16.04 服务器有 GPU | - |
 | x86 Ubuntu18.04 无 GPU | 运行时选 CPU config |
 
-原则上 x86 *nix 系统可不修改编译选项运行；arm 环境未测试，不排除要修改编译选项，兼容性 CI 增加中。
+支持主流 x86 Linux 版本，ARM 还在开发。
 
 ### 安装 Rust
 ```bash
@@ -25,7 +25,7 @@ cargo 1.53.0 (4369396ce 2021-04-27)
 
 > `cargo` 是 Rust 的包管理器兼编译辅助工具。类似 Java maven/go pkg/C++ CMake 的角色，更易使用。
 
-### 安装 python3.8 （推荐 conda）
+### 安装 python3.x （推荐 conda）
 
 打开 [miniconda 官网](https://docs.conda.io/en/latest/miniconda.html) 下载 miniconda 安装包，修改权限并安装。
 
@@ -41,7 +41,7 @@ $ conda --version
 conda 4.10.3
 ```
 
-创建一个 Python3.8 的环境，激活。
+创建一个 Python3.8（已测试 3.6.13/3.7.11/3.8.11 可用。**3.9 暂不可用**，这里以 3.8 为例）的环境，激活。
 ```bash
 $ conda create --name py38 python=3.8
 $ conda activate py38
@@ -79,7 +79,7 @@ P.S. 默认 ffmpeg 依赖自动从 github 上拉取源码构建，这会使得�
 $ cd examples
 $ cargo run --example run_with_plugins -- -p logical_test
 ```
-`logical_test` 是 examples 下最基本的计算图测试用例，`logical_test`能正常结束表示 MegFlow 编译成功、基础功能无问题。
+`logical_test` 是 examples 下最基础的计算图测试用例，运行能正常结束表示 MegFlow 编译成功、基本语义无问题。
 
 此处常见问题：`error while loading shared libraries: libpython3.8.xxx`。如果使用 conda 只需要
 ```bash
@@ -99,14 +99,11 @@ $ export LD_LIBRARY_PATH=/home/`whoami`/miniconda3/pkgs/python-3.8.11-h12debd9_0
 *  Comming Soon
    *  OCR： 通用字符识别
 
-## Rust Examples 格式
+
+## 其他选项
 ```bash
 $ cargo run --example graph -- ${args} # 测试 MegFlow 的延迟/吞吐/调度开销, 更多使用说明通过--help 查看
 $ cargo run --example run_with_plugins -- ${args} # 基于插件 + 参数文件形式运行 MegFlow, 更多说明通过--help 查看
-```
-
-## 其他开发选项
-```bash
 $ export RUST_LOG=LOG_LEVEL // 设置日志级别, 例如 INFO, TRACE..
 $ cargo build [--release] // 编译
 $ cargo check // 快速编译，不执行 link
