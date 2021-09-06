@@ -42,17 +42,22 @@ MegFlow 是一个面向视觉应用的流式计算框架, 目标是简单、高�
 - [Apache 2.0](LICENSE)
 
 ## Acknowledgement
-
-MegFlow 使用了下列项目：
+MegFlow Rust 使用了以下项目：
 * [FFmpeg](https://github.com/FFmpeg/FFmpeg)
+* [Swagger](https://github.com/Metaswitch/swagger-rs)
+* [toml](https://github.com/alexcrichton/toml-rs)
+* [stackful](https://github.com/nbdd0121/stackful)
+
+MegFlow Python 使用了下列项目：
 * [OpenCV](https://github.com/opencv/opencv)
 * [numpy](https://github.com/numpy/numpy)
 * [loguru](https://pypi.org/project/loguru/)
 * [scipy](https://github.com/scipy/scipy)
 * [redis](https://github.com/redis/redis)
+
+MegFlow 模型和推理学习了这些项目：
 * [MegEngine](https://github.com/megengine/megengine)
 * [onnx](https://github.com/onnx/onnx)
 * [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX)
 * [AlignedReID](https://github.com/huanghoujing/AlignedReID-Re-Production-Pytorch)
 * [MEMD](https://github.com/megvii-research/MEMD)
-

@@ -69,7 +69,10 @@ $ cargo run --example run_with_plugins -- -c cat_finder/image_cpu.toml  -p cat_f
 ![](images/cat_finder_image_result.jpg)
 
 
-FAQ：如果服务部署在 docker 里,，运行时容器使用端口映射，把内部的 8081 端口映射到宿主机。例如把内部容器的 8081 映射成外部物理机的 18081、把 8082 映射成 18082
+## 图片注册 FAQ
+如果服务部署在 docker 里、客户端无法直连，这里提供 2 种方法：
+
+1. 运行时容器使用端口映射。例如把内部容器的 8081 映射成外部物理机的 18081、把 8082 映射成 18082
 ```bash
 $ docker run -p 18081:8081 -p 18082:8082  -it ubuntu /bin/bash
 ```
@@ -81,6 +84,12 @@ d4b5b563051e   ubuntu    "/bin/bash"   9 seconds ago   Up 8 seconds   0.0.0.0:18
 
 ```
 浏览器打开宿主机的 ip:18081 端口即可使用
+
+2. 在容器内用 `cURL` 发 HTTP POST 请求，不再用 web UI
+```bash
+$ curl http://127.0.0.1:8081/analyze/my_cat_name  -X POST --header "Content-Type:image/*"   --data-binary @test.jpeg  --output out.jpg
+```
+`my_cat_name` 是注册的猫咪名称；`test.jpeg` 是测试图片；`output.jpg` 是返回的可视化图片。
 
 ## 视频识别
 
@@ -138,7 +147,15 @@ $ redis-cli
 用 `brpop notification.cat_finder` 可消费报警消息。
 
 
-FAQ：如果服务部署在 docker 里，同样可以把 8082 端口映射到宿主机端口。
+## 视频识别 FAQ
+如果服务部署在 docker 里，同样可以把 8082 端口映射到宿主机端口；对应的 `cURL` 命令参考
+```bash
+$ curl  -X POST  'http://127.0.0.1:8082/start/rtsp%3A%2F%2F127.0.0.1%3A8554%2Ftest1.ts'  # start  rtsp://127.0.0.1:8554/test1.ts
+start stream whose id is 2% 
+$ curl 'http://127.0.0.1:8082/list'   # list all stream
+[{"id":1,"url":"rtsp://10.122.101.175:8554/test1.ts"},{"id":0,"url":"rtsp://10.122.101.175:8554/test1.ts"}]%
+```
+路径中的 `%2F`、`%3A` 是 [URL](https://www.ietf.org/rfc/rfc1738.txt) 的转义字符
 
 ## 模型列表
 
