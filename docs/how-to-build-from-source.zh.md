@@ -1,19 +1,12 @@
 # Building from Source
 
+如果仅仅是想运行应用，推荐使用 [docker](how-to-build-with-docker.zh.md) 或 [prebuilt .whl 包](how-to-run-in-15-minutes.zh.md) ，源码安装需要 Rust/ffmpeg 环境。
+
 ## Prerequisites
-
-### 软硬件环境
-
-| 测试通过的环境 | 备注 |
-| - | - |
-| win10 WSL ubuntu18.04 | - |
-| x86 Ubuntu16.04 服务器有 GPU | - |
-| x86 Ubuntu18.04 无 GPU | 运行时选 CPU config |
-
-支持主流 x86 Linux 版本，ARM 还在开发。
 
 ### 安装 Rust
 ```bash
+$ sudo apt install yasm git build-essential ffmpeg curl
 $ curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
 ```
 
@@ -41,18 +34,18 @@ $ conda --version
 conda 4.10.3
 ```
 
-创建一个 Python3.8（已测试 3.6.13/3.7.11/3.8.11 可用。**3.9 暂不可用**，这里以 3.8 为例）的环境，激活。
+创建一个 Python3.x（这里以 3.8 为例） 的环境，激活。
 ```bash
 $ conda create --name py38 python=3.8
 $ conda activate py38
 ```
+
 
 ## Build
 
 MegFlow 需要编译 ffmpeg。考虑到 ffmpeg 依赖较多、本身又是常用工具，最简单的办法就是直接装 ffmpeg 把编译依赖装上
 
 ```bash
-$ sudo apt install yasm  # ffmpeg 编译依赖
 $ sudo apt install ffmpeg
 $ ffmpeg 
 ffmpeg version 3.4.8...
@@ -74,7 +67,7 @@ $ python3 setup.py install --user
 
 P.S. 默认 ffmpeg 依赖自动从 github 上拉取源码构建，这会使得首次构建的时间较长。若希望缩短首次构建时间，或者希望依赖一个指定版本的 ffmpeg，可以启用环境变量`CARGO_FEATURE_PREBUILD`并参考[rust-ffmpeg](https://github.com/zmwangx/rust-ffmpeg/wiki/Notes-on-building)自行构建
 
-## Python “开机自检”用例
+## Python“开机自检”
 ```bash
 $ cd examples
 $ cargo run --example run_with_plugins -- -p logical_test

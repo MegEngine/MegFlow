@@ -36,6 +36,9 @@ setup(
         'Topic :: Software Development :: Libraries',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
-    python_requires='>=3.7,<3.8',
+    python_requires='>=3.8,<3.9',
+    package_data={
+        "":['run_with_plugins']
+    } 
 )
 

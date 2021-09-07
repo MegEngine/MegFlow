@@ -27,7 +27,7 @@ setup(
         'Operating System :: POSIX :: Linux',
         'Programming Language :: C++',
         'Programming Language :: Rust',
-        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.7',
         'Topic :: Software Development :: Libraries :: Application Frameworks',
         'Topic :: Scientific/Engineering',
         'Topic :: Scientific/Engineering :: Mathematics',
@@ -37,5 +37,8 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
     python_requires='>=3.7,<3.8',
+    package_data={
+        "":['run_with_plugins']
+    } 
 )
 

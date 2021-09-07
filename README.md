@@ -11,20 +11,38 @@ MegFlow 是一个面向视觉应用的流式计算框架, 目标是简单、高�
 - 支持 demux/reorder/transform 等通用函数式组件
 - Python 插件内置有栈协程，不依赖 asyncio
 - 基础测试工具，支持插件沙盒，用于单测插件
-  
+
 ## HowTo
-* [how to build and run in 15 minutes](docs/how-to-build.zh.md)
+* [how to run in 15 minutes](docs/how-to-run-in-15-minutes.zh.md)
+* [how to build with docker](docs/how-to-build-with-docker.zh.md)
+* [how to build from source](docs/how-to-build-from-source.zh.md)
 * [how to add my service](docs/how-to-add-graph.zh.md)
 * [how to add plugins](docs/how-to-add-plugins.zh.md)
 * [how to optimize and debug](docs/how-to-debug.zh.md)
 * [how to contribute](docs/how-to-contribute.zh.md)
 * [FAQ](docs/FAQ.zh.md)
 
+## Current Support List
+
+| 系统环境 | 支持情况 |
+| - | - |
+| Windows 10 WSL ubuntu18.04 | ✔️ |
+| x86 Ubuntu16.04 有 GPU | ✔️ |
+| x86 Ubuntu18.04 无 GPU | ✔️ |
+| ARM | / |
+
+| Python 版本 | 支持情况 |
+| - | - |
+| 3.6 | ✔️ |
+| 3.7 | ✔️ |
+| 3.8 | ✔️ |
+| 3.9 | / |
+
 ## Built-in Applications
 * 猫猫围栏
 * 电梯电动车报警
 
-## Coming soon
+## Coming Soon
 - 进程级别的节点、子图支持
 - 插件自动化测试部署
 - 调试工具，建图实时预览 profile 工具
