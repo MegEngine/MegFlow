@@ -53,6 +53,7 @@ $ python3
 ```bash
 $ cd flow-python/examples
 $ pip3 install -r requires.txt
+$ run_with_plugins_python_wrap -c cat_finder/image_cpu.toml  -p cat_finder  # 如果用 prebuilt 包，不需要用`cargo run --example run_with_plugins --`
 $ cargo run --example run_with_plugins -- -c cat_finder/image_gpu.toml  -p cat_finder    # 有 GPU 的机器执行这个
 $ cargo run --example run_with_plugins -- -c cat_finder/image_cpu.toml  -p cat_finder    # 无 GPU 的 laptop 执行这句
 ```
@@ -110,6 +111,7 @@ $ ffmpeg -re -stream_loop -1 -i ${models}/cat_finder_testdata/test1.ts -c copy -
 启动视频识别服务
 ```bash
 $ cd flow-python/examples
+$ run_with_plugins_python_wrap -c cat_finder/video_cpu.toml  -p cat_finder  # 如果用 prebuilt 包，不需要用`cargo run --example run_with_plugins --`编译
 $ cargo run --example run_with_plugins -- -c cat_finder/video_gpu.toml  -p cat_finder  # 有 GPU 的机器
 $ cargo run --example run_with_plugins -- -c cat_finder/video_cpu.toml  -p cat_finder  # 无 GPU 的设备用这句
 ```
