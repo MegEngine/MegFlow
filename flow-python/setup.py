@@ -9,33 +9,11 @@
 
 #!/usr/bin/env python
 # coding=utf-8
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(
     name="pyflow",
     version="0.1.0",
     packages=["pyflow"],
-    author="Megvii IPU-SDK Team",
-    author_email="megengine@megvii.com",
-    url="https://github.com/MegEngine/MegFlow",
-    include_package_data=True,
-    classifiers=[
-        'Development Status :: 3 - Alpha',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: Apache Software License',
-        'Natural Language :: English',
-        'Operating System :: POSIX :: Linux',
-        'Programming Language :: C++',
-        'Programming Language :: Rust',
-        'Programming Language :: Python :: 3.8',
-        'Topic :: Software Development :: Libraries :: Application Frameworks',
-        'Topic :: Scientific/Engineering',
-        'Topic :: Scientific/Engineering :: Mathematics',
-        'Topic :: Scientific/Engineering :: Artificial Intelligence',
-        'Topic :: Software Development',
-        'Topic :: Software Development :: Libraries',
-        'Topic :: Software Development :: Libraries :: Python Modules',
-    ],
-    python_requires='>=3.7,<3.8',
 )
 
