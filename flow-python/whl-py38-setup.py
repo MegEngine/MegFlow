@@ -39,6 +39,10 @@ setup(
     python_requires='>=3.8,<3.9',
     package_data={
         "":['run_with_plugins']
-    } 
+    },
+    entry_points={
+        'console_scripts':['run_with_plugins_python_wrap=pyflow.command_line:main'],
+    },
+    
 )
 
