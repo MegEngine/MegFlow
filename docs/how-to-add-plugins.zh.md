@@ -2,8 +2,8 @@
 
 从一个最简单的例子开始
 ```
-import pyflow
-@pyflow.register(name="alias", inputs=["inp"], outputs=["out"])
+import megflow
+@megflow.register(name="alias", inputs=["inp"], outputs=["out"])
 class Node:
     def __init__(self, name, args):
         pass

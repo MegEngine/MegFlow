@@ -12,7 +12,7 @@
 import megengine as mge
 import numpy as np
 from loguru import logger
-from pyflow import register
+from megflow import register
 
 from warehouse.reid_alignedreid import *
 from warehouse.quality_naive import *

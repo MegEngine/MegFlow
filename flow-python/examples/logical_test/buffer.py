@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-from pyflow import res_register
+from megflow import res_register
 
 @res_register()
 class Buffer:

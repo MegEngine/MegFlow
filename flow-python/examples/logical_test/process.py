@@ -8,7 +8,8 @@
 
 #!/usr/bin/env python
 # coding=utf-8
-from pyflow import register
+from megflow import register
+import multiprocessing as mp
 from multiprocessing import Process, Pipe
 
 def repeat(n, s, r):
@@ -31,6 +32,7 @@ class RepeatProcess:
         self.send = s1
         self.recv = r2
 
+        mp.set_start_method('fork')
         self.p = Process(target=repeat, args=(10, s2, r1))
         self.p.start()
 

@@ -8,7 +8,7 @@
 
 #!/usr/bin/env python
 # coding=utf-8
-from pyflow import register, Envelope, sleep
+from megflow import register, Envelope, sleep
 
 @register(outputs=['out'])
 class Source:

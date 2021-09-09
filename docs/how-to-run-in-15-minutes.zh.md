@@ -33,10 +33,10 @@ $ conda activate py38
 
 从 [MegFlow release](https://github.com/MegEngine/MegFlow/releases) 下载对应 python 版本的 .whl 包，安装
 ```bash
-$  python3 -m pip install pyflow-0.1.0-py38-none-linux_x86_64.whl  --force-reinstall
+$  python3 -m pip install megflow-0.1.0-py38-none-linux_x86_64.whl  --force-reinstall
 ```
 
-.whl 封装了 `pyflow`和 Rust 可执行文件 `run_with_plugins_python_wrap`。完成后应该可以运行
+.whl 封装了 `megflow`和 Rust 可执行文件 `run_with_plugins_python_wrap`。完成后应该可以运行
 ```bash
 $ run_with_plugins_python_wrap --help
 run_with_plugins 1.0
@@ -46,7 +46,7 @@ $ python3
 Python 3.8.3 (default, May 19 2020, 18:47:26) 
 [GCC 7.3.0] :: Anaconda, Inc. on linux
 Type "help", "copyright", "credits" or "license" for more information.
->>> import pyflow
+>>> import megflow
 ```
 
 **FAQ**：`error while loading shared libraries: libpython3.8.xxx`。如果使用 conda 只需要
@@ -56,7 +56,7 @@ $ export LD_LIBRARY_PATH=/home/`whoami`/miniconda3/pkgs/python-3.8.11-h12debd9_0
 
 被封装的内容安装在 miniconda3 路径下，有兴趣不妨确认一下
 ```bash
-$ cd ${HOME}/miniconda3/envs/py38/lib/python3.8/site-packages/pyflow/
+$ cd ${HOME}/miniconda3/envs/py38/lib/python3.8/site-packages/megflow/
 $ sudo apt install build-essential -y
 $ ldd run_with_plugins         # 可看到仅依赖常见库
 $ ./run_with_plugins --help
@@ -73,7 +73,8 @@ $ cd ${MegFlow_PATH}/flow-python/examples
 $ run_with_plugins_python_wrap  -p logical_test
 ...
 ```
-> 工作原理：[pyflow](../flow-python/pyflow/__init__.py) 仅是一层接口，由 run_with_plugins “注入”建图/调度/优化等实现。
+
+> 工作原理：[megflow](../flow-python/megflow/__init__.py) 仅是一层接口，由 run_with_plugins “注入”建图/调度/优化等实现。
 
 ## Python Built-in Applications
 

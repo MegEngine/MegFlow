@@ -20,10 +20,15 @@ if __name__ == '__main__':
     assert py.startswith('py3')
     minor = int(py[-1])
     setup(
-        options={'bdist_wheel':{'python_tag': py}},
-        name="pyflow",
-        version="0.1.0",
-        packages=["pyflow"],
+        options={
+            'bdist_wheel': {
+                'python_tag': "py{}{}".format(py_version.major,
+                                              py_version.minor),
+            }
+        },
+        name="megflow",
+        version=devel_version,
+        packages=["megflow"],
         author="Megvii IPU-SDK Team",
         author_email="megengine@megvii.com",
         url="https://github.com/MegEngine/MegFlow",
@@ -49,7 +54,11 @@ if __name__ == '__main__':
             "":['run_with_plugins_inner']
         }, 
         entry_points={
+<<<<<<< HEAD
             'console_scripts':['run_with_plugins=pyflow.command_line:main'],
+=======
+            'console_scripts':['run_with_plugins=megflow.command_line:main'],
+>>>>>>> 51b6047... rename pyflow to megflow
         },
     )
 
