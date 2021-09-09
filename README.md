@@ -13,9 +13,9 @@ MegFlow 是一个面向视觉应用的流式计算框架, 目标是简单、高�
 - 基础测试工具，支持插件沙盒，用于单测插件
 
 ## HowTo
-* [how to run in 15 minutes](docs/how-to-run-in-15-minutes.zh.md)
 * [how to build with docker](docs/how-to-build-with-docker.zh.md)
 * [how to build from source](docs/how-to-build-from-source.zh.md)
+* [how to pack Python .whl](docs/how-to-pack-python-whl.zh.md)
 * [how to add my service](docs/how-to-add-graph.zh.md)
 * [how to add plugins](docs/how-to-add-plugins.zh.md)
 * [how to optimize and debug](docs/how-to-debug.zh.md)
@@ -29,6 +29,7 @@ MegFlow 是一个面向视觉应用的流式计算框架, 目标是简单、高�
 | Windows 10 WSL ubuntu18.04 | ✔️ |
 | x86 Ubuntu16.04 有 GPU | ✔️ |
 | x86 Ubuntu18.04 无 GPU | ✔️ |
+| x86 macos | ✔️ |
 | ARM | / |
 
 | Python 版本 | 支持情况 |
@@ -76,8 +77,6 @@ MegFlow Python 使用了下列项目：
 * [redis](https://github.com/redis/redis)
 
 MegFlow Rust 使用了以下项目：
-* [FFmpeg](https://github.com/FFmpeg/FFmpeg)
-* [Swagger](https://github.com/Metaswitch/swagger-rs)
 * [anyhow](https://github.com/dtolnay/anyhow)
 * [async-std](https://github.com/async-rs/async-std)
 * [clap](https://github.com/clap-rs/clap)
@@ -86,22 +85,25 @@ MegFlow Rust 使用了以下项目：
 * [ctor](https://github.com/mmastrac/rust-ctor)
 * [dyn-clone](https://github.com/dtolnay/dyn-clone)
 * [event-listener](https://github.com/stjepang/event-listener)
+* [ffmpeg-next](https://github.com/zmwangx/rust-ffmpeg)
 * [hyper](https://github.com/bluss/hyper)
 * [headers](https://github.com/bluss/headers)
 * [image](https://github.com/image-rs/image)
 * [indexmap](https://github.com/bluss/indexmap)
 * [lazy-static](https://github.com/rust-lang-nursery/lazy-static.rs)
 * [mime](https://github.com/hyperium/mime)
+* [numpy](https://github.com/rust-numpy/rust-numpy)
 * [oneshot](https://github.com/faern/oneshot)
 * [proc-macro2](https://github.com/dtolnay/proc-macro2)
 * [pretty-env-logger](https://github.com/seanmonstar/pretty-env-logger)
 * [pyo3](https://github.com/pyo3/pyo3)
 * [quote](https://github.com/dtolnay/quote)
 * [rand](https://github.com/rust-random/rand)
+* [rweb](https://github.com/kdy1/rweb)
 * [serde](https://github.com/serde-rs/serde)
+* [serde_json](https://github.com/serde-rs/json)
 * [stackful](https://github.com/nbdd0121/stackful)
 * [syn](https://github.com/dtolnay/syn)
-* [serde_json](https://github.com/serde-rs/json)
 * [toml](https://github.com/alexcrichton/toml-rs)
 * [urlencoding](https://github.com/kornelski/urlencoding)
 * [warp](https://github.com/seanmonstar/warp)

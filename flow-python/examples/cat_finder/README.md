@@ -53,9 +53,9 @@ $ python3
 ```bash
 $ cd flow-python/examples
 $ pip3 install -r requires.txt
-$ run_with_plugins_python_wrap -c cat_finder/image_cpu.toml  -p cat_finder  # 如果用 prebuilt 包，不需要用`cargo run --example run_with_plugins --`
 $ cargo run --example run_with_plugins -- -c cat_finder/image_gpu.toml  -p cat_finder    # 有 GPU 的机器执行这个
 $ cargo run --example run_with_plugins -- -c cat_finder/image_cpu.toml  -p cat_finder    # 无 GPU 的 laptop 执行这句
+$ run_with_plugins_python_wrap -c cat_finder/image_cpu.toml  -p cat_finder      # 如果用 prebuilt 包，不需要`cargo run --example run_with_plugins --`
 ```
 
 现在 8081 端口部署了“猫体注册”服务，只需要打开浏览器上传图片、猫咪名称即可。`cat_finder/image_gpu.toml` 详细解释见 [how-to-add-graph](../../../docs/how-to-add-graph.zh.md) 。这里只需要浏览器打开主机所在 8081 端口服务。
@@ -103,7 +103,7 @@ $ ffmpeg -re -stream_loop -1 -i ${models}/cat_finder_testdata/test1.ts -c copy -
 ```
 
 
-* 想用 laptop/树莓派摄像头可搜索 Camera 推流教程
+* 想用 laptop/树莓派摄像头实时流，可搜索 Camera 推流教程
 * 也可以手机拍摄视频，再用 ffmpeg 转成 .ts 格式推到 live555 server
 
 相关教程已整合在 [如何生成自己的 rtsp 流地址](../../../docs/how-to-generate-rtsp.zh.md) 。
@@ -111,9 +111,9 @@ $ ffmpeg -re -stream_loop -1 -i ${models}/cat_finder_testdata/test1.ts -c copy -
 启动视频识别服务
 ```bash
 $ cd flow-python/examples
-$ run_with_plugins_python_wrap -c cat_finder/video_cpu.toml  -p cat_finder  # 如果用 prebuilt 包，不需要用`cargo run --example run_with_plugins --`编译
 $ cargo run --example run_with_plugins -- -c cat_finder/video_gpu.toml  -p cat_finder  # 有 GPU 的机器
 $ cargo run --example run_with_plugins -- -c cat_finder/video_cpu.toml  -p cat_finder  # 无 GPU 的设备用这句
+$ run_with_plugins_python_wrap -c cat_finder/video_cpu.toml  -p cat_finder  # 如果能用 prebuilt 包，不需要用`cargo run --example run_with_plugins --`编译
 ```
 服务配置文件在`cat_finder/video_gpu.toml`，详细解释见 [how-to-add-graph](../../../docs/how-to-add-graph.zh.md) 。这里只需要打开 8082 端口服务。
 

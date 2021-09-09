@@ -1,5 +1,4 @@
 FROM ubuntu:18.04
-LABEL maintainer=megengine@megvii.com
 
 RUN apt update \
     && apt install -y curl \
@@ -10,7 +9,6 @@ RUN apt update \
     && apt install -y python3 \
     && apt install -y python3-pip \
     && apt install -y git \
-    && apt install -y vim \
     && apt install -y build-essential
 
 RUN curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf -o run.sh \

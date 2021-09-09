@@ -1,6 +1,11 @@
-# Run in 15 minutes
+# Run with Prebuilt .whl
 
+**因[不可抗力](http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html) MegFlow 现在不能分发完整的 prebuilt 包，推荐用 docker/源码方式**
 
+* [docker 方式运行（步骤更少）](how-to-build-from-source.zh.md)
+* [源码编译运行]()
+
+**下面的文档不可用**
 
 ## 安装 python3.x （推荐 conda）
 
@@ -44,7 +49,7 @@ Type "help", "copyright", "credits" or "license" for more information.
 >>> import pyflow
 ```
 
-此处常见问题：`error while loading shared libraries: libpython3.8.xxx`。如果使用 conda 只需要
+**FAQ**：`error while loading shared libraries: libpython3.8.xxx`。如果使用 conda 只需要
 ```bash
 $ export LD_LIBRARY_PATH=/home/`whoami`/miniconda3/pkgs/python-3.8.11-h12debd9_0_cpython/lib:${LD_LIBRARY_PATH}
 ```
