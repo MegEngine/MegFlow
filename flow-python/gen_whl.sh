@@ -1,4 +1,4 @@
-# build py36~39 version
+# build py36~38 version
 conda activate py36
 cargo build --example run_with_plugins --release
 cp ../target/release/examples/run_with_plugins ./pyflow/

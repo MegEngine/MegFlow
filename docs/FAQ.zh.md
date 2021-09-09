@@ -1,5 +1,13 @@
 # FAQ
 
+Q：`error while loading shared libraries: libpython3.8.xxx`。
+
+A：如果使用 conda 只需要 
+
+```bash
+$ export LD_LIBRARY_PATH=/home/`whoami`/miniconda3/pkgs/python-3.8.11-h12debd9_0_cpython/lib:${LD_LIBRARY_PATH}`
+```
+___
 Q：`cargo run --example run_with_plugins -- -p logical_test ` 无法运行怎么办？
 
 A1：如果报错 `message: "No such file or directory" }'`，确认是否`cd flow-python/examples`
