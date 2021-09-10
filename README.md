@@ -10,7 +10,7 @@ MegFlow 是一个面向视觉应用的流式计算框架, 目标是简单、高�
 - 基于 [async-std](https://github.com/async-rs/async-std)[features=[tokio1](https://github.com/tokio-rs/tokio)] 的高效异步运行时调度器
 - 简洁的基于 [toml](https://toml.io/en/) 的建图描述格式
 - 支持静态、动态、共享子图
-- 支持 Rust/Python多语言共存
+- 支持 Rust/Python 多语言共存（会 Python 即可）
 - 支持资源管理（多层级跨任务共享）
 - 支持异常处理（异常任务会终止所在静态图）
 - 支持 demux/reorder/transform 等通用函数式组件
