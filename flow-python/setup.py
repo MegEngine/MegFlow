@@ -9,16 +9,17 @@
 
 #!/usr/bin/env python
 # coding=utf-8
-from setuptools import setup, find_packages
+from setuptools import setup
 import sys
 import os
 
+devel_version = os.environ.get("DEVEL_VERSION")
+if not devel_version:
+    devel_version = "0.1.0"  # fall back
+
+py_version = sys.version_info
+
 if __name__ == '__main__':
-    py = os.getenv('py')
-    if py is None:
-        py = 'py{}{}'.format(sys.version_info[0], sys.version_info[1])
-    assert py.startswith('py3')
-    minor = int(py[-1])
     setup(
         options={
             'bdist_wheel': {
@@ -40,7 +41,8 @@ if __name__ == '__main__':
             'Natural Language :: English',
             'Operating System :: POSIX :: Linux',
             'Programming Language :: Rust',
-            'Programming Language :: Python :: 3.{}'.format(minor),
+            'Programming Language :: Python :: {}.{}'.format(
+                py_version.major, py_version.minor),
             'Topic :: Software Development :: Libraries :: Application Frameworks',
             'Topic :: Scientific/Engineering',
             'Topic :: Scientific/Engineering :: Mathematics',
@@ -49,16 +51,12 @@ if __name__ == '__main__':
             'Topic :: Software Development :: Libraries',
             'Topic :: Software Development :: Libraries :: Python Modules',
         ],
-        python_requires='>=3.{},<3.{}'.format(minor, minor+1),
-        package_data={
-            "":['run_with_plugins_inner']
-        }, 
+        python_requires='>={}.{},<{}.{}'.format(py_version.major,
+                                                py_version.minor,
+                                                py_version.major,
+                                                py_version.minor + 1),
+        package_data={"": ['run_with_plugins_inner']},
         entry_points={
-<<<<<<< HEAD
-            'console_scripts':['run_with_plugins=pyflow.command_line:main'],
-=======
             'console_scripts':['run_with_plugins=megflow.command_line:main'],
->>>>>>> 51b6047... rename pyflow to megflow
         },
     )
-
