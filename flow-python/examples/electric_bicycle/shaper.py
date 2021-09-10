@@ -9,7 +9,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-from pyflow import register
+from megflow import register
 from loguru import logger
 from warehouse.quality_naive import Quality
 import cv2

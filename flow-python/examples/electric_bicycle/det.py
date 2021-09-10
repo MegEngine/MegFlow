@@ -11,7 +11,7 @@
 
 import cv2
 import numpy as np
-from pyflow import register
+from megflow import register
 from loguru import logger
 from warehouse.detection_memd import *
 

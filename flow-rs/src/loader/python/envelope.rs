@@ -19,7 +19,7 @@ use pyo3::{
 
 static ERR_MSG: &str = "use after move";
 
-#[pyclass(name = "Envelope", module = "pyflow")]
+#[pyclass(name = "Envelope", module = "megflow")]
 pub(crate) struct PyEnvelope {
     pub imp: Option<Envelope<PyObject>>,
 }

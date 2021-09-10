@@ -8,7 +8,7 @@
 
 #!/usr/bin/env python
 # coding=utf-8
-from pyflow import register
+from megflow import register
 
 instance_id = 0
 

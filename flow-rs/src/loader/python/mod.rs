@@ -136,7 +136,7 @@ impl Loader for PythonLoader {
             }
 
             ONCE_REGISTER.call_once(|| {
-                let module = py.import("pyflow").expect("module pyflow not found");
+                let module = py.import("megflow").expect("module megflow not found");
                 utils::utils_register(module).expect("python utility functions register fault");
                 envelope::envelope_register(module).expect("python envelope register fault");
             });
@@ -144,7 +144,7 @@ impl Loader for PythonLoader {
             py.import(module_name.as_str())?;
 
             let plugins_param: HashMap<String, Vec<&PyDict>> = py
-                .import("pyflow")?
+                .import("megflow")?
                 .getattr("collect")?
                 .call0()?
                 .extract()?;

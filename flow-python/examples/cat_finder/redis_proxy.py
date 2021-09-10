@@ -14,7 +14,7 @@ import redis
 import base64
 import numpy as np
 from loguru import logger
-from pyflow import register
+from megflow import register
 
 @register(inputs=['inp'], outputs=['out'])
 class RedisProxy:
