@@ -41,7 +41,7 @@ $ cd flow-python/examples
 $ run_with_plugins_python_wrap -c electric_bicycle/electric_bicycle.toml  -p electric_bicycle # prebuilt 安装用这个，不需要`cargo run`来编译
 $ cargo run --example run_with_plugins -- -c electric_bicycle/electric_bicycle.toml  -p electric_bicycle  # 源码或 docker 安装用这个
 ```
-服务配置文件在`electric_bicycle/electric_bicycle.toml`，解释参考 [how-to-add-graph](../.../../docs/how-to-add-graph.md) 。这里只需要打开 8083 端口服务，操作和[猫猫围栏](../cat_finder/README.md) 近似。
+服务配置文件在`electric_bicycle/electric_bicycle.toml`，解释参考 [how-to-add-graph](../../../docs/how-to-add-graph.md) 。这里只需要打开 8083 端口服务，操作和[猫猫围栏](../cat_finder/README.md) 近似。
 
 ```bash
 $ google-chrome-stable  http://127.0.0.1:8083/docs 
