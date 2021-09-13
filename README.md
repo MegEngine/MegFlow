@@ -1,5 +1,8 @@
-# MegFlow
+<div align="center">
+  <img width="60%"  src="logo.png">
+</div>
 
+## MegFlow
 [![GitHub license](https://img.shields.io/badge/license-apache--2--Clause-brightgreen.svg)](./LICENSE)
 [![ubuntu](https://img.shields.io/github/workflow/status/MegEngine/MegFlow/ubuntu-x86-cpu?label=ubuntu)](https://github.com/MegEngine/MegFlow/actions/workflows/ubuntu-x86-cpu.yml?query=workflow%3A)
 [![macos](https://img.shields.io/github/workflow/status/MegEngine/MegFlow/ubuntu-x86-cpu?label=macos)](https://github.com/MegEngine/MegFlow/actions/workflows/macos-x86-cpu.yml?query=workflow%3A)
@@ -84,6 +87,7 @@ MegFlow Python 使用了下列项目：
 MegFlow Rust 使用了以下项目：
 * [anyhow](https://github.com/dtolnay/anyhow)
 * [async-std](https://github.com/async-rs/async-std)
+* [async-channel](https://github.com/smol-rs/async-channel)
 * [clap](https://github.com/clap-rs/clap)
 * [concurrent-queue](https://github.com/stjepang/concurrent-queue)
 * [ctrlc](https://github.com/Detegr/rust-ctrlc.git)
