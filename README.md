@@ -87,6 +87,7 @@ MegFlow Python 使用了下列项目：
 MegFlow Rust 使用了以下项目：
 * [anyhow](https://github.com/dtolnay/anyhow)
 * [async-std](https://github.com/async-rs/async-std)
+* [async-channel](https://github.com/smol-rs/async-channel)
 * [clap](https://github.com/clap-rs/clap)
 * [concurrent-queue](https://github.com/stjepang/concurrent-queue)
 * [ctrlc](https://github.com/Detegr/rust-ctrlc.git)
