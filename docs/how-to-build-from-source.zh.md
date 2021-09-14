@@ -4,6 +4,7 @@
 
 ### 安装 Rust
 ```bash
+$ sudo apt install curl
 $ curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
 ```
 
@@ -48,7 +49,7 @@ $ conda activate py38
 MegFlow 需要编译 ffmpeg。考虑到 ffmpeg 依赖较多、本身又是常用工具，最简单的办法就是直接装 ffmpeg 把编译依赖装上
 
 ```bash
-$ sudo apt install yasm git build-essential ffmpeg curl
+$ sudo apt install yasm git build-essential ffmpeg
 $ ffmpeg 
 ffmpeg version 3.4.8...
 $ sudo apt install clang
