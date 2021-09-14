@@ -14,6 +14,11 @@ $ cargo --version
 cargo 1.53.0 (4369396ce 2021-04-27)
 ```
 
+如果不成功，提示`Command 'cargo' not found`，可以按照提示加载一下环境变量(重新连接或打开终端也可以)：
+```
+source $HOME/.cargo/env
+```
+
 > `cargo` 是 Rust 的包管理器兼编译辅助工具。类似 Java maven/go pkg/C++ CMake 的角色，更易使用。
 
 ### 安装 python3.x （推荐 conda）
