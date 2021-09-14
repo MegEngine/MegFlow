@@ -81,3 +81,42 @@ impl NeverOpr {
 }
 
 node_register!("NeverOpr", NeverOpr);
+
+#[inputs]
+#[outputs]
+#[derive(Node, Actor, Default)]
+struct Isolated {}
+
+impl Isolated {
+    fn new(_name: String, _: &Table) -> Self {
+        Default::default()
+    }
+
+    async fn initialize(&mut self, _: ResourceCollection) {}
+    async fn finalize(&mut self) {}
+    async fn exec(&mut self, _: &Context) -> Result<()> {
+        Ok(())
+    }
+}
+
+node_register!("Isolated", Isolated);
+
+#[inputs]
+#[outputs]
+#[derive(Node, Actor, Default)]
+struct IsolatedNever {}
+
+impl IsolatedNever {
+    fn new(_name: String, _: &Table) -> Self {
+        Default::default()
+    }
+
+    async fn initialize(&mut self, _: ResourceCollection) {}
+    async fn finalize(&mut self) {}
+    async fn exec(&mut self, ctx: &Context) -> Result<()> {
+        ctx.wait().await;
+        Ok(())
+    }
+}
+
+node_register!("IsolatedNever", IsolatedNever);

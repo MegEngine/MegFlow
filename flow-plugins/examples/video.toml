@@ -10,7 +10,7 @@ connections = [
     [[graphs.nodes]]
     name = "server"
     ty = "VideoServer"
-    port = 8080
+    port = 8080 # int, the port on which server will listen
 
     [[graphs.nodes]]
     name = "trans"

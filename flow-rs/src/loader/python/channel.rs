@@ -10,10 +10,10 @@
  */
 use super::context::with_context;
 use super::envelope::PyEnvelope;
-use crate::channel::{Receiver, Sender};
+use crate::channel::{BatchRecvError, Receiver, Sender};
 use pyo3::prelude::*;
 use stackful::wait;
-use std::sync::Arc;
+use std::{sync::Arc, time::Duration};
 
 #[pyclass]
 pub(crate) struct PySender {
@@ -41,6 +41,28 @@ impl PyReceiver {
                 .unwrap()
                 .to_object(py),
             _ => py.None(),
+        }
+    }
+
+    fn batch_recv(&self, py: Python, n: usize, dur: u64) -> (Vec<PyObject>, bool) {
+        let convert = |envelope| {
+            Py::new(
+                py,
+                PyEnvelope {
+                    imp: Some(envelope),
+                },
+            )
+            .unwrap()
+            .to_object(py)
+        };
+        match with_context(py, || {
+            wait(
+                self.imp
+                    .batch_recv::<PyObject>(n, Duration::from_millis(dur)),
+            )
+        }) {
+            Ok(msg) => (msg.into_iter().map(convert).collect(), false),
+            Err(BatchRecvError::Closed(msg)) => (msg.into_iter().map(convert).collect(), true),
         }
     }
 }

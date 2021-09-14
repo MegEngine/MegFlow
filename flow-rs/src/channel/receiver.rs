@@ -8,11 +8,14 @@
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT ARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
+use futures_util::stream::FuturesUnordered;
+use futures_util::{pin_mut, select, FutureExt, StreamExt};
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::Arc;
+use std::time::Duration;
 
 use super::inner::Receiver as RecvImpl;
-use super::RecvError;
+use super::{BatchRecvError, RecvError};
 use crate::envelope::{DummyEnvelope, Envelope, SealedEnvelope};
 
 use super::ChannelBase;
@@ -110,6 +113,75 @@ impl Receiver {
         } else {
             self.counter.fetch_add(1, Ordering::Relaxed);
             Ok(envelope)
+        }
+    }
+
+    /// Receives some envelopes from the channel.
+    ///
+    /// If there are less than n envelopes in the channel, this method waits until there is n envelopes or timeout.
+    ///
+    /// If the channel is closed, this method receives n envelopes or returns an error with rest
+    /// envelopes if there are no enough envelopes.
+    ///
+    /// If the channel encounters a flush event, this method returns an error with rest envelopes.
+    pub async fn batch_recv<T>(
+        &self,
+        n: usize,
+        dur: Duration,
+    ) -> Result<Vec<Envelope<T>>, BatchRecvError<Envelope<T>>>
+    where
+        T: 'static + Send + Clone,
+    {
+        let convert = |envelopes: Vec<SealedEnvelope>| {
+            envelopes
+                .into_iter()
+                .map(|mut envelope| {
+                    envelope
+                        .downcast_mut::<Envelope<T>>()
+                        .expect("type error when downcast")
+                        .take()
+                })
+                .collect()
+        };
+        let batch_any = self.batch_recv_any(n, dur).await;
+        batch_any.map(convert).map_err(|err| match err {
+            BatchRecvError::Closed(envelopes) => BatchRecvError::Closed(convert(envelopes)),
+        })
+    }
+
+    /// Receives some any envelopes from the channel, see document of `batch_recv` for more detail
+    pub async fn batch_recv_any(
+        &self,
+        n: usize,
+        dur: Duration,
+    ) -> Result<Vec<SealedEnvelope>, BatchRecvError<SealedEnvelope>> {
+        let mut wait_recv = FuturesUnordered::new();
+        wait_recv.push(self.recv_any());
+        let timeout = crate::rt::task::sleep(dur).fuse();
+        let mut batch = vec![];
+        pin_mut!(timeout);
+        loop {
+            select! {
+                _ = timeout => {
+                    return Ok(batch);
+                }
+                msg = wait_recv.select_next_some() => {
+                    match msg {
+                        Ok(msg) => {
+                            batch.push(msg);
+                            if batch.len() == n {
+                                return Ok(batch);
+                            } else {
+                                wait_recv.push(self.recv_any());
+                            }
+                        },
+                        Err(_) => {
+                            return Err(BatchRecvError::Closed(batch));
+                        }
+                    }
+
+                }
+            }
         }
     }
 }

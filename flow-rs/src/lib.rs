@@ -154,7 +154,7 @@ fn load_impl(
         );
         node::SharedProxy::registry_local().get(local_key).insert(
             cfg.entity.name.clone(),
-            node::load_shared(cfg, ctx.clone(), res)?,
+            node::load_shared(cfg, &config, ctx.clone(), res)?,
         );
     }
 
@@ -164,7 +164,7 @@ fn load_impl(
         .map(|slice| (slice.cons)(config.main.clone()))
     {
         Some(mut ret) => {
-            let _ = ret.as_mut().map(|g| g.mark_main());
+            let _ = ret.as_mut().map(|g| g.mark_main(ctx));
             ret
         }
         _ => Err(anyhow!("graph {} is not exist", config.main)),

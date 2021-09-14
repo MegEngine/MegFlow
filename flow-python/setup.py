@@ -23,7 +23,7 @@ if __name__ == '__main__':
     setup(
         options={
             'bdist_wheel': {
-                'python_tag': "py{}{}".format(py_version.major,
+                'python_tag': "py{}.{}".format(py_version.major,
                                               py_version.minor),
             }
         },

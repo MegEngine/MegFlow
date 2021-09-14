@@ -7,4 +7,5 @@ connections = [{ cap=16, ports=["server:inp", "server:out"] }]
     [[graphs.nodes]]
     name = "server"
     ty = "ImageServer"
-    port = 3030
+    port = 3030 # int, the port on which server will listen
+    response = "json" # json | image, which means response format

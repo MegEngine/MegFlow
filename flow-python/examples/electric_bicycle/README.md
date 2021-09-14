@@ -24,7 +24,7 @@ $ ln -s ${DOWNLOAD_DIR}/models models
 安装运行依赖
 ```bash
 $ sudo apt install redis-server
-$ redis-server
+$ redis-server &
 ...
 $ conda activate py38
 $ pip3 install onnxruntime --user
@@ -32,16 +32,17 @@ $ pip3 install onnxruntime --user
 
 准备一个 rtsp 视频流地址，做测试输入。
 
-* laptop 或树莓派可搜索 Camera 推流教程。见 [如何生成自己的 rtsp 流地址](../../../docs/how-to-generate-rtsp.zh.md)
-* 也可以手机拍摄视频，再用 ffmpeg 转成 .ts 格式放到 live555 server。见 [如何生成自己的 rtsp 流地址](../../../docs/how-to-generate-rtsp.zh.md)
+* laptop 或树莓派可搜索 Camera 推流教程
+* 也可以手机拍摄视频，再用 ffmpeg 转成 .ts 格式放到 live555 server
+
+相关教程已整合在 [如何生成自己的 rtsp 流地址](../../../docs/how-to-build-and-run/generate-rtsp.zh.md) 。
 
 启动服务
 ```bash
 $ cd flow-python/examples
-$ run_with_plugins_python_wrap -c electric_bicycle/electric_bicycle.toml  -p electric_bicycle # prebuilt 安装用这个，不需要`cargo run`来编译
-$ cargo run --example run_with_plugins -- -c electric_bicycle/electric_bicycle.toml  -p electric_bicycle  # 源码或 docker 安装用这个
+$ cargo run --example run_with_plugins -- -c electric_bicycle/electric_bicycle.toml  -p electric_bicycle
 ```
-服务配置文件在`electric_bicycle/electric_bicycle.toml`，解释参考 [how-to-add-graph](../../../docs/how-to-add-graph.zh.md) 。这里只需要打开 8083 端口服务，操作和[猫猫围栏](../cat_finder/README.md) 近似。
+服务配置文件在`electric_bicycle/electric_bicycle.toml`，解释参考 [how-to-add-graph](../../../docs/how-to-add-my-service/01-single-classification-model.zh.md) 。这里只需要打开 8083 端口服务，操作和[猫猫围栏](../cat_finder/README.md) 近似。
 
 ```bash
 $ google-chrome-stable  http://127.0.0.1:8083/docs 

@@ -33,7 +33,6 @@ crate::collect!(String, GraphSlice);
 
 /// Represents a graph with nodes and connections, which implement `Node` and `Actor`.
 pub struct Graph {
-    main: bool,
     nodes: HashMap<String, AnyNode>,
     conns: HashMap<String, AnyChannel>,
     inputs: Vec<String>,
@@ -41,6 +40,7 @@ pub struct Graph {
     broker: Broker,
     shares: HashMap<String, SharedProxy>,
     ctx: Context,
+    global_ctx: Option<Context>,
     resources: ResourceCollection,
 }
 
@@ -156,9 +156,9 @@ impl Graph {
         }
 
         Ok(Graph {
+            global_ctx: None,
             ctx,
             resources,
-            main: false,
             nodes,
             conns,
             broker,
@@ -197,8 +197,8 @@ impl Graph {
             }
         }
 
-        let is_main = self.main;
         let context = self.ctx.clone();
+        let global_ctx = self.global_ctx.clone();
         let inputs: Vec<_> = self
             .inputs
             .iter()
@@ -222,21 +222,21 @@ impl Graph {
                 }
             }
 
-            for task in alone_tasks {
-                task.cancel().await;
-            }
+            futures_util::future::join_all(alone_tasks).await;
 
-            if is_main {
+            if let Some(global_ctx) = global_ctx {
                 SharedProxy::registry_local()
                     .get(context.local_key)
                     .for_each(|proxy| proxy.close());
-                let handles = crate::node::SharedStopNotify::registry_local()
+                global_ctx.close();
+
+                let handles = crate::node::SharedHandle::registry_local()
                     .get(context.local_key)
                     .to_vec();
                 for handle in handles {
                     let handle = std::sync::Arc::try_unwrap(handle)
                         .unwrap_or_else(|_| panic!("internal error"));
-                    handle.0.await.ok();
+                    handle.0.await;
                 }
                 // clear graph local resources
                 finalize(context.local_key);
@@ -256,7 +256,7 @@ impl Graph {
         self.close()
     }
 
-    pub(crate) fn mark_main(&mut self) {
+    pub(crate) fn mark_main(&mut self, global_ctx: Context) {
         let mut v = vec![];
         for name in &self.inputs {
             v.push((name.clone(), self.conns[name].make()));
@@ -269,6 +269,6 @@ impl Graph {
             self.set_port(name.as_str(), None, &conn);
         }
 
-        self.main = true;
+        self.global_ctx = Some(global_ctx);
     }
 }
