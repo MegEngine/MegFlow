@@ -21,12 +21,14 @@ MegFlow 是一个面向视觉应用的流式计算框架, 目标是简单、高�
 - 基础测试工具，支持插件沙盒，用于单测插件
 
 ## HowTo
-* [how to build with docker](docs/how-to-build-with-docker.zh.md)
-* [how to build from source](docs/how-to-build-from-source.zh.md)
-* [how to pack Python .whl](docs/how-to-pack-python-whl.zh.md)
-* [how to add my service](docs/how-to-add-graph.zh.md)
-* [how to add plugins](docs/how-to-add-plugins.zh.md)
-* [how to optimize and debug](docs/how-to-debug.zh.md)
+* how to build and run
+  * [run with prebuilt .whl](docs/how-to-build-and-run/run-in-15-minutes.zh.md)
+  * [build with docker](docs/how-to-build-and-run/build-with-docker.zh.md)
+  * [build from source](docs/how-to-build-and-run/build-from-source.zh.md)
+  * [generate rtsp](docs/how-to-build-and-run/generate-rtsp.zh.md)
+* how to use
+  * [add my first service](docs/how-to-add-my-service/01-single-classification-model.zh.md)
+  * [how to optimize and debug](docs/how-to-debug.zh.md)
 * [how to contribute](docs/how-to-contribute.zh.md)
 * [FAQ](docs/FAQ.zh.md)
 

@@ -11,9 +11,9 @@
 use super::Graph;
 use crate::debug::*;
 use crate::rt::task::JoinHandle;
+use futures_util::{pin_mut, select, FutureExt};
 use serde::Serialize;
 use std::collections::HashMap;
-use std::sync::atomic::Ordering;
 
 #[derive(Serialize)]
 struct NodeQps {
@@ -25,14 +25,22 @@ struct NodeQps {
 impl Graph {
     pub(super) fn dmon(&self) -> JoinHandle<()> {
         let conns: Vec<_> = self.conns.values().cloned().collect();
-        let graph_ty = self.ctx.ty.clone();
-        let mut first = true;
+        let ctx = self.ctx.clone();
+        let mut first = true; // drop qps result fetched first
         crate::rt::task::spawn(async move {
-            loop {
-                while !QPS.enable.load(Ordering::Relaxed) {
+            let wait_graph = ctx.wait().fuse();
+            pin_mut!(wait_graph);
+            'start: while !ctx.is_closed() {
+                if !QPS.enable() {
                     first = true;
-                    QPS.wait().await;
                 }
+                let wait_qps = QPS.wait().fuse();
+                pin_mut!(wait_qps);
+                select! {
+                    _ = wait_qps => {},
+                    _ = wait_graph => break 'start,
+                }
+
                 let args = QPS_args
                     .read()
                     .unwrap()
@@ -89,7 +97,7 @@ impl Graph {
                     };
 
                     let args = into_object(serde_json::json!({
-                        "graph": graph_ty,
+                        "graph": ctx.ty,
                         "nodes": nodes.into_iter().map(|(_, v)| v).collect::<Vec<_>>(),
                     }));
 

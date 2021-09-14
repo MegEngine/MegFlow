@@ -12,7 +12,7 @@ use event_listener::Event;
 use std::sync::atomic::{AtomicBool, Ordering};
 
 pub struct Feature {
-    pub enable: AtomicBool,
+    enable: AtomicBool,
     lock_ops: Event,
 }
 
@@ -24,8 +24,22 @@ impl Feature {
         }
     }
 
+    pub fn enable(&self) -> bool {
+        self.enable.load(Ordering::Relaxed)
+    }
+
+    pub fn disable(&self) {
+        self.enable.store(false, Ordering::Relaxed);
+    }
+
     pub fn notify(&self) {
-        self.lock_ops.notify(usize::MAX);
+        if self
+            .enable
+            .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
+            .is_ok()
+        {
+            self.lock_ops.notify(usize::MAX);
+        }
     }
     #[allow(dead_code)]
     pub async fn wait(&self) {

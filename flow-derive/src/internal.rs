@@ -90,10 +90,7 @@ pub fn feature_expand(mut input: FeatureDeclare) -> TokenStream {
         fn #init() {
             flow_rs::registry::__submit_only_in_ctor(stringify!(#name), feature::FeatureCommand {
                 start: Box::new(|k, json|  {
-                    if #name.enable
-                        .compare_exchange(false, true, std::sync::atomic::Ordering::SeqCst, std::sync::atomic::Ordering::SeqCst).is_ok() {
-                       #name.notify();
-                    }
+                    #name.notify();
                     let mut args = #args_name.write().unwrap();
                     args.insert(k, serde_json::from_value(json).unwrap());
                 }),
@@ -122,11 +119,11 @@ pub fn feature_expand(mut input: FeatureDeclare) -> TokenStream {
                         }).ok();
                     }
                     if args.is_empty() {
-                        #name.enable.store(false, std::sync::atomic::Ordering::Relaxed);
+                        #name.disable();
                     }
                 }),
                 disable: Box::new(|| {
-                    #name.enable.store(false, std::sync::atomic::Ordering::Relaxed);
+                    #name.disable();
                 }),
             });
         }

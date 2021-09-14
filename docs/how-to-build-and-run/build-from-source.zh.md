@@ -4,7 +4,7 @@
 
 ### 安装 Rust
 ```bash
-$ sudo apt install curl
+$ sudo apt install yasm git build-essential ffmpeg curl
 $ curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
 ```
 
@@ -12,11 +12,6 @@ $ curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
 ```bash
 $ cargo --version
 cargo 1.53.0 (4369396ce 2021-04-27)
-```
-
-如果不成功，提示`Command 'cargo' not found`，可以按照提示加载一下环境变量(重新连接或打开终端也可以)：
-```
-source $HOME/.cargo/env
 ```
 
 > `cargo` 是 Rust 的包管理器兼编译辅助工具。类似 Java maven/go pkg/C++ CMake 的角色，更易使用。
@@ -49,7 +44,7 @@ $ conda activate py38
 MegFlow 需要编译 ffmpeg。考虑到 ffmpeg 依赖较多、本身又是常用工具，最简单的办法就是直接装 ffmpeg 把编译依赖装上
 
 ```bash
-$ sudo apt install yasm git build-essential ffmpeg
+$ sudo apt install ffmpeg
 $ ffmpeg 
 ffmpeg version 3.4.8...
 $ sudo apt install clang
@@ -68,7 +63,7 @@ $ cd flow-python
 $ python3 setup.py install --user
 ```
 
-**FAQ**：`error while loading shared libraries: libpython3.8.xxx`。如果使用 conda 只需要
+**常见问题**：`error while loading shared libraries: libpython3.8.xxx`，意为 libpython.so 找不到。如果使用 conda 就在 miniconda 安装目录下面，只需要设置环境变量
 
 ```bash
 $ export LD_LIBRARY_PATH=`conda info --base`/pkgs/python-3.8.11-xxx/lib:${LD_LIBRARY_PATH}
@@ -88,11 +83,11 @@ $ cargo run --example run_with_plugins -- -p logical_test
 
 接下来开始运行好玩的 Python 应用
 
-*  [猫猫围栏运行手册](../flow-python/examples/cat_finder/README.md)
+*  [猫猫围栏运行手册](../../flow-python/examples/cat_finder/README.md)
    *  图片注册猫猫
    *  部署视频围栏，注册的猫离开围栏时会发通知
    *  未注册的不会提示
-*  [电梯电瓶车告警](../flow-python/examples/electric_bicycle/README.md)
+*  [电梯电瓶车告警](../../flow-python/examples/electric_bicycle/README.md)
    *  电梯里看到电瓶车立即报警
 *  Comming Soon
    *  OCR： 通用字符识别

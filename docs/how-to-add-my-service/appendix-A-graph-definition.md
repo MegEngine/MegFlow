@@ -62,7 +62,7 @@ connections = [
 
 对应可视化的计算图：
 
-![](../flow-python/examples/cat_finder/images/image.png)
+![](../../flow-python/examples/cat_finder/images/image.png)
 
 ## 视频范例
 
@@ -137,7 +137,7 @@ connections = [
 ```
 
 视频解析服务可视化结果和图片接近：
-![](../flow-python/examples/cat_finder/images/video.png)
+![](../../flow-python/examples/cat_finder/images/video.png)
 
 
 ## 完整定义 

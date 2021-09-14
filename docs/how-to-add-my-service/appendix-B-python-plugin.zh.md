@@ -39,7 +39,3 @@ MegFlow也提供了一系列异步工具
 3. `join(tasks)`, `tasks`参数是一个函数列表，`join`堵塞直到`tasks`中的函数都执行完毕
 4. `create_future(callback)`, `callback`参数是一个函数, 默认值为None，`create_future`返回一个`(Future, Waker)`对象
     - `Future::wait`, 堵塞直到`Waker::wake`被调用，返回`Waker::wake(result)`传入的`result`参数
-
-# Rust Plugins
-
-Coming soon

@@ -52,10 +52,8 @@ impl Node for Graph {
     }
 
     fn close(&mut self) {
-        if self.main {
-            for input in &self.inputs {
-                self.conns[input].get().close();
-            }
+        for input in &self.inputs {
+            self.conns[input].get().close();
         }
     }
 
@@ -74,12 +72,6 @@ impl Actor for Graph {
         context: Context,
         resource: ResourceCollection,
     ) -> JoinHandle<()> {
-        let inputs: Vec<_> = self
-            .inputs
-            .iter()
-            .map(|name| self.conns[name].get().clone())
-            .collect();
-
         flow_rs::rt::task::spawn(async move {
             let wait_ctx = context.wait().fuse();
             let wait_graph = self.as_mut().start(Some(resource)).fuse();
@@ -87,9 +79,7 @@ impl Actor for Graph {
             loop {
                 select! {
                     _ = wait_ctx => {
-                        for input in &inputs {
-                            input.close();
-                        }
+                        self.close()
                     }
                     _ = wait_graph => context.close(),
                     complete => break,

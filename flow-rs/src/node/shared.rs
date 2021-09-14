@@ -31,10 +31,10 @@ struct Shared {
     outputs: HashMap<String, Receiver>,
 }
 
-pub struct SharedStopNotify(pub oneshot::Receiver<rt::task::JoinHandle<()>>);
-// is safe because we visit it only in main thread
-unsafe impl Sync for SharedStopNotify {}
-crate::collect!(String, SharedStopNotify);
+pub struct SharedHandle(pub rt::task::JoinHandle<()>);
+// is safe because we visit it only in single thread
+unsafe impl Sync for SharedHandle {}
+crate::collect!(String, SharedHandle);
 
 #[derive(Clone)]
 pub struct SharedProxy {
@@ -50,21 +50,54 @@ impl Shared {
         local_key: u64,
         rx: ReceiverT<SharedConns>,
         cfg: &crate::config::interlayer::Node,
+        graphs: &crate::config::interlayer::Config,
     ) -> Result<Shared> {
         let mut nodes = load(local_key, cfg)?;
         let mut inputs = HashMap::new();
         let mut outputs = HashMap::new();
 
-        for input in super::inputs(local_key, &cfg.entity.ty)? {
-            let chan = ChannelStorage::unbound();
+        let find_cap =
+            |port| {
+                let mut cap = 0usize;
+                for graph in graphs
+                    .graphs
+                    .iter()
+                    .filter(|graph| !graph.nodes.keys().any(|node| node == &cfg.entity.name))
+                {
+                    cap =
+                        std::cmp::max(
+                            cap,
+                            graph
+                                .connections
+                                .values()
+                                .map(|conn| {
+                                    if conn.rx.iter().chain(conn.tx.iter()).any(|p| {
+                                        p.node_name == cfg.entity.name && &p.port_name == port
+                                    }) {
+                                        conn.cap
+                                    } else {
+                                        0
+                                    }
+                                })
+                                .max()
+                                .expect("unused port in shared nodes"),
+                        );
+                }
+                cap
+            };
+
+        for input in cfg.inputs.keys() {
+            let cap = find_cap(input);
+            let chan = ChannelStorage::bound(cap);
             for node in &mut nodes {
                 node.set_port(input.as_str(), None, &chan);
             }
             inputs.insert(input.clone(), Arc::new(chan.sender()));
         }
 
-        for output in super::outputs(local_key, &cfg.entity.ty)? {
-            let chan = ChannelStorage::unbound();
+        for output in cfg.outputs.keys() {
+            let cap = find_cap(output);
+            let chan = ChannelStorage::bound(cap);
             for node in &mut nodes {
                 node.set_port(output.as_str(), None, &chan);
             }
@@ -239,17 +272,16 @@ crate::collect!(String, SharedProxy);
 
 pub fn load_shared(
     cfg: &crate::config::interlayer::Node,
+    graphs: &crate::config::interlayer::Config,
     ctx: Context,
     resources: ResourceCollection,
 ) -> Result<SharedProxy> {
     let local_key = ctx.local_key;
     let (s, r) = unbounded();
-    let shared = Shared::new(ctx.local_key, r, cfg)?.boxed();
+    let shared = Shared::new(ctx.local_key, r, cfg, graphs)?.boxed();
     let handle = shared.start(ctx, resources);
-    let (s2, r2) = oneshot::channel();
-    s2.send(handle).ok();
-    SharedStopNotify::registry_local()
+    SharedHandle::registry_local()
         .get(local_key)
-        .insert(cfg.entity.name.clone(), SharedStopNotify(r2));
+        .insert(cfg.entity.name.clone(), SharedHandle(handle));
     SharedProxy::new(local_key, s, cfg)
 }
