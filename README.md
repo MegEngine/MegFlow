@@ -22,7 +22,6 @@ MegFlow 是一个面向视觉应用的流式计算框架, 目标是简单、高�
 
 ## HowTo
 * how to build and run
-  * [run with prebuilt .whl](docs/how-to-build-and-run/run-in-15-minutes.zh.md)
   * [build with docker](docs/how-to-build-and-run/build-with-docker.zh.md)
   * [build from source](docs/how-to-build-and-run/build-from-source.zh.md)
   * [generate rtsp](docs/how-to-build-and-run/generate-rtsp.zh.md)
