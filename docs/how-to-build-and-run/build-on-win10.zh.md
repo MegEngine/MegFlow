@@ -1,6 +1,4 @@
-# Building with docker
-
-MegFlow 提供了 [Dockerfile](../../Dockerfile)，能够“可复现地”生成运行环境、减少依赖缺失的痛苦
+# Build on win10
 
 ## 下载模型包
 docker 运行方式，建议把模型包下好，
@@ -12,15 +10,31 @@ docker 运行方式，建议把模型包下好，
 | [链接](https://pan.baidu.com/s/1SoxHZjdWyPRIAwfcHWUQTQ) 提取码: ebcn  | [google](https://drive.google.com/file/d/1EwMJFjNp2kuNglutoleZOVsqccSOW2Z4/view?usp=sharing)  |  [dropbox](https://www.dropbox.com/s/akhkxedyo2ubmys/models.zip?dl=0) |
 
 
-## 编译 Docker 镜像
+## 安装 wsl2
 
+[安装文档](https://docs.microsoft.com/zh-cn/windows/wsl/install-win10) 已经非常详细，核心是安装 Linux 内核更新包。完成后第 6 步中的 Linux 分发应该可以正常运行。
+
+## 安装 docker
+下载 [windows docker 客户端](https://www.docker.com/products/docker-desktop) 并安装。docker 依赖 wsl2，Docker Desktop 启动正常没有报 fail 即可。
+
+## 安装 git
+
+下载安装 [git 客户端](https://git-scm.com/downloads) 并运行 Git Bash。
 
 ```bash
+$ pwd
+/c/Users/username
+$ cd /d  # 切换到合适的盘符
+$ git clone https://github.com/MegEngine/MegFlow
+...
 $ cd MegFlow
 $ docker build -t megflow .
+... # 等待镜像完成，却决于网络和 CPU
 ```
-稍等一段时间（取决于网络和 CPU）镜像构建完成并做了基础自测
 > 注意：**不要移动 Dockerfile 文件的位置**。受 [EAR](https://www.federalregister.gov/documents/2019/10/09/2019-22210/addition-of-certain-entities-to-the-entity-list) 约束，MegFlow 无法提供现成的 docker 镜像，需要自己 build 出来，这个过程用了相对路径。
+
+## 运行
+
 ```bash
 $ docker images
 REPOSITORY            TAG          IMAGE ID       CREATED             SIZE
@@ -33,7 +47,7 @@ $ docker run  -p 18081:8081 -p 18082:8082 -v ${DOWNLOAD_MODEL_PATH}:/megflow-run
 
 ## Python Built-in Applications
 
-接下来开始运行好玩的 Python 应用
+MegFlow 需要的编译运行环境已完成，接下来开始运行好玩的 Python 应用
 
 *  [猫猫围栏运行手册](../../flow-python/examples/cat_finder/README.md)
    *  图片注册猫猫

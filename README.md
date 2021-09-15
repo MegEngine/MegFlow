@@ -24,6 +24,7 @@ MegFlow 是一个面向视觉应用的流式计算框架, 目标是简单、高�
 * how to build and run
   * [build with docker](docs/how-to-build-and-run/build-with-docker.zh.md)
   * [build from source](docs/how-to-build-and-run/build-from-source.zh.md)
+  * [build on win10](docs/how-to-build-and-run/build-on-win10.zh.md)
   * [generate rtsp](docs/how-to-build-and-run/generate-rtsp.zh.md)
 * how to use
   * [add my first service](docs/how-to-add-my-service/01-single-classification-model.zh.md)
@@ -35,7 +36,7 @@ MegFlow 是一个面向视觉应用的流式计算框架, 目标是简单、高�
 
 | 系统环境 | 支持情况 |
 | - | - |
-| Windows 10 WSL ubuntu18.04 | ✔️ |
+| Windows 10 docker | ✔️ |
 | x86 Ubuntu16.04 有 GPU | ✔️ |
 | x86 Ubuntu18.04 无 GPU | ✔️ |
 | x86 macos | ✔️ |
