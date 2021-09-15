@@ -65,7 +65,6 @@ MegFlow 是一个面向视觉应用的流式计算框架, 目标是简单、高�
   * Email: megengine-support@megvii.com
   * Forum: discuss.megengine.org.cn
   * QQ Group: 1029741705
-  * OPENI: openi.org.cn/MegEngine
 
 ## License
 - [Apache 2.0](LICENSE)
