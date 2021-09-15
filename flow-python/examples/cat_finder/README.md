@@ -1,10 +1,9 @@
 # 猫猫围栏
 
-## 功能概述
+## 一、功能概述
 注册的猫猫离开围栏，会收到一条告警信息。未注册的不会报警。
 
-## 模型和自测数据下载
-
+## 二、模型和自测数据下载
 
 | 云盘 | google drive | dropbox |
 | - | - | - |
@@ -25,12 +24,12 @@ $ git-lfs update
 $ git lfs pull
 ```
 
-## 软件安装
+## 三、软件安装
 
 启动 redis-server
 ```bash
 $ sudo apt install redis-server
-$ redis-server
+$ redis-server &
 ...
 756417:M 18 Aug 2021 17:46:14.641 * Ready to accept connections
 ```
@@ -47,7 +46,7 @@ $ python3
 '1.6.0'
 ```
 
-## 图片注册
+## 四、图片注册
 
 启动图片服务
 ```bash
@@ -57,7 +56,7 @@ $ cargo run --example run_with_plugins -- -c cat_finder/image_gpu.toml  -p cat_f
 $ cargo run --example run_with_plugins -- -c cat_finder/image_cpu.toml  -p cat_finder    # 无 GPU 的 laptop 执行这句
 ```
 
-**常见问题**：`error while loading shared libraries: libpython3.8.xxx`，意为 libpython.so 找不到。如果使用 conda 就在 miniconda 安装目录下面，只需要设置环境变量
+**此处常见问题**：`error while loading shared libraries: libpython3.8.xxx`，意为 libpython.so 找不到。如果使用 conda 就在 miniconda 安装目录下面，只需要设置环境变量
 
 ```bash
 $ export LD_LIBRARY_PATH=`conda info --base`/pkgs/python-3.8.11-xxx/lib:${LD_LIBRARY_PATH}
@@ -67,16 +66,15 @@ $ export LD_LIBRARY_PATH=`conda info --base`/pkgs/python-3.8.11-xxx/lib:${LD_LIB
 
 ![](images/cat_finder_image_select.jpg)
 
-
 测试图片在软链接后的 `models/cat_finder_testdata` 目录。打开浏览器 UI 中选择图片、填写名称，提交即可。成功后
 * 用 redis-cli `keys *`可查到对应 BASE64 特征
 * 前端展示检测框
 
 ![](images/cat_finder_image_result.jpg)
 
+**此处 wsl2 常见问题**：win10 wsl2 用 127.0.0.1 地址打不开服务，**注意 127 是指物理机， wsl2 运行的是虚拟机**，需要 `wsl -- ifconfig` 获取 ip，后面都用虚拟机的 ip。
 
-## 图片注册 FAQ
-如果服务部署在 docker 里、客户端无法直连，这里提供 2 种方法：
+**此处 docker 常见问题**：服务部署在 docker 里、客户端无法直连，这里提供 2 种方法：
 
 1. 运行时容器使用端口映射。例如把内部容器的 8081 映射成外部物理机的 18081、把 8082 映射成 18082
 ```bash
@@ -97,7 +95,7 @@ $ curl http://127.0.0.1:8081/analyze/my_cat_name  -X POST --header "Content-Type
 ```
 `my_cat_name` 是注册的猫咪名称；`test.jpeg` 是测试图片；`output.jpg` 是返回的可视化图片。
 
-## 视频识别
+## 五、视频识别
 
 准备一个 rtsp 视频流地址，做测试输入（因不可抗力 MegFlow 无法提供现成地址）。模型包目录提供了测试视频，在 `models/cat_finder_testdata`，需要用户自行部署 live555 服务。最直接的办法：
 ```bash
@@ -108,7 +106,7 @@ $ ffmpeg -re -stream_loop -1 -i ${models}/cat_finder_testdata/test1.ts -c copy -
 ```
 
 
-* 想用 laptop/树莓派摄像头实时流，可搜索 Camera 推流教程
+* 想用 laptop/树莓派摄像头可搜索 Camera 推流教程
 * 也可以手机拍摄视频，再用 ffmpeg 转成 .ts 格式推到 live555 server
 
 相关教程已整合在 [如何生成自己的 rtsp 流地址](../../../docs/how-to-build-and-run/generate-rtsp.zh.md) 。
@@ -118,7 +116,6 @@ $ ffmpeg -re -stream_loop -1 -i ${models}/cat_finder_testdata/test1.ts -c copy -
 $ cd flow-python/examples
 $ cargo run --example run_with_plugins -- -c cat_finder/video_gpu.toml  -p cat_finder  # 有 GPU 的机器
 $ cargo run --example run_with_plugins -- -c cat_finder/video_cpu.toml  -p cat_finder  # 无 GPU 的设备用这句
-$ run_with_plugins_python_wrap -c cat_finder/video_cpu.toml  -p cat_finder  # 如果能用 prebuilt 包，不需要用`cargo run --example run_with_plugins --`编译
 ```
 打开 8082 端口服务（如 http://127.0.0.1:8082/docs ）。
 
@@ -154,7 +151,9 @@ $ redis-cli
 用 `brpop notification.cat_finder` 可消费报警消息。
 
 
-## 视频识别 FAQ
+## 六、视频识别 FAQ
+如果用 wsl2 部署，注意区分物理机和虚拟机的 ip。
+
 如果服务部署在 docker 里，同样可以把 8082 端口映射到宿主机端口；对应的 `cURL` 命令参考
 ```bash
 $ curl  -X POST  'http://127.0.0.1:8082/start/rtsp%3A%2F%2F127.0.0.1%3A8554%2Ftest1.ts'  # start  rtsp://127.0.0.1:8554/test1.ts
@@ -164,7 +163,7 @@ $ curl 'http://127.0.0.1:8082/list'   # list all stream
 ```
 路径中的 `%2F`、`%3A` 是 [URL](https://www.ietf.org/rfc/rfc1738.txt) 的转义字符
 
-## 模型列表
+## 七、模型列表
 
 本服务有以下模型的痕迹
 

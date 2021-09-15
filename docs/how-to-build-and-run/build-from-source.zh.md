@@ -1,6 +1,6 @@
 # Building from Source
 
-## Prerequisites
+## 一、安装依赖
 
 ### 安装 Rust
 ```bash
@@ -39,7 +39,7 @@ $ conda activate py38
 ```
 
 
-## Build
+## 二、编译
 
 MegFlow 需要编译 ffmpeg。考虑到 ffmpeg 依赖较多、本身又是常用工具，最简单的办法就是直接装 ffmpeg 把编译依赖装上
 
@@ -71,7 +71,7 @@ $ export LD_LIBRARY_PATH=`conda info --base`/pkgs/python-3.8.11-xxx/lib:${LD_LIB
 
 P.S. 默认 ffmpeg 依赖自动从 github 上拉取源码构建，这会使得首次构建的时间较长。若希望缩短首次构建时间，或者希望依赖一个指定版本的 ffmpeg，可以启用环境变量`CARGO_FEATURE_PREBUILD`并参考[rust-ffmpeg](https://github.com/zmwangx/rust-ffmpeg/wiki/Notes-on-building)自行构建
 
-## Python“开机自检”
+## 三、Python“开机自检”
 ```bash
 $ cd examples
 $ cargo run --example run_with_plugins -- -p logical_test
@@ -79,7 +79,7 @@ $ cargo run --example run_with_plugins -- -p logical_test
 `logical_test` 是 examples 下最基础的计算图测试用例，运行能正常结束表示 MegFlow 编译成功、基本语义无问题。
 
 
-## Python Built-in Applications
+## 四、Python Built-in Applications
 
 接下来开始运行好玩的 Python 应用
 
@@ -93,7 +93,7 @@ $ cargo run --example run_with_plugins -- -p logical_test
    *  OCR： 通用字符识别
 
 
-## 其他选项
+## 五、其他选项
 ```bash
 $ cargo run --example graph -- ${args} # 测试 MegFlow 的延迟/吞吐/调度开销, 更多使用说明通过--help 查看
 $ cargo run --example run_with_plugins -- ${args} # 基于插件 + 参数文件形式运行 MegFlow, 更多说明通过--help 查看
