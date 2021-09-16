@@ -7,7 +7,7 @@
 [![ubuntu](https://img.shields.io/github/workflow/status/MegEngine/MegFlow/ubuntu-x86-cpu?label=ubuntu)](https://github.com/MegEngine/MegFlow/actions/workflows/ubuntu-x86-cpu.yml?query=workflow%3A)
 [![macos](https://img.shields.io/github/workflow/status/MegEngine/MegFlow/ubuntu-x86-cpu?label=macos)](https://github.com/MegEngine/MegFlow/actions/workflows/macos-x86-cpu.yml?query=workflow%3A)
 
-MegFlow 提供了一种视觉应用落地流程：直接用 Python 搭建计算图，不必关心 GIL、C++、图优化相关问题。通过简化部署流程应对碎片化需求。
+MegFlow 提供了一种视觉应用落地流程：直接用 Python 搭建计算图（如先检测、再跟踪、最后质量判断加识别），不必关心 GIL、C++、图优化相关问题。省去了 C++ SDK 集成，通过流程改进应对人力不足、时间紧、视觉功能多的情况。最快 15 分钟搭建起视频分析服务。
 
 ## HowTo
 * how to build and run
