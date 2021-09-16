@@ -7,18 +7,7 @@
 [![ubuntu](https://img.shields.io/github/workflow/status/MegEngine/MegFlow/ubuntu-x86-cpu?label=ubuntu)](https://github.com/MegEngine/MegFlow/actions/workflows/ubuntu-x86-cpu.yml?query=workflow%3A)
 [![macos](https://img.shields.io/github/workflow/status/MegEngine/MegFlow/ubuntu-x86-cpu?label=macos)](https://github.com/MegEngine/MegFlow/actions/workflows/macos-x86-cpu.yml?query=workflow%3A)
 
-MegFlow 是一个面向视觉应用的流式计算框架, 目标是简单、高性能、帮助机器学习应用快速落地。
-
-## Features
-- 基于 [async-std](https://github.com/async-rs/async-std)[features=[tokio1](https://github.com/tokio-rs/tokio)] 的高效异步运行时调度器
-- 简洁的基于 [toml](https://toml.io/en/) 的建图描述格式
-- 支持静态、动态、共享子图
-- 支持 Rust/Python 多语言共存（会 Python 即可）
-- 支持资源管理（多层级跨任务共享）
-- 支持异常处理（异常任务会终止所在静态图）
-- 支持 demux/reorder/transform 等通用函数式组件
-- Python 插件内置有栈协程，不依赖 asyncio
-- 基础测试工具，支持插件沙盒，用于单测插件
+MegFlow 提供了一种视觉应用落地流程：直接用 Python 搭建计算图，不必关心 GIL、C++、图优化相关问题。通过简化部署流程应对碎片化需求。
 
 ## HowTo
 * how to build and run
@@ -53,6 +42,18 @@ MegFlow 是一个面向视觉应用的流式计算框架, 目标是简单、高�
 ## Built-in Applications
 * 猫猫围栏
 * 电梯电动车报警
+
+## Features
+- 基于 [async-std](https://github.com/async-rs/async-std)[features=[tokio1](https://github.com/tokio-rs/tokio)] 的高效异步运行时调度器
+- 简洁的基于 [toml](https://toml.io/en/) 的建图描述格式
+- 支持静态、动态、共享子图
+- 支持 Rust/Python 多语言共存（会 Python 即可）
+- 支持资源管理（多层级跨任务共享）
+- 支持异常处理（异常任务会终止所在静态图）
+- 支持 demux/reorder/transform 等通用函数式组件
+- Python 插件内置有栈协程，不依赖 asyncio
+- 基础测试工具，支持插件沙盒，用于单测插件
+
 
 ## Coming Soon
 - 进程级别的节点、子图支持
