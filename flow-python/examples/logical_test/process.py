@@ -12,6 +12,7 @@ from megflow import register
 import multiprocessing as mp
 from multiprocessing import Process, Pipe
 
+
 def repeat(n, s, r):
     while True:
         envelope = r.recv()
@@ -19,7 +20,8 @@ def repeat(n, s, r):
             break
         for i in range(n):
             msg = {}
-            msg['message'] = "a message[{}] repeat {} by process node".format(envelope.msg['message'], i)
+            msg['message'] = "a message[{}] repeat {} by process node".format(
+                envelope.msg['message'], i)
             s.send(envelope.repack(msg))
 
 
@@ -36,11 +38,9 @@ class RepeatProcess:
         self.p = Process(target=repeat, args=(10, s2, r1))
         self.p.start()
 
-
     def __del__(self):
         self.send.send(None)
         self.p.join()
-
 
     def exec(self):
         envelope = self.inp.recv()
@@ -56,4 +56,3 @@ class RepeatProcess:
         for i in range(10):
             envelope = self.recv.recv()
             self.out.send(envelope)
-

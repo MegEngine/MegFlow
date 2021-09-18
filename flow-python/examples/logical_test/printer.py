@@ -12,13 +12,14 @@ from megflow import register
 
 instance_id = 0
 
+
 @register('Printer', inputs=['inp'])
 class Node:
     def __init__(self, name, args):
         global instance_id
         self.id = instance_id
         instance_id += 1
-        
+
     def exec(self):
         envelope = self.inp.recv()
         if envelope is not None:
@@ -26,5 +27,6 @@ class Node:
             pbuf = self.parent_buf.get()
             buf = self.buf.get()
 
-            print('Printer[{}] get msg: {}, buf(global, parent, local): ({}, {}, {})'.format(self.id, envelope.msg['message'], gbuf, pbuf, buf))
-
+            print(
+                'Printer[{}] get msg: {}, buf(global, parent, local): ({}, {}, {})'
+                .format(self.id, envelope.msg['message'], gbuf, pbuf, buf))

@@ -9,12 +9,10 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-import json
 import redis
-import base64
-import numpy as np
 from loguru import logger
 from megflow import register
+
 
 @register(inputs=['inp'], outputs=['out'])
 class RedisProxy:
@@ -27,11 +25,10 @@ class RedisProxy:
         ip = args['ip']
         port = args['port']
 
-        try:
-            self._pool = redis.ConnectionPool(host=ip, port=port, decode_responses=False)
-            logger.info('redis pool initialized.')
-        except:
-            logger.error(f'connect redis failed, ip: {ip}, port: {port}')
+        self._pool = redis.ConnectionPool(host=ip,
+                                            port=port,
+                                            decode_responses=False)
+        logger.info('redis pool initialized.')
 
 
     def exec(self):
@@ -40,7 +37,7 @@ class RedisProxy:
             return
         msg = envelope.msg
         crops = msg['shaper']
-        assert(type(crops) == list)
+        assert isinstance(crops, list)
 
         if len(crops) > 0:
             try:
@@ -49,5 +46,5 @@ class RedisProxy:
                 logger.info('alert {}'.format(alert))
                 r.lpush(self._key, alert)
                 self.out.send(envelope.repack(alert))
-            except:
-                logger.error()
+            except redis.exceptions.ConnectionError as e:
+                logger.error(str(e))

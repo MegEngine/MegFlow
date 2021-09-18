@@ -4,7 +4,7 @@
 
 ### 安装 Rust
 ```bash
-$ sudo apt install yasm git build-essential ffmpeg curl
+$ sudo apt install curl
 $ curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
 ```
 
@@ -12,6 +12,11 @@ $ curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
 ```bash
 $ cargo --version
 cargo 1.53.0 (4369396ce 2021-04-27)
+```
+
+如果不成功，提示`Command 'cargo' not found`，可以按照提示加载一下环境变量(重新连接或打开终端也可以)：
+```
+source $HOME/.cargo/env
 ```
 
 > `cargo` 是 Rust 的包管理器兼编译辅助工具。类似 Java maven/go pkg/C++ CMake 的角色，更易使用。
@@ -44,7 +49,7 @@ $ conda activate py38
 MegFlow 需要编译 ffmpeg。考虑到 ffmpeg 依赖较多、本身又是常用工具，最简单的办法就是直接装 ffmpeg 把编译依赖装上
 
 ```bash
-$ sudo apt install ffmpeg
+$ sudo apt install yasm git build-essential ffmpeg
 $ ffmpeg 
 ffmpeg version 3.4.8...
 $ sudo apt install clang

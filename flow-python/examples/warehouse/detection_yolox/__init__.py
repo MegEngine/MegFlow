@@ -9,9 +9,4 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-# from .coco_classes import COCO_CLASSES
-# from .process import postprocess, preprocess
-# from .models.yolo_fpn import YOLOFPN
-# from .build import build_and_load
-# from .main import Predictor
 from .lite import PredictorLite

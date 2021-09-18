@@ -9,4 +9,4 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-from .track_iou import *
+from .track_iou import Tracker

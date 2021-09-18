@@ -11,8 +11,8 @@
 
 import cv2
 
+
 class Quality:
-    
     @staticmethod
     def clearness(mat):
         return cv2.Laplacian(mat, cv2.CV_64F).var()
@@ -21,6 +21,7 @@ class Quality:
     def area(mat):
         return mat.shape[0] * mat.shape[1]
 
+
 if __name__ == "__main__":
     import sys
     mat = cv2.imread(sys.argv[1])
@@ -28,4 +29,3 @@ if __name__ == "__main__":
         print(f'load {sys.argv[1]} failed')
         sys.exit(-1)
     print(f'brightness: {Quality.clearness(mat)}')
-

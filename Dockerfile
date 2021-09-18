@@ -11,18 +11,20 @@ RUN apt update \
     && apt install -y git \
     && apt install -y build-essential
 
+ENV CARGO_HOME /cargo
+ENV RUSTUP_HOME /rustup
 RUN curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf -o run.sh \
-    && chmod a+x run.sh \
-    && ./run.sh -y \
-    && export PATH=$HOME/.cargo/bin:${PATH} \
-    && cargo --version
+	&& chmod a+x run.sh \
+	&& ./run.sh -y && rm run.sh
+ENV PATH $PATH:/cargo/bin
+RUN chmod -R 777 /cargo /rustup
+COPY ci/cargo-config /cargo/config
 
 RUN mkdir -p $HOME/megflow-runspace
 WORKDIR $HOME/megflow-runspace
 COPY . $HOME/megflow-runspace/
 
-RUN PATH=$HOME/.cargo/bin:${PATH} \
-    && cargo build \
+RUN cargo build \
     && cd flow-python \
     && python3 setup.py install --user \
     && cd examples \

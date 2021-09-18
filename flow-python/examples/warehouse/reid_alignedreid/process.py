@@ -14,9 +14,8 @@ import megengine.functional as F
 import numpy as np
 from loguru import logger
 
-__all__ = [
-    "preprocess"
-]
+__all__ = ["preprocess"]
+
 
 def preprocess(image, input_size, scale_im, mean, std, swap=(2, 0, 1)):
     if image is None:

@@ -9,7 +9,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-import sys 
+import sys
 import json
 import argparse
 
@@ -18,6 +18,7 @@ from loguru import logger
 
 sys.path.append('.')
 from .onnx_model import load_onnx_model, run
+
 
 def inference(detector_path, img, output_path):
     class_names = ["elec_cycle"]
@@ -58,20 +59,22 @@ def inference(detector_path, img, output_path):
 
     return box_num
 
+
 def parse_args():
     parser = argparse.ArgumentParser("Electric Moped Detector")
-    parser.add_argument(
-        "--detector", default="./models/model.onnx", help="The path to onnx detector. "
-    )
-    parser.add_argument(
-        "--input-img", default="./demo/input.jpg", help="The path to demo image to inference. "
-    )
-    parser.add_argument(
-        "--output-path", default="./demo/output.jpg", help="The path of output images. "
-    )
+    parser.add_argument("--detector",
+                        default="./models/model.onnx",
+                        help="The path to onnx detector. ")
+    parser.add_argument("--input-img",
+                        default="./demo/input.jpg",
+                        help="The path to demo image to inference. ")
+    parser.add_argument("--output-path",
+                        default="./demo/output.jpg",
+                        help="The path of output images. ")
     args = parser.parse_args()
 
     return args
+
 
 def main():
     args = parse_args()

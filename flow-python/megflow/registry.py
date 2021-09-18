@@ -8,10 +8,6 @@
 
 #!/usr/bin/env python
 # coding=utf-8
-import inspect
-import ast
-import types
-import os
 from collections import Iterable
 
 def __register(name, inputs, outputs, exclusive, func):

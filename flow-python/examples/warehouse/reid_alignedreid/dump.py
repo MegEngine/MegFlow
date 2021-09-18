@@ -18,10 +18,14 @@ from .model import Model
 
 def make_parser():
     parser = argparse.ArgumentParser("Resnet50 Dump")
-    parser.add_argument("-c", "--ckpt", default=None, type=str, help="ckpt for eval")
-    parser.add_argument(
-        "--dump_path", default="model.mge", help="path to save the dumped model"
-    )
+    parser.add_argument("-c",
+                        "--ckpt",
+                        default=None,
+                        type=str,
+                        help="ckpt for eval")
+    parser.add_argument("--dump_path",
+                        default="model.mge",
+                        help="path to save the dumped model")
     return parser
 
 

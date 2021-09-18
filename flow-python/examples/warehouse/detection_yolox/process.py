@@ -25,6 +25,7 @@ def is_overlap_v1(rect1, rect2, iou_threshold):
     ov = i / u
     return ov >= iou_threshold
 
+
 def cpu_nms(boxes, scores, iou_threshold=0.3):
     if 0 == len(boxes):
         return []
@@ -47,6 +48,7 @@ def cpu_nms(boxes, scores, iou_threshold=0.3):
 
     return [x[5] for i, x in enumerate(rects) if rect_valid[i]]
 
+
 def preprocess(image, input_size, mean, std, swap=(2, 0, 1)):
     # print(f'{image.shape}')
     if len(image.shape) == 3:
@@ -60,7 +62,7 @@ def preprocess(image, input_size, mean, std, swap=(2, 0, 1)):
         (int(img.shape[1] * r), int(img.shape[0] * r)),
         interpolation=cv2.INTER_LINEAR,
     ).astype(np.float32)
-    padded_img[: int(img.shape[0] * r), : int(img.shape[1] * r)] = resized_img
+    padded_img[:int(img.shape[0] * r), :int(img.shape[1] * r)] = resized_img
     image = padded_img
 
     image = image.astype(np.float32)
@@ -74,10 +76,12 @@ def preprocess(image, input_size, mean, std, swap=(2, 0, 1)):
     image = np.ascontiguousarray(image, dtype=np.float32)
     return image, r
 
+
 def argmax_keepdims(x, axis):
     output_shape = list(x.shape)
     output_shape[axis] = 1
     return np.argmax(x, axis=axis).reshape(output_shape)
+
 
 def postprocess(prediction, num_classes, conf_thre=0.7, nms_thre=0.45):
     box_corner = F.zeros_like(prediction)
@@ -94,8 +98,10 @@ def postprocess(prediction, num_classes, conf_thre=0.7, nms_thre=0.45):
         if not image_pred.shape[0]:
             continue
         # Get score and class with highest confidence
-        class_conf = F.max(image_pred[:, 5 : 5 + num_classes], 1, keepdims=True)
-        class_pred = F.argmax(image_pred[:, 5 : 5 + num_classes], 1, keepdims=True)
+        class_conf = F.max(image_pred[:, 5:5 + num_classes], 1, keepdims=True)
+        class_pred = F.argmax(image_pred[:, 5:5 + num_classes],
+                              1,
+                              keepdims=True)
 
         class_conf_squeeze = F.squeeze(class_conf)
         conf_mask = image_pred[:, 4] * class_conf_squeeze >= conf_thre
@@ -105,7 +111,9 @@ def postprocess(prediction, num_classes, conf_thre=0.7, nms_thre=0.45):
             continue
 
         nms_out_index = F.vision.nms(
-            detections[:, :4], detections[:, 4] * detections[:, 5], nms_thre,
+            detections[:, :4],
+            detections[:, 4] * detections[:, 5],
+            nms_thre,
         )
         detections = detections[nms_out_index]
         if output[i] is None:

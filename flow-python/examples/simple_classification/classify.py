@@ -9,21 +9,24 @@
 #!/usr/bin/env python
 # coding=utf-8
 
+import json
 import numpy as np
 from loguru import logger
 from megflow import register
-import json
 
-from .lite import *
+from .lite import PredictorLite
+
 
 @register(inputs=['inp'], outputs=['out'])
 class Classify:
-    def __init__(self, name, args):
+    def __init__(self, name, arg):
         logger.info("loading Resnet18 Classification...")
         self.name = name
-        
+
         # load ReID model and warmup
-        self._model = PredictorLite(path=args['path'], device=args['device'], device_id=args['device_id'])
+        self._model = PredictorLite(path=arg['path'],
+                                    device=arg['device'],
+                                    device_id=arg['device_id'])
         warmup_data = np.zeros((224, 224, 3), dtype=np.uint8)
         self._model.inference(warmup_data)
         logger.info("Resnet18  loaded.")

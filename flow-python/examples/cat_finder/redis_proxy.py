@@ -9,12 +9,14 @@
 #!/usr/bin/env python
 # coding=utf-8
 
+import base64
+import binascii
 import json
 import redis
-import base64
 import numpy as np
 from loguru import logger
 from megflow import register
+
 
 @register(inputs=['inp'], outputs=['out'])
 class RedisProxy:
@@ -27,58 +29,64 @@ class RedisProxy:
 
         ip = args['ip']
         port = args['port']
-        try:
-            self._pool = redis.ConnectionPool(host=ip, port=port, decode_responses=False)
-        except:
-            logger.error(f'connect redis failed, ip: {ip}, port: {port}')
+        self._pool = redis.ConnectionPool(host=ip,
+                                            port=port,
+                                            decode_responses=False)
 
     # save feature with highest detection score
     def save_feature(self, r, name, items):
         if len(items) == 0:
-            return
+            return None
 
         score = 0.0
         best_item = None
-        for i in range(len(items)):
-            if items[i]["score"] > score:
-                best_item = items[i]
-                score = items[i]["score"]
-        
-        assert(best_item['feature'] is not None)
+        for item in items:
+            if item["score"] > score:
+                best_item = item
+                score = item["score"]
+
+        assert best_item['feature'] is not None
         value = base64.b64encode(best_item['feature'].tobytes())
-        r.set(f'{self._prefix}{name}', value)
+
+        try:
+            r.set(f'{self._prefix}{name}', value)
+        except redis.exceptions.ConnectionError as e:
+            logger.error(str(e))
         return value
-        
+
     def search_key(self, r, feature):
         redis_keys = r.keys(self._prefix + '*')
         for key in redis_keys:
             if key not in self._db:
-                value_base64 = r.get(key)
-                assert(value_base64 is not None)
                 try:
-                    self._db[key] = np.frombuffer(base64.b64decode(value_base64), dtype=np.float32)
-                except:
-                    logger.error(f'decode feature failed, key {key}')
+                    value_base64 = r.get(key)
+                    assert value_base64 is not None
+                    self._db[key] = np.frombuffer(
+                        base64.b64decode(value_base64), dtype=np.float32)
+                except redis.exceptions.ConnectionError as e:
+                    logger.error(str(e))
+                except binascii.Error as e:
+                    logger.error(f'decode feature failed, key {key}, reason {str(e)}')
 
-        assert(feature is not None)
-        if 0 == len(self._db):
+        assert feature is not None
+        if len(self._db) == 0:
             logger.error("feature db empty")
             return {}
 
         min_dist = float("inf")
         min_key = ''
         for k, v in self._db.items():
-            dist = np.linalg.norm(v-feature)
+            dist = np.linalg.norm(v - feature)
             logger.info(f'key: {k} dist: {dist}')
             if dist < min_dist:
                 min_key = k
                 min_dist = dist
         min_key = min_key.decode('utf-8')
 
-        name =  min_key.replace(self._prefix, '', 1)
+        name = min_key.replace(self._prefix, '', 1)
         # send notification
-        r.lpush(f'notification.cat_finder', f'{name} leaving the room')
-        return {"name": name, "distance": str(min_dist) }
+        r.lpush('notification.cat_finder', f'{name} leaving the room')
+        return {"name": name, "distance": str(min_dist)}
 
     def exec(self):
         envelope = self.inp.recv()
@@ -86,10 +94,10 @@ class RedisProxy:
             return
         image = envelope.msg
         items = image['items']
-        assert(type(items) == list)
+        assert isinstance(items, list)
 
         r = redis.Redis(connection_pool=self._pool)
-        
+
         if self._mode == 'save':
             self.save_feature(r, image["extra_data"], items)
 
@@ -109,4 +117,3 @@ class RedisProxy:
         else:
             logger.error(f'unknown mode: {self._mode}')
             self.out.send(envelope)
-            
