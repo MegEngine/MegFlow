@@ -24,9 +24,9 @@ $ conda activate py38
 
 ## 安装 Prebuilt 包
 
+下载对应 python 版本的 .whl 包，安装
 ```bash
-$  python3 -m pip install megflow # On brain++
-$  python3 -m pip install -i https://pypi.megvii-inc.com/simple megflow # On company server
+$  python3 -m pip install megflow-0.1.0-py38-none-linux_x86_64.whl  --force-reinstall
 ```
 
 完成后应该可以 `import megflow`
