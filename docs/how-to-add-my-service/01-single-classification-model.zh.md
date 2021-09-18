@@ -4,9 +4,9 @@
 
 ## 准备分类模型
 
-[MegEngine models]() 有现成的 imagenet 预训模型。这里把模型 dump 成 .mge。
+[MegEngine models](https://github.com/MegEngine/models) 有现成的 imagenet 预训模型。这里把模型 dump 成 .mge。
 
-新增 [dump.py](../../flow-python/examples/simple_classification/dump.py)，按 [1, 3, 224, 224] 尺寸 trace 模型，打开推理优化选项，保存为 `model.mge`。
+新增 [dump.py](https://github.com/MegEngine/Models/blob/master/official/vision/classification/dump.py)，按 [1, 3, 224, 224] 尺寸 trace 模型，打开推理优化选项，保存为 `model.mge`。
 
 ```bash
 $ git clone https://github.com/MegEngine/models
@@ -45,6 +45,8 @@ $ cat dump.py
 $ cat flow-python/examples/simple_classification/lite.py
 ...
     def inference(self, mat):
+        img = self.preprocess(mat, input_size=(224,224), scale_im = False, mean=[103.530, 116.280, 123.675], std=[57.375, 57.120, 58.395])
+
         # 设置输入
         inp_data =self.net.get_io_tensor("data")
         inp_data.set_data_by_share(img)
@@ -108,14 +110,7 @@ $ cat flow-python/examples/simple_classification/classify.py
 @register(inputs=['inp'], outputs=['out'])
 class Classify:
     def __init__(self, name, args):
-        logger.info("loading Resnet18 Classification...")
-        self.name = name
-        
-        # load model and warmup
-        self._model = PredictorLite(path=args['path'], device=args['device'], device_id=args['device_id'])
-        warmup_data = np.zeros((224, 224, 3), dtype=np.uint8)
-        self._model.inference(warmup_data)
-        logger.info("Resnet18  loaded.")
+        ...
 
     def exec(self):
         envelope = self.inp.recv()

@@ -3,6 +3,7 @@
 
 from megflow import res_register
 
+
 @res_register()
 class Buffer:
     def __init__(self, name, args):

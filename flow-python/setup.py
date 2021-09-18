@@ -9,9 +9,10 @@
 
 #!/usr/bin/env python
 # coding=utf-8
-from setuptools import setup
 import sys
 import os
+
+from setuptools import setup
 
 devel_version = os.environ.get("DEVEL_VERSION")
 if not devel_version:

@@ -21,13 +21,29 @@ IMAGE_EXT = [".jpg", ".jpeg", ".webp", ".bmp", ".png"]
 
 def make_parser():
     parser = argparse.ArgumentParser("YOLOX Demo!")
-    parser.add_argument("-n", "--name", type=str, default="yolox-s", help="model name")
-    parser.add_argument("--path", default="./test.png", help="path to images or video")
+    parser.add_argument("-n",
+                        "--name",
+                        type=str,
+                        default="yolox-s",
+                        help="model name")
+    parser.add_argument("--path",
+                        default="./test.png",
+                        help="path to images or video")
 
-    parser.add_argument("-c", "--ckpt", default=None, type=str, help="ckpt for eval")
+    parser.add_argument("-c",
+                        "--ckpt",
+                        default=None,
+                        type=str,
+                        help="ckpt for eval")
     parser.add_argument("--conf", default=None, type=float, help="test conf")
-    parser.add_argument("--nms", default=None, type=float, help="test nms threshold")
-    parser.add_argument("--tsize", default=None, type=int, help="test img size")
+    parser.add_argument("--nms",
+                        default=None,
+                        type=float,
+                        help="test nms threshold")
+    parser.add_argument("--tsize",
+                        default=None,
+                        type=int,
+                        help="test img size")
     return parser
 
 
@@ -55,11 +71,11 @@ class PredictorLite(object):
         device="gpu",
         device_id=0,
     ):
-        
+
         if "gpu" in device.lower():
-            device_type=mgelite.LiteDeviceType.LITE_CUDA
+            device_type = mgelite.LiteDeviceType.LITE_CUDA
         else:
-            device_type=mgelite.LiteDeviceType.LITE_CPU
+            device_type = mgelite.LiteDeviceType.LITE_CPU
 
         net_config = mgelite.LiteConfig(device_type=device_type)
         ios = mgelite.LiteNetworkIO()
@@ -80,7 +96,6 @@ class PredictorLite(object):
         self.test_size = test_size
         self.rgb_means = (0.485, 0.456, 0.406)
         self.std = (0.229, 0.224, 0.225)
-
 
     def lite_postprocess(self, outputs, img_size, p6=False):
         grids = []
@@ -108,9 +123,8 @@ class PredictorLite(object):
 
         return outputs
 
-
     def restrict(self, val, min, max):
-        assert(min < max)
+        assert (min < max)
         if val < min:
             val = min
         if val > max:
@@ -126,10 +140,10 @@ class PredictorLite(object):
         img, ratio = preprocess(img, self.test_size, self.rgb_means, self.std)
 
         # build input tensor
-        data = img[np.newaxis,:]
-        inp_data =self.net.get_io_tensor("data")
+        data = img[np.newaxis, :]
+        inp_data = self.net.get_io_tensor("data")
         inp_data.set_data_by_copy(data)
-        
+
         # forward
         self.net.forward()
         self.net.wait()
@@ -139,15 +153,16 @@ class PredictorLite(object):
         outputs = self.net.get_io_tensor(output_keys[0]).to_numpy()
 
         outputs = self.lite_postprocess(outputs[0], list(self.test_size))
-        outputs = outputs[np.newaxis,:]
+        outputs = outputs[np.newaxis, :]
         output = mge.tensor(outputs)
 
-        ret = postprocess(output, self.num_classes, self.confthre, self.nmsthre)
+        ret = postprocess(output, self.num_classes, self.confthre,
+                          self.nmsthre)
         if ret is None:
             return None
         bboxes = ret.copy()
-        for i in range(bboxes.shape[0]): 
-            bbox = bboxes[i][0:4]/ratio
+        for i in range(bboxes.shape[0]):
+            bbox = bboxes[i][0:4] / ratio
             bbox[0] = self.restrict(bbox[0], 0, max_w)
             bbox[1] = self.restrict(bbox[1], 0, max_h)
             bbox[2] = self.restrict(bbox[2], bbox[0], max_w)
@@ -184,14 +199,16 @@ def main(args):
     if args.tsize is not None:
         test_size = (args.tsize, args.tsize)
 
-    predictor = PredictorLite(args.ckpt, confthre, nmsthre, test_size, COCO_CLASSES, None, None, "gpu", 0)
+    predictor = PredictorLite(args.ckpt, confthre, nmsthre, test_size,
+                              COCO_CLASSES, None, None, "gpu", 0)
 
     frame = cv2.imread(args.path)
     outputs = predictor.inference(frame)
     result_frame = predictor.visual(outputs, frame)
 
-    filename =  os.path.join(dirname, "out.jpg")
+    filename = os.path.join(dirname, "out.jpg")
     cv2.imwrite(filename, result_frame)
+
 
 if __name__ == "__main__":
     args = make_parser().parse_args()

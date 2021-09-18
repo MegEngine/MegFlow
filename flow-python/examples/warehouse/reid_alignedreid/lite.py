@@ -20,11 +20,11 @@ class PredictorLite(object):
         device="gpu",
         device_id=0,
     ):
-        
+
         if "gpu" in device.lower():
-            device_type=mgelite.LiteDeviceType.LITE_CUDA
+            device_type = mgelite.LiteDeviceType.LITE_CUDA
         else:
-            device_type=mgelite.LiteDeviceType.LITE_CPU
+            device_type = mgelite.LiteDeviceType.LITE_CPU
 
         net_config = mgelite.LiteConfig(device_type=device_type)
         ios = mgelite.LiteNetworkIO()
@@ -36,17 +36,20 @@ class PredictorLite(object):
 
         self.net = net
 
-
     def inference(self, mat):
         t0 = time.time()
 
-        img = preprocess(mat, input_size=(224,224), scale_im = True, mean=[0.486, 0.459, 0.408], std=[0.229, 0.224, 0.225])
+        img = preprocess(mat,
+                         input_size=(224, 224),
+                         scale_im=True,
+                         mean=[0.486, 0.459, 0.408],
+                         std=[0.229, 0.224, 0.225])
 
         # build input tensor
-        data = img[np.newaxis,:]
-        inp_data =self.net.get_io_tensor("data")
+        data = img[np.newaxis, :]
+        inp_data = self.net.get_io_tensor("data")
         inp_data.set_data_by_copy(data)
-        
+
         # forward
         self.net.forward()
         self.net.wait()
@@ -70,9 +73,8 @@ if __name__ == "__main__":
     img4 = cv2.imread(sys.argv[4])
     output4 = predictor.inference(img4)
 
-    positive = np.linalg.norm(output2-output3)
+    positive = np.linalg.norm(output2 - output3)
     print(f'distance_positive: {positive}')
 
-    negative = np.linalg.norm(output3-output4)
+    negative = np.linalg.norm(output3 - output4)
     print(f'distance_positive: {negative}')
-

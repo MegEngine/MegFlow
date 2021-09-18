@@ -1,5 +1,8 @@
+# /bin/python3
+
 import os
 import re
+import sys
 
 pattern = re.compile(r'\[.*?\]\(.*?\)')
 def analyze_doc(home, path):
@@ -13,19 +16,20 @@ def analyze_doc(home, path):
                     start = item.find('(')
                     end = item.find(')')
                     ref = item[start+1: end]
-                    if ref.startswith('http'):
+                    if ref.startswith('http') or ref.startswith('#'):
                         continue
                     fullpath = os.path.join(home, ref)
                     if not os.path.exists(fullpath):
                         problem_list.append(ref)
                         # print(f' {fullpath}  in  {path} not exist!')
             else:
-                continue     
+                continue
     if len(problem_list) > 0:
         print(f'{path}:')
         for item in problem_list:
             print(f'\t {item}')
         print('\n')
+        sys.exit(1)
 
 def traverse(_dir):
     for home, dirs, files in os.walk(_dir):

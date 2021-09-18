@@ -10,12 +10,11 @@
 # coding=utf-8
 
 import numpy as np
-import megengine as mge
 from loguru import logger
 from megflow import register
 
-from warehouse.reid_alignedreid import *
-from warehouse.quality_naive import *
+from warehouse.reid_alignedreid import PredictorLite
+
 
 @register(inputs=['inp'], outputs=['out'])
 class ReIDVideo:
@@ -24,7 +23,9 @@ class ReIDVideo:
         self.name = name
 
         # load ReID model and warmup
-        self._model = PredictorLite(path=args['path'], device=args['device'], device_id=args['device_id'])
+        self._model = PredictorLite(path=args['path'],
+                                    device=args['device'],
+                                    device_id=args['device_id'])
         warmup_data = np.zeros((224, 224, 3), dtype=np.uint8)
         self._model.inference(warmup_data)
         logger.info(" Video Reid loaded.")
@@ -36,7 +37,7 @@ class ReIDVideo:
         msg = envelope.msg
 
         # for crop in image['shaper']:
-            # cv2.imwrite(f'reid_video_{envelope.partial_id}.jpg', crop)
+        # cv2.imwrite(f'reid_video_{envelope.partial_id}.jpg', crop)
         # logger.info(f'envelope id {envelope.partial_id}')
 
         msg['features'] = []

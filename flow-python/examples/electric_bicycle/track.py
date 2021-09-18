@@ -9,16 +9,14 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-from loguru import logger
-from megflow import register, Envelope
+from megflow import register
 
 from warehouse.track_iou import Tracker
-import numpy as np
 
 
 @register(inputs=['inp'], outputs=['out'])
 class Track:
-    def __init__(self, name, args):
+    def __init__(self, name, _):
         self.name = name
         self._tracker = Tracker()
 

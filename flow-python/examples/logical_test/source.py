@@ -10,6 +10,7 @@
 # coding=utf-8
 from megflow import register, Envelope, sleep
 
+
 @register(outputs=['out'])
 class Source:
     def __init__(self, name, args):
@@ -29,4 +30,3 @@ class Source:
             envelope = Envelope.pack(None)
             envelope.to_addr = i
             self.out.send(envelope)
-

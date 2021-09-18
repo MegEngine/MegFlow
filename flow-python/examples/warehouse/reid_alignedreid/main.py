@@ -21,7 +21,9 @@ from .model import Model
 if __name__ == "__main__":
     import sys
     if len(sys.argv) < 5:
-        print("usage: python3 -m reid_alignedreid/demo  reid.pkl  positive1.png  positive2.png  negtive.jpg")
+        print(
+            "usage: python3 -m reid_alignedreid/demo  reid.pkl  positive1.png  positive2.png  negtive.jpg"
+        )
         sys.exit(0)
     model = Model()
     sd = mge.load(sys.argv[1])
@@ -35,8 +37,8 @@ if __name__ == "__main__":
     feat3 = model.inference(cv2.imread(sys.argv[4]))
     logger.info(f'{feat3}')
 
-    positive = np.linalg.norm(feat1-feat2)
+    positive = np.linalg.norm(feat1 - feat2)
     print(f'distance_positive: {positive}')
 
-    negtive = np.linalg.norm(feat3-feat2)
+    negtive = np.linalg.norm(feat3 - feat2)
     print(f'distance_negtive: {negtive}')

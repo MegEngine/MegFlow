@@ -9,10 +9,11 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-from megflow import register
-from loguru import logger
-from warehouse.detection_yolox import *
 import numpy as np
+from loguru import logger
+from megflow import register
+from warehouse.detection_yolox import PredictorLite
+
 
 @register(inputs=['inp'], outputs=['out'])
 class Detect:
@@ -24,14 +25,19 @@ class Detect:
         self.name = name
 
         # load detect model and warmup
-        self._predictor = PredictorLite(path=args['path'], confthre=args['conf'], nmsthre=args['nms'], test_size=(self._tsize, self._tsize), device=args['device'], device_id=args['device_id'] )
+        self._predictor = PredictorLite(path=args['path'],
+                                        confthre=args['conf'],
+                                        nmsthre=args['nms'],
+                                        test_size=(self._tsize, self._tsize),
+                                        device=args['device'],
+                                        device_id=args['device_id'])
         warmup_data = np.zeros((224, 224, 3), dtype=np.uint8)
         self._predictor.inference(warmup_data)
         logger.info(" YOLOX loaded.")
 
     @staticmethod
     def restrict(val, min, max):
-        assert(min < max)
+        assert min < max
         if val < min:
             val = min
         if val > max:
@@ -72,7 +78,6 @@ class Detect:
                 # name = 'frame{0:07d}.jpg'.format(envelope.partial_id)
                 # cv2.imwrite(name, x)
 
-            if 1 == self._visualize:
+            if self._visualize == 1:
                 image['data'] = self._predictor.visual(outputs, data)
             self.out.send(envelope)
-        

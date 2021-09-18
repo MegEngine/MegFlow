@@ -10,9 +10,7 @@
 # coding=utf-8
 
 from megflow import register
-from loguru import logger
-from warehouse.quality_naive import Quality
-import cv2
+
 
 @register(inputs=['inp'], outputs=['out'])
 class Shaper:
@@ -21,7 +19,7 @@ class Shaper:
         self._mode = args['mode']
         self._map = dict()
 
-        self.idx=0
+        self.idx = 0
 
     def expand(self, box, max_w, max_h, ratio):
         l = box[0]
@@ -51,7 +49,7 @@ class Shaper:
 
         msg = envelope.msg
 
-        # push the first 
+        # push the first
         msg['shaper'] = []
         for track in msg['tracks']:
             tid = track['tid']
@@ -60,7 +58,8 @@ class Shaper:
                 self._map[tid] = dict()
 
                 data = msg['data']
-                l, t, r, b = self.expand(box, data.shape[1], data.shape[0], 1.1)
+                l, t, r, b = self.expand(box, data.shape[1], data.shape[0],
+                                         1.1)
                 crop = data[t:b, l:r]
                 msg['shaper'].append(crop)
                 # cv2.imwrite(f'shaper_{envelope.partial_id}.jpg', crop)

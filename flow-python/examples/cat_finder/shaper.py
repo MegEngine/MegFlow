@@ -9,10 +9,10 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-from megflow import register
 from loguru import logger
+from megflow import register
 from warehouse.quality_naive import Quality
-import cv2
+
 
 @register(inputs=['inp'], outputs=['out'])
 class Shaper:
@@ -44,7 +44,7 @@ class Shaper:
     def exec(self):
         envelope = self.inp.recv()
         if envelope is None:
-            logger.info(f'stream shaper finish')
+            logger.info('stream shaper finish')
             # last frame, throw out all cropped image
             for id in self._map:
                 self.out.send(self._map[id])
@@ -59,14 +59,14 @@ class Shaper:
             box = track['bbox']
             if tid not in self._map:
                 self._map[tid] = envelope.repack(msg)
-            
+
             data = msg['data']
             l, t, r, b = self.expand(box, data.shape[1], data.shape[0], 1.1)
             crop = data[t:b, l:r]
-            assert(crop is not None)
+            assert crop is not None
             quality = Quality.area(crop)
 
-            if 'BEST' == self._mode:
+            if self._mode == 'BEST':
                 tid_msg = self._map[tid].msg
                 # save best image
                 if 'quality' not in tid_msg:
@@ -84,4 +84,3 @@ class Shaper:
             for id in ids:
                 self.out.send(self._map[id])
                 self._map.pop(id)
-

@@ -11,12 +11,14 @@
 
 from loguru import logger
 import onnxruntime
-import cv2 
-import numpy as np 
+import cv2
+import numpy as np
 
-def load_onnx_model(onnx_path): 
+
+def load_onnx_model(onnx_path):
     onnx_session = onnxruntime.InferenceSession(onnx_path)
     return onnx_session
+
 
 def get_output_name(onnx_session):
     output_name = []
@@ -24,12 +26,14 @@ def get_output_name(onnx_session):
         output_name.append(node.name)
     return output_name
 
+
 def transform(image, target_shape=(960, 960)):
     image_height, image_width, _ = image.shape
     ratio_h = target_shape[1] * 1.0 / image_height
     ratio_w = target_shape[0] * 1.0 / image_width
     image = cv2.resize(image, target_shape)
     return image, ratio_h, ratio_w
+
 
 def is_overlap_v1(rect1, rect2, iou_threshold):
     xx1 = max(rect1[0], rect2[0])
@@ -43,6 +47,7 @@ def is_overlap_v1(rect1, rect2, iou_threshold):
         rect2[2] - rect2[0] + 1) * (rect2[3] - rect2[1] + 1) - i
     ov = i / u
     return ov >= iou_threshold
+
 
 def raw_nms(boxes, iou_threshold=0.3):
     if 0 == len(boxes):
@@ -65,7 +70,8 @@ def raw_nms(boxes, iou_threshold=0.3):
 
     return [x[5] for i, x in enumerate(rects) if rect_valid[i]]
 
-def onnx_inference(onnx_session, num_classes, image, topk_candidates=1000): 
+
+def onnx_inference(onnx_session, num_classes, image, topk_candidates=1000):
 
     output_name = get_output_name(onnx_session)
 
@@ -73,9 +79,7 @@ def onnx_inference(onnx_session, num_classes, image, topk_candidates=1000):
     image = image.astype(np.float32)
     image = np.expand_dims(image.transpose((2, 0, 1)), 0)
 
-    scores, boxes = onnx_session.run(
-        output_name, input_feed={"input": image}
-    )
+    scores, boxes = onnx_session.run(output_name, input_feed={"input": image})
 
     keep = scores.max(axis=1) > 0.1
     scores = scores[keep]
@@ -102,6 +106,7 @@ def onnx_inference(onnx_session, num_classes, image, topk_candidates=1000):
 
     return boxes, scores, classes
 
+
 def run(onnx_session, image, class_names, score_thrs, nms_thr=0.6):
     num_classes = len(class_names)
     import time
@@ -119,8 +124,7 @@ def run(onnx_session, image, class_names, score_thrs, nms_thr=0.6):
         keep = scores > np.maximum(score_thrs[cls_idxs], 0.2)
 
     pred_boxes = np.concatenate(
-        [boxes, scores[:, np.newaxis], cls_idxs[:, np.newaxis]], axis=1
-    )
+        [boxes, scores[:, np.newaxis], cls_idxs[:, np.newaxis]], axis=1)
     pred_boxes = pred_boxes[keep]
 
     all_boxes = []

@@ -13,6 +13,7 @@ from loguru import logger
 import numpy as np
 from scipy.optimize import linear_sum_assignment, leastsq
 
+
 class CostGenerator:
     def __init__(self):
         self.linear_pred_funcs = []
@@ -105,9 +106,7 @@ class Tracker:
             else:
                 bbox = tracker['boxes'][-1]['bbox']
 
-            ret.append(
-                dict(tid=tracker_id,
-                     bbox=bbox))
+            ret.append(dict(tid=tracker_id, bbox=bbox))
 
         return ret
 
@@ -195,7 +194,7 @@ class Tracker:
                 np.array([0]), [
                     det_box,
                 ])
-        
+
         # return finished track id
         return failed_ids
 
@@ -273,16 +272,17 @@ class LinearFunc:
     def predict(self, x):
         return linear_func(self.param[0], x)
 
+
 if __name__ == "__main__":
 
     def build_test_input1():
         item1 = dict()
-        item1["bbox"] = np.array([10, 20,  300, 300])
+        item1["bbox"] = np.array([10, 20, 300, 300])
         item1["score"] = 0.7
         item1["cls"] = int(15)
 
         item2 = dict()
-        item2["bbox"] = np.array([300, 300,  600, 600])
+        item2["bbox"] = np.array([300, 300, 600, 600])
         item2["score"] = 0.8
         item2["cls"] = int(15)
 
@@ -290,12 +290,12 @@ if __name__ == "__main__":
 
     def build_test_input2():
         item1 = dict()
-        item1["bbox"] = np.array([60, 60,  360, 360])
+        item1["bbox"] = np.array([60, 60, 360, 360])
         item1["score"] = 0.77
         item1["cls"] = int(15)
 
         item2 = dict()
-        item2["bbox"] = np.array([310, 310,  660, 660])
+        item2["bbox"] = np.array([310, 310, 660, 660])
         item2["score"] = 0.88
         item2["cls"] = int(15)
 
@@ -303,7 +303,7 @@ if __name__ == "__main__":
 
     def build_test_input3():
         item1 = dict()
-        item1["bbox"] = np.array([60, 60,  360, 360])
+        item1["bbox"] = np.array([60, 60, 360, 360])
         item1["score"] = 0.77
         item1["cls"] = int(15)
 

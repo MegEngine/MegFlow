@@ -33,6 +33,7 @@ def is_overlap(rect1: np.array, rect2: np.array, iou_thr: float) -> bool:
     ov = iou(rect1, rect2)
     return ov >= iou_thr
 
+
 def shrink_rect(rect):
     x1, y1, x2, y2 = rect
 
