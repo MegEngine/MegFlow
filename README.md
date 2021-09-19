@@ -14,6 +14,7 @@ MegFlow 提供快速视觉应用落地流程，最快 15 分钟搭建起视频�
 
 ## HowTo
 * how to build and run
+  * [run in 15 minutes](docs/how-to-build-and-run/run-in-15-minutes.zh.md)
   * [build with docker](docs/how-to-build-and-run/build-with-docker.zh.md)
   * [build from source](docs/how-to-build-and-run/build-from-source.zh.md)
   * [build on win10](docs/how-to-build-and-run/build-on-win10.zh.md)

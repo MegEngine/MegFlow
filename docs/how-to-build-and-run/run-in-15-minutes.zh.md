@@ -24,7 +24,7 @@ $ conda activate py38
 
 ## 安装 Prebuilt 包
 
-下载对应 python 版本的 .whl 包，安装
+打开 [release 页面](https://github.com/MegEngine/MegFlow/releases)下载对应 python 版本的 .whl 包，安装
 ```bash
 $  python3 -m pip install megflow-0.1.0-py38-none-linux_x86_64.whl  --force-reinstall
 ```
