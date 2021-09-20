@@ -12,7 +12,7 @@
 import numpy as np
 from loguru import logger
 from megflow import register
-from warehouse.detection_memd import load_onnx_model
+from warehouse.detection_memd import load_onnx_model, run
 
 
 @register(inputs=['inp'], outputs=['out'])
@@ -28,7 +28,7 @@ class Detect:
         # load model and warmup
         self._model = load_onnx_model(args['path'])
         warmup_data = np.zeros((256, 256, 3), dtype=np.uint8)
-        self._model.run(self._model, warmup_data, ["elec_cycle"], self._score,
+        run(self._model, warmup_data, ["elec_cycle"], self._score,
                        self._nms)
 
         logger.info(" MEMD loaded.")
@@ -53,7 +53,7 @@ class Detect:
 
         if process:
             data = image['data']
-            outputs = self._model.run(self._model, data, ["elec_cycle"],
+            outputs = run(self._model, data, ["elec_cycle"],
                                      self._score, self._nms)
 
             items = []

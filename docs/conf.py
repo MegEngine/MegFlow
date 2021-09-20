@@ -23,7 +23,7 @@ from recommonmark.transform import AutoStructify
 
 project = 'MegFlow'
 copyright = '2021, Megvii'
-author = 'tpoisonooo'
+author = 'MegEngine'
 
 # The full version, including alpha/beta/rc tags
 release = ''
