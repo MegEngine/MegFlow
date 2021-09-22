@@ -46,14 +46,16 @@ $ python3
 '1.6.0'
 ```
 
+**此处 30xx 卡常见问题**：Ampere 架构的卡安装 megengine，需要看这个 [issue](https://github.com/MegEngine/MegEngine/issues/212)。解决 30xx 强依赖 cuda11 而 mge 又无法分发（EAR 约束）的问题。
+
 ## 四、图片注册
 
 启动图片服务
 ```bash
 $ cd flow-python/examples
 $ pip3 install -r requires.txt
-$ cargo run --example run_with_plugins -- -c cat_finder/image_gpu.toml  -p cat_finder    # 有 GPU 的机器执行这个
-$ cargo run --example run_with_plugins -- -c cat_finder/image_cpu.toml  -p cat_finder    # 无 GPU 的 laptop 执行这句
+$ run_with_plugins -c cat_finder/image_gpu.toml  -p cat_finder    # 有 GPU 的机器执行这个
+$ run_with_plugins -c cat_finder/image_cpu.toml  -p cat_finder    # 无 GPU 的 laptop 执行这句
 ```
 
 **此处常见问题**：`error while loading shared libraries: libpython3.8.xxx`，意为 libpython.so 找不到。如果使用 conda 就在 miniconda 安装目录下面，只需要设置环境变量
@@ -114,8 +116,8 @@ $ ffmpeg -re -stream_loop -1 -i ${models}/cat_finder_testdata/test1.ts -c copy -
 启动视频识别服务
 ```bash
 $ cd flow-python/examples
-$ cargo run --example run_with_plugins -- -c cat_finder/video_gpu.toml  -p cat_finder  # 有 GPU 的机器
-$ cargo run --example run_with_plugins -- -c cat_finder/video_cpu.toml  -p cat_finder  # 无 GPU 的设备用这句
+$ run_with_plugins -c cat_finder/video_gpu.toml  -p cat_finder  # 有 GPU 的机器
+$ run_with_plugins -c cat_finder/video_cpu.toml  -p cat_finder  # 无 GPU 的设备用这句
 ```
 打开 8082 端口服务（如 http://127.0.0.1:8082/docs ）。
 

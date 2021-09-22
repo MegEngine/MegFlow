@@ -40,7 +40,7 @@ $ pip3 install onnxruntime --user
 启动服务
 ```bash
 $ cd flow-python/examples
-$ cargo run --example run_with_plugins -- -c electric_bicycle/electric_bicycle.toml  -p electric_bicycle
+$ run_with_plugins -c electric_bicycle/electric_bicycle.toml  -p electric_bicycle
 ```
 服务配置文件在`electric_bicycle/electric_bicycle.toml`，解释参考 [how-to-add-graph](../../../docs/how-to-add-my-service/01-single-classification-model.zh.md) 。这里只需要打开 8083 端口服务，操作和[猫猫围栏](../cat_finder/README.md) 近似。
 

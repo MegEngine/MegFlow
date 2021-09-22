@@ -79,9 +79,16 @@ P.S. 默认 ffmpeg 依赖自动从 github 上拉取源码构建，这会使得�
 ## 三、Python“开机自检”
 ```bash
 $ cd examples
-$ cargo run --example run_with_plugins -- -p logical_test
+$ cargo build --example run_with_plugins --release # 编译出 megflow bin
+$ ln -s ../../target/example/run_with_plugins
+$ ./run_with_plugins -p logical_test
 ```
 `logical_test` 是 examples 下最基础的计算图测试用例，运行能正常结束表示 MegFlow 编译成功、基本语义无问题。
+
+`run_with_plugins` 是计算图的实现。编译完成之后不再需要 `cargo` 和 `Rust`，使用者只需要
+
+  * `import megflow`成功
+  * `run_with_plugins -h` 正常
 
 
 ## 四、Python Built-in Applications
