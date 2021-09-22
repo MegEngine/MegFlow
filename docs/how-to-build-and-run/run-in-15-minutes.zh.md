@@ -37,12 +37,12 @@ Python 3.8.3 (default, May 19 2020, 18:47:26)
 Type "help", "copyright", "credits" or "license" for more information.
 >>> import megflow
 ```
-.whl 打包了可执行文件 `run_with_plugins`，如果使用 conda 位置应该在
+
+.whl 提供了 `run_with_plugins`命令，某些环境可能要`export PATH=~/.local/bin/:${PATH}`
+
 ```bash
-$ cd ${HOME}/miniconda3/envs/py38/lib/python3.8/site-packages/megflow/
-$ sudo apt install build-essential -y
-$ ldd run_with_plugins         # 可看到仅依赖常见库
-$ ./run_with_plugins --help
+$ apt install build-essential -y
+$ run_with_plugins -h
 run_with_plugins 1.0
 megvii
 ...
@@ -61,6 +61,10 @@ $ run_with_plugins -p logical_test
 ```bash
 $ export LD_LIBRARY_PATH=`conda info --base`/pkgs/python-3.8.11-xxx/lib:${LD_LIBRARY_PATH}
 ```
+`run_with_plugins` 是计算图的实现。使用者不需要关心 Rust/cargo，只需要
+
+  * `import megflow` 成功
+  * `run_with_plugins -h` 正常
 
 > 工作原理：[megflow](../../flow-python/megflow/__init__.py) 仅是一层接口，由 run_with_plugins “注入”建图/调度/优化等实现。
 

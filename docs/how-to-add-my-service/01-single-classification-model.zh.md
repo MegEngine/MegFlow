@@ -132,7 +132,7 @@ class Classify:
 运行服务
 ```bash
 $ cd flow-python/examples
-$ cargo run --example run_with_plugins -- -c simple_classification/image_cpu.toml  -p  simple_classification # 源码/docker 编译方式用这条命令
+$ run_with_plugins -c simple_classification/image_cpu.toml  -p  simple_classification # 源码/docker 编译方式用这条命令
 ```
 
 浏览器打开 8084 端口服务（例如 http://10.122.101.175:8084/docs ），选择一张图“try it out”即可。
