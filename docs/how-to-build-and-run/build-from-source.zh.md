@@ -80,7 +80,7 @@ P.S. 默认 ffmpeg 依赖自动从 github 上拉取源码构建，这会使得�
 ```bash
 $ cd examples
 $ cargo build --example run_with_plugins --release # 编译出 megflow bin
-$ ln -s ../../target/example/run_with_plugins
+$ ln -s ../../target/release/examples/run_with_plugins
 $ ./run_with_plugins -p logical_test
 ```
 `logical_test` 是 examples 下最基础的计算图测试用例，运行能正常结束表示 MegFlow 编译成功、基本语义无问题。
