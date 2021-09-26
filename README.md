@@ -20,8 +20,9 @@ MegFlow 提供快速视觉应用落地流程，最快 15 分钟搭建起视频�
   * [build on win10](docs/how-to-build-and-run/build-on-win10.zh.md)
   * [generate rtsp](docs/how-to-build-and-run/generate-rtsp.zh.md)
 * how to use
-  * [add my first service](docs/how-to-add-my-service/01-single-classification-model.zh.md)
-  * [how to optimize and debug](docs/how-to-debug.zh.md)
+  * [tutorial01: image classification service](docs/how-to-add-my-service/01-single-classification-model.zh.md)
+  * [tutorial02: detect and classify on video stream](docs/how-to-add-my-service/02-single-det-classify.zh.md)
+* [how to debug](docs/how-to-debug.zh.md)
 * [how to contribute](docs/how-to-contribute.zh.md)
 * [FAQ](docs/FAQ.zh.md)
 

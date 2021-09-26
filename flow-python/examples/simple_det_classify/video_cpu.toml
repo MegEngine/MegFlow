@@ -1,0 +1,45 @@
+main = "tutorial_02"
+
+[[nodes]]
+name = "det"
+ty = "Detect"
+model = "yolox-s"
+conf = 0.25
+nms = 0.45
+tsize = 640
+path = "models/simple_det_classify_models/yolox_s.mge"
+interval = 5
+visualize = 1
+device = "cpu"
+device_id = 0
+
+[[nodes]]
+name = "classify"
+ty = "Classify"
+path = "models/simple_det_classify_models/resnet18_preproc_inside.mge"
+device = "cpu"
+device_id = 0
+
+[[graphs]]
+name = "subgraph"
+inputs = [{ name = "inp", cap = 16, ports = ["det:inp"] }]
+outputs = [{ name = "out", cap = 16, ports = ["classify:out"] }]
+connections = [
+  { cap = 16, ports = ["det:out", "classify:inp"] },
+]
+
+[[graphs]]
+name = "tutorial_02"
+connections = [
+  { cap = 16, ports = ["source:out", "destination:inp"] },
+  { cap = 16, ports = ["source:inp", "destination:out"] }
+]
+
+    [[graphs.nodes]]
+    name = "source"
+    ty = "VideoServer"
+    port = 8085
+    
+    [[graphs.nodes]]
+    name = "destination"
+    ty = "subgraph"

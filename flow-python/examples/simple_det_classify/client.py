@@ -8,22 +8,20 @@
 
 #!/usr/bin/env python
 # coding=utf-8
-import cv2
+import urllib
 import requests
 
 
 def test():
     ip = 'localhost'
-    port = '8084'
-    user_define_string = 'content'
-    url = f'http://{ip}:{port}/analyze/{user_define_string}'
-    img = cv2.imread("./test.jpg")
-    _, data = cv2.imencode(".jpg", img)
-    data = data.tobytes()
+    port = '8085'
+    video_path = 'rtsp://127.0.0.1:8554/vehicle.ts'
+    video_path = urllib.parse.quote(video_path, safe='')
+    url = 'http://{}:{}/start/{}'.format(ip, port, video_path)
 
-    headers = {'Content-Length': f'{len(data)}', 'Content-Type': 'image/*'}
-    res = requests.post(url, data=data, headers=headers)
-    print(res.content)
+    res = requests.post(url)
+    ret = res.content
+    print(ret)
 
 
 if __name__ == "__main__":
