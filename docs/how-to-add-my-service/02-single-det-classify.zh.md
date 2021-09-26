@@ -1,4 +1,4 @@
-# 串连检测和分类
+# 串联检测和分类
 
 本文将在 [tutorial01](01-single-classification-model.zh.md) 的基础上扩展计算图：先检测、再扣图分类。对外提供视频解析服务。完整的代码在 [simple_det_classify](../../flow-python/examples/simple_det_classify) 。
 
