@@ -17,7 +17,7 @@ $ python3 dump.py
 $ ls -lah model.mge
 ...
 ```
-`dump.py` 正在 PR 到 MegEngine/models
+`dump.py` 已经 PR 到 [MegEngine/models 分类模型目录](https://github.com/MegEngine/Models/tree/master/official/vision/classification)
 ```bash
 $ cat dump.py
 ...
@@ -125,20 +125,49 @@ class Classify:
 * `__init__` 里加载模型，做个 warmup 防止首次推理太慢
 * 解码成 BGR 的 data 在 `envelope.msg['data']`，推理，send 返回 json string
 
-[更多 node 说明](appendix-B-python-plugin.zh.md)
+[classify.py 各参数说明](appendix-B-python-plugin.zh.md)
 
 ## 运行测试
 
 运行服务
 ```bash
 $ cd flow-python/examples
-$ run_with_plugins -c simple_classification/image_cpu.toml  -p  simple_classification # 源码/docker 编译方式用这条命令
+$ run_with_plugins -c simple_classification/image_cpu.toml  -p  simple_classification
 ```
 
-浏览器打开 8084 端口服务（例如 http://10.122.101.175:8084/docs ），选择一张图“try it out”即可。
+### WebUI 方式
+浏览器打开 8084 端口服务（例如 http://127.0.0.1:8084/docs ），选择一张图“try it out”即可。
 
-## 其他
+### 命令行方式
+```bash
+$ curl http://127.0.0.1:8081/analyze/image_name  -X POST --header "Content-Type:image/*"   --data-binary @test.jpeg
+```
 
-一、http 客户端开发
+`image_name` 是用户自定义参数，用在需要 POST 内容的场景。这里随便填即可；`test.jpeg` 是测试图片
 
-rweb/Swagger 提供了 http RESTful API 描述文件，例如在 http://10.122.101.175:8084/openapi.json 。`swagger_codegen` 可用描述文件生成各种语言的调用代码。更多教程见 [swagger codegen tutorial ](https://swagger.io/tools/swagger-codegen/)。
+### Python Client
+
+```Python
+$ cat ${MegFlow_DIR}/flow-python/examples/simple_classification/client.py
+
+import requests
+import cv2
+
+def test():
+    ip = 'localhost'
+    port = '8084'
+    url = 'http://{}:{}/analyze/any_content'.format(ip, port)
+    img = cv2.imread("./test.jpg")
+    _, data = cv2.imencode(".jpg", img)
+    data = data.tobytes()
+
+    headers = {'Content-Length': '%d' % len(data), 'Content-Type': 'image/*'}
+    res = requests.post(url, data=data, headers=headers)
+    print(res.content)
+
+if __name__ == "__main__":
+    test()
+```
+
+### 其他语言
+rweb/Swagger 提供了 http RESTful API 描述文件，例如在 http://127.0.0.1:8084/openapi.json 。`swagger_codegen` 可用描述文件生成 java/go 等语言的调用代码。更多教程见 [swagger codegen tutorial ](https://swagger.io/tools/swagger-codegen/)。
