@@ -97,9 +97,23 @@ $ curl http://127.0.0.1:8081/analyze/my_cat_name  -X POST --header "Content-Type
 ```
 `my_cat_name` 是注册的猫咪名称；`test.jpeg` 是测试图片；`output.jpg` 是返回的可视化图片。
 
-## 五、视频识别
+## 五、准备视频识别
 
-准备一个 rtsp 视频流地址，做测试输入（因不可抗力 MegFlow 无法提供现成地址）。模型包目录提供了测试视频，在 `models/cat_finder_testdata`，需要用户自行部署 live555 服务。最直接的办法：
+启动解析服务
+```bash
+$ cd flow-python/examples
+$ run_with_plugins -c cat_finder/video_gpu.toml  -p cat_finder  # 有 GPU 的机器
+$ run_with_plugins -c cat_finder/video_cpu.toml  -p cat_finder  # 无 GPU 的设备用这句
+```
+浏览器打开 8082 端口服务（如 http://127.0.0.1:8082/docs ，注意区分物理机和虚拟机的对应 ip）
+
+![](images/cat_finder_video_select.jpg)
+
+可以看到 MegFlow 提供了 4 个 API：启/停一路解析、消费当前解析结果、列出所有信息。
+
+开启一路视频流解析需要流的 url，这里有两种方法：
+
+1）准备一个 rtsp 视频流地址，做测试输入（流地址部署不方便，也可以直接用离线文件的绝对路径代替）。模型包目录提供了测试视频，在 `models/cat_finder_testdata`，需要用户自行部署 live555 服务。最直接的办法：
 ```bash
 $ wget https://github.com/aler9/rtsp-simple-server/releases/download/v0.17.2/rtsp-simple-server_v0.17.2_linux_amd64.tar.gz
 $ 
@@ -107,27 +121,23 @@ $ tar xvf rtsp-simple-server_v0.17.2_linux_amd64.tar.gz && ./rtsp-simple-server
 $ ffmpeg -re -stream_loop -1 -i ${models}/cat_finder_testdata/test1.ts -c copy -f rtsp rtsp://127.0.0.1:8554/test1.ts
 ```
 
-
 * 想用 laptop/树莓派摄像头可搜索 Camera 推流教程
 * 也可以手机拍摄视频，再用 ffmpeg 转成 .ts 格式推到 live555 server
 
 相关教程已整合在 [如何生成自己的 rtsp 流地址](../../../docs/how-to-build-and-run/generate-rtsp.zh.md) 。
 
-启动视频识别服务
-```bash
-$ cd flow-python/examples
-$ run_with_plugins -c cat_finder/video_gpu.toml  -p cat_finder  # 有 GPU 的机器
-$ run_with_plugins -c cat_finder/video_cpu.toml  -p cat_finder  # 无 GPU 的设备用这句
-```
-打开 8082 端口服务（如 http://127.0.0.1:8082/docs ）。
+2）如果 rtsp 流地址部署不方便，也可以直接用离线文件的绝对路径代替，也就是在 WebUI 中输入类似`/mnt/data/stream/file.ts` 的路径。需要自行保证服务器可访问这个文件、并且格式是可以被 ffmpeg 解析的（例如 .ts/.mp4/.h264/.h265）。
 
-```bash
-$ google-chrome-stable  http://127.0.0.1:8082/docs 
-```
+## 六、视频识别 FAQ
 
-![](images/cat_finder_video_select.jpg)
+* 如果用 wsl2 部署，注意区分物理机和虚拟机的 ip
+* 如果服务部署在 docker 里，同样可以把 8082 端口映射到宿主机端口
 
-`try it out` 其中的 `/start/{url}` 接口，输入 rtsp 地址（例如“rtsp://127.0.0.1:8554/test1.ts”），会返回 stream_id（例如 0）。
+## 七、运行
+
+### 1）WebUI 方式
+
+`try it out` 其中的 `/start/{url}` 接口，输入 rtsp 地址（如“rtsp://127.0.0.1:8554/test1.ts”或者“/home/name/file.mp4”），会返回 stream_id（例如 0）。
 
 * 服务将打印相关日志
 
@@ -150,13 +160,10 @@ $ redis-cli
 2) "notification.cat_finder"
 3) "feature.pingai"
 ```
-用 `brpop notification.cat_finder` 可消费报警消息。
+用 `rpop notification.cat_finder` 可消费报警消息。
 
-
-## 六、视频识别 FAQ
-如果用 wsl2 部署，注意区分物理机和虚拟机的 ip。
-
-如果服务部署在 docker 里，同样可以把 8082 端口映射到宿主机端口；对应的 `cURL` 命令参考
+### 2）命令行方式
+对应的 `cURL` 命令参考
 ```bash
 $ curl  -X POST  'http://127.0.0.1:8082/start/rtsp%3A%2F%2F127.0.0.1%3A8554%2Ftest1.ts'  # start  rtsp://127.0.0.1:8554/test1.ts
 start stream whose id is 2% 
@@ -165,7 +172,10 @@ $ curl 'http://127.0.0.1:8082/list'   # list all stream
 ```
 路径中的 `%2F`、`%3A` 是 [URL](https://www.ietf.org/rfc/rfc1738.txt) 的转义字符
 
-## 七、模型列表
+### 3）Python 代码方式
+参照 [simple_det_classify client.py](../simple_det_classify/client.py) 实现
+
+## 八、模型列表
 
 本服务有以下模型的痕迹
 

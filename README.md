@@ -78,6 +78,7 @@ MegFlow 提供快速视觉应用落地流程，最快 15 分钟搭建起视频�
 
 MegFlow 模型和推理学习了这些项目：
 * [MegEngine](https://github.com/megengine/megengine)
+* [Models](https://github.com/megengine/models)
 * [onnx](https://github.com/onnx/onnx)
 * [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX)
 * [AlignedReID](https://github.com/huanghoujing/AlignedReID-Re-Production-Pytorch)
