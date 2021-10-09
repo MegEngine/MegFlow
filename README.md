@@ -35,7 +35,7 @@ MegFlow 提供快速视觉应用落地流程，最快 15 分钟搭建起视频�
 | x86 Ubuntu16.04 有 GPU | ✔️ |
 | x86 Ubuntu18.04 无 GPU | ✔️ |
 | x86 macos | ✔️ |
-| ARM | / |
+| ARM                    | ✔️        |
 
 | Python 版本 | 支持情况 |
 | - | - |
