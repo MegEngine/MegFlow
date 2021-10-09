@@ -14,10 +14,11 @@ MegFlow 提供快速视觉应用落地流程，最快 15 分钟搭建起视频�
 
 ## HowTo
 * how to build and run
-  * [run in 15 minutes](docs/how-to-build-and-run/run-in-15-minutes.zh.md)
+  * [run with prebuilt .whl](docs/how-to-build-and-run/run-in-15-minutes.zh.md)
   * [build with docker](docs/how-to-build-and-run/build-with-docker.zh.md)
   * [build from source](docs/how-to-build-and-run/build-from-source.zh.md)
   * [build on win10](docs/how-to-build-and-run/build-on-win10.zh.md)
+  * [build  on armv8](docs/how-to-build-and-run/build-on-aarch64.zh.md)
   * [generate rtsp](docs/how-to-build-and-run/generate-rtsp.zh.md)
 * how to use
   * [tutorial01: image classification service](docs/how-to-add-my-service/01-single-classification-model.zh.md)
@@ -28,21 +29,21 @@ MegFlow 提供快速视觉应用落地流程，最快 15 分钟搭建起视频�
 
 ## Current Support List
 
-| 系统环境 | 支持情况 |
-| - | - |
-| Windows 10 wsl2 | ✔️ |
-| Windows 10 docker | ✔️ |
-| x86 Ubuntu16.04 有 GPU | ✔️ |
-| x86 Ubuntu18.04 无 GPU | ✔️ |
-| x86 macos | ✔️ |
-| ARM | / |
+| 系统环境               | 支持情况 |
+| ---------------------- | -------- |
+| Windows 10 wsl2        | ✔️        |
+| Windows 10 docker      | ✔️        |
+| x86 Ubuntu16.04 有 GPU | ✔️        |
+| x86 Ubuntu18.04 无 GPU | ✔️        |
+| x86 macos              | ✔️        |
+| ARM                    | ✔️        |
 
 | Python 版本 | 支持情况 |
-| - | - |
-| 3.6 | ✔️ |
-| 3.7 | ✔️ |
-| 3.8 | ✔️ |
-| 3.9 | / |
+| ----------- | -------- |
+| 3.6         | ✔️        |
+| 3.7         | ✔️        |
+| 3.8         | ✔️        |
+| 3.9         | /        |
 
 ## Built-in Applications
 * 猫猫围栏

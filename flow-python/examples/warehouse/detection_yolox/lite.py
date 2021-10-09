@@ -88,6 +88,7 @@ class PredictorLite(object):
         net.load(path)
 
         self.net = net
+        self.device = device
         self.cls_names = cls_names
         self.decoder = decoder
         self.num_classes = 80
@@ -154,7 +155,10 @@ class PredictorLite(object):
 
         outputs = self.lite_postprocess(outputs[0], list(self.test_size))
         outputs = outputs[np.newaxis, :]
-        output = mge.tensor(outputs)
+        if "gpu" in self.device:
+            output = mge.tensor(outputs)
+        else:
+            output = mge.tensor(outputs, device="cpux")
 
         ret = postprocess(output, self.num_classes, self.confthre,
                           self.nmsthre)
