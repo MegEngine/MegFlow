@@ -1,0 +1,24 @@
+name: sync-wiki
+on:
+  push:
+    branches: [master]
+    paths:
+    - '.github/workflows/sync-wiki.yml'
+    - 'docs/**'
+
+jobs:
+  sync-wiki:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: sync
+      run: |
+        cp -r docs $GITHUB_WORKSPACE/MegFlow.wiki
+        cd $GITHUB_WORKSPACE/MegFlow.wiki
+        git config --global user.name "MegEngine"
+        git config --global user.email "megengine@megvii.com"
+        git init
+        git add .
+        git commit -m "sync"
+        git remote add upstream https://${{ secrets.WIKI_SYNC_BOT_TOKEN }}@github.com/MegEngine/MegFlow.wiki.git
+        git push upstream master -f
