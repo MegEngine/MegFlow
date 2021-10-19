@@ -76,7 +76,7 @@ async fn main() {
     }
 
     let mut graph = load(Some(plugin_cfg), cfg.as_str()).unwrap();
-    let graph_handle = graph.start(None);
-    graph.close();
+    let graph_handle = graph.start();
+    graph.stop();
     graph_handle.await
 }

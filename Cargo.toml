@@ -2,7 +2,9 @@
 members = [
     "flow-rs",
     "flow-derive",
-    "flow-plugins"
+    "flow-plugins",
+    "flow-debugger",
+    "flow-message"
 ]
 
 [profile.dev]

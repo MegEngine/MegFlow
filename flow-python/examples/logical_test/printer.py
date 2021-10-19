@@ -19,14 +19,18 @@ class Node:
         global instance_id
         self.id = instance_id
         instance_id += 1
+        self.count = 0
 
     def exec(self):
         envelope = self.inp.recv()
         if envelope is not None:
+            self.count += 1
             gbuf = self.global_buf.get()
             pbuf = self.parent_buf.get()
             buf = self.buf.get()
 
-            print(
-                'Printer[{}] get msg: {}, buf(global, parent, local): ({}, {}, {})'
-                .format(self.id, envelope.msg['message'], gbuf, pbuf, buf))
+            # print(
+            #     'Printer[{}] get msg: {}, buf(global, parent, local): ({}, {}, {})'
+            #     .format(self.id, envelope.msg['message'], gbuf, pbuf, buf))
+        else:
+            assert self.count == 10

@@ -70,6 +70,14 @@ impl Receiver {
             counter,
         }
     }
+    pub fn len(&self) -> usize {
+        let imp = self.imp.as_ref().expect("not init");
+        imp.len()
+    }
+    pub fn is_empty(&self) -> bool {
+        let imp = self.imp.as_ref().expect("not init");
+        imp.is_empty()
+    }
     #[doc(hidden)]
     pub fn empty_n(&self) -> usize {
         self.m_epoch.load(Ordering::Relaxed)
@@ -104,6 +112,7 @@ impl Receiver {
         let imp = self.imp.as_ref().expect("not init");
         let envelope = imp.recv().await.map_err(|e| {
             self.is_closed.store(true, Ordering::Relaxed);
+            imp.close_ops.notify(usize::MAX);
             e
         })?;
         if envelope.is::<DummyEnvelope>() {

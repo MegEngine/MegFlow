@@ -9,6 +9,7 @@
  * "AS IS" BASIS, WITHOUT ARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 pub mod graphviz;
+mod insert;
 pub mod interlayer;
 pub mod presentation;
 
@@ -16,11 +17,11 @@ use crate::node::{inputs, outputs};
 use anyhow::{anyhow, Result};
 use std::collections::HashMap;
 
-struct PortUtility {
-    ty: interlayer::PortTy,
-    mapping: fn(&str) -> String,
+pub(crate) struct PortUtility {
+    pub(crate) ty: interlayer::PortTy,
+    pub(crate) mapping: fn(&str) -> String,
 }
-static MAPPING: &[PortUtility] = &[
+pub(crate) static MAPPING: &[PortUtility] = &[
     PortUtility {
         ty: interlayer::PortTy::Unit,
         mapping: |p| p.to_owned(),
@@ -35,27 +36,35 @@ static MAPPING: &[PortUtility] = &[
     },
 ];
 
-fn translate_node(local_key: u64, p: presentation::Node) -> Result<interlayer::Node> {
-    let inputs = inputs(local_key, &p.entity.ty)?
-        .into_iter()
-        .map(|n| (n, "".to_owned()))
-        .collect();
-    let outputs = outputs(local_key, &p.entity.ty)?
-        .into_iter()
-        .map(|n| (n, "".to_owned()))
-        .collect();
+fn translate_node(
+    local_key: u64,
+    is_shared: bool,
+    p: presentation::Node,
+) -> Result<interlayer::Node> {
+    let ty = p.entity.ty.split('|').next().unwrap().trim();
+    let inputs = inputs(local_key, ty)?.into_iter().collect();
+    let outputs = outputs(local_key, ty)?.into_iter().collect();
     Ok(interlayer::Node {
-        entity: p.entity,
+        entity: interlayer::Entity {
+            name: p.entity.name,
+            ty: p
+                .entity
+                .ty
+                .split('|')
+                .map(|x| x.trim().to_owned())
+                .collect(),
+            args: p.entity.args,
+        },
         res: p.res,
         cloned: p.cloned,
         inputs,
         outputs,
         is_dyn: false,
+        is_shared,
     })
 }
 
 fn translate_conn(
-    name: &str,
     p: presentation::Connection,
     nodes: &mut HashMap<String, interlayer::Node>,
     shared_nodes: &mut HashMap<String, interlayer::Node>,
@@ -80,18 +89,12 @@ fn translate_conn(
                     port_type: utility.ty,
                     port_tag: tag,
                 };
-                if node.inputs.contains_key(&p) {
+                if node.inputs.contains(&p) {
                     rx.push(port);
-                    if let Some(p) = node.inputs.get_mut(&p) {
-                        *p = name.to_owned();
-                    }
                     find = true;
                     break;
-                } else if node.outputs.contains_key(&p) {
+                } else if node.outputs.contains(&p) {
                     tx.push(port);
-                    if let Some(p) = node.outputs.get_mut(&p) {
-                        *p = name.to_owned();
-                    }
                     find = true;
                     break;
                 }
@@ -113,6 +116,14 @@ fn translate_conn(
     let dyn_txn = tx.iter().filter(|tx| tx.is_dyn()).count();
 
     if dyn_rxn > 0 {
+        if tx.len() > 1 {
+            return Err(anyhow!("dyn port shared with multiple subgraphs"));
+        }
+        if dyn_rxn > 1 {
+            return Err(anyhow!(
+                "the number of nodes sharing dyn rx port only could be equal to 1"
+            ));
+        }
         for p in &tx {
             let node = nodes
                 .get_mut(&p.node_name)
@@ -122,6 +133,9 @@ fn translate_conn(
     }
 
     if dyn_txn > 0 {
+        if rx.len() > 1 {
+            return Err(anyhow!("dyn port shared with multiple subgraphs"));
+        }
         for p in &rx {
             let node = nodes
                 .get_mut(&p.node_name)
@@ -135,7 +149,7 @@ fn translate_conn(
 
 pub fn translate_graph(
     local_key: u64,
-    p: presentation::Graph,
+    mut p: presentation::Graph,
     shared_nodes: &mut HashMap<String, interlayer::Node>,
 ) -> Result<interlayer::Graph> {
     let mut nodes = HashMap::new();
@@ -144,98 +158,47 @@ pub fn translate_graph(
     let mut outputs = vec![];
     let mut connections = HashMap::new();
 
-    for node in p.nodes {
-        nodes.insert(node.entity.name.clone(), translate_node(local_key, node)?);
+    for node in std::mem::take(&mut p.nodes) {
+        nodes.insert(
+            node.entity.name.clone(),
+            translate_node(local_key, false, node)?,
+        );
     }
-    for res in p.resources {
+    for res in std::mem::take(&mut p.resources) {
         resources.insert(res.name.clone(), res);
     }
 
-    for (i, conn) in p.connections.into_iter().enumerate() {
+    for (i, conn) in std::mem::take(&mut p.connections).into_iter().enumerate() {
         let name = format!("__{}__", i);
-        let conn = translate_conn(&name, conn, &mut nodes, shared_nodes)?;
+        let mut conn = translate_conn(conn, &mut nodes, shared_nodes)?;
+        insert::bcast(&name, &mut conn, &mut connections, &mut nodes);
         connections.insert(name, conn);
     }
 
-    for mut input in p.inputs {
+    for mut input in std::mem::take(&mut p.inputs) {
         inputs.push(input.name.clone());
-        for p in &mut input.conn.ports {
-            let ((n, _), _) = interlayer::Port::parse(p.as_str())?;
-            if let Some(node) = nodes.get_mut(n) {
-                if node.is_dyn {
-                    let conn_name = format!("__{}xDynOutTransform__", input.name);
-                    let node_name = conn_name.clone();
-                    *p = format!("{}:inp", node_name);
-                    let mut tmp_conn = presentation::Connection {
-                        cap: input.conn.cap,
-                        ports: vec![],
-                    };
-                    let tmp_node = interlayer::Node {
-                        entity: interlayer::Entity {
-                            name: node_name,
-                            ty: "DynOutTransform".to_owned(),
-                            args: toml::value::Table::new(),
-                        },
-                        res: Default::default(),
-                        cloned: Some(1),
-                        inputs: HashMap::new(),
-                        outputs: HashMap::new(),
-                        is_dyn: false,
-                    };
-                    tmp_conn.ports.push(p.to_owned());
-                    nodes.insert(tmp_node.entity.name.clone(), tmp_node);
-                    let conn = translate_conn(&conn_name, tmp_conn, &mut nodes, shared_nodes)?;
-                    connections.insert(conn_name, conn);
-                }
-            }
-        }
-        let conn = translate_conn(&input.name, input.conn, &mut nodes, shared_nodes)?;
+        insert::dyn_inp_trans(&mut input, &mut connections, &mut nodes, shared_nodes)?;
+        let mut conn = translate_conn(input.conn, &mut nodes, shared_nodes)?;
+        insert::bcast(&input.name, &mut conn, &mut connections, &mut nodes);
         connections.insert(input.name, conn);
     }
 
-    for mut output in p.outputs {
+    for mut output in std::mem::take(&mut p.outputs) {
         outputs.push(output.name.clone());
-        for p in &mut output.conn.ports {
-            let ((n, _), _) = interlayer::Port::parse(p.as_str())?;
-            if let Some(node) = nodes.get_mut(n) {
-                if node.is_dyn {
-                    let conn_name = format!("__{}xDynInTransform__", output.name);
-                    let node_name = conn_name.clone();
-                    *p = format!("{}:inp", node_name);
-                    let mut tmp_conn = presentation::Connection {
-                        cap: output.conn.cap,
-                        ports: vec![],
-                    };
-                    let tmp_node = interlayer::Node {
-                        entity: interlayer::Entity {
-                            name: node_name,
-                            ty: "DynInTransform".to_owned(),
-                            args: toml::value::Table::new(),
-                        },
-                        res: Default::default(),
-                        cloned: Some(1),
-                        inputs: HashMap::new(),
-                        outputs: HashMap::new(),
-                        is_dyn: false,
-                    };
-                    tmp_conn.ports.push(p.to_owned());
-                    nodes.insert(tmp_node.entity.name.clone(), tmp_node);
-                    let conn = translate_conn(&conn_name, tmp_conn, &mut nodes, shared_nodes)?;
-                    connections.insert(conn_name, conn);
-                }
-            }
-        }
-        let conn = translate_conn(&output.name, output.conn, &mut nodes, shared_nodes)?;
+        insert::dyn_out_trans(&mut output, &mut connections, &mut nodes, shared_nodes)?;
+        let conn = translate_conn(output.conn, &mut nodes, shared_nodes)?;
         connections.insert(output.name, conn);
     }
 
     Ok(interlayer::Graph {
+        is_shared: shared_nodes.values().any(|n| n.entity.ty.contains(&p.name)),
         name: p.name,
         resources,
         nodes,
         inputs,
         outputs,
         connections,
+        global_res: vec![],
     })
 }
 
@@ -245,7 +208,10 @@ pub fn translate_config(local_key: u64, p: presentation::Config) -> Result<inter
     let mut resources = HashMap::new();
 
     for node in p.nodes {
-        nodes.insert(node.entity.name.clone(), translate_node(local_key, node)?);
+        nodes.insert(
+            node.entity.name.clone(),
+            translate_node(local_key, true, node)?,
+        );
     }
 
     for graph in p.graphs {
@@ -256,10 +222,13 @@ pub fn translate_config(local_key: u64, p: presentation::Config) -> Result<inter
         resources.insert(res.name.clone(), res);
     }
 
-    Ok(interlayer::Config {
+    let mut cfg = interlayer::Config {
         graphs,
         resources,
         nodes,
         main: p.main,
-    })
+    };
+    insert::global_res(&mut cfg);
+
+    Ok(cfg)
 }

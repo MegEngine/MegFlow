@@ -23,27 +23,24 @@ MegFlow 提供快速视觉应用落地流程，最快 15 分钟搭建起视频�
 * how to use
   * [tutorial01: image classification service](docs/how-to-add-my-service/01-single-classification-model.zh.md)
   * [tutorial02: detect and classify on video stream](docs/how-to-add-my-service/02-single-det-classify.zh.md)
+  * [tutorial03: batching and pipeline test](docs/how-to-add-my-service/03-batching-and-pipeline-test.zh.md)
 * [how to debug](docs/how-to-debug.zh.md)
 * [how to contribute](docs/how-to-contribute.zh.md)
 * [FAQ](docs/FAQ.zh.md)
 
-## Current Support List
+## Current Support Matrix
 
-| 系统环境               | 支持情况 |
-| ---------------------- | -------- |
-| Windows 10 wsl2        | ✔️        |
-| Windows 10 docker      | ✔️        |
-| x86 Ubuntu16.04 有 GPU | ✔️        |
-| x86 Ubuntu18.04 无 GPU | ✔️        |
-| x86 macos              | ✔️        |
-| ARM                    | ✔️        |
+| 系统环境 | win10 docker/wsl2 | ubuntu | centOS | macos |
+| -----------  | ------------------------- | ---------- | ---------  | ----- |
+| x86 | ✔️ | ✔️ | ✔️ | ✔️ |  
+| ARMv8 | - | ✔️ | ✔️ | - |
 
 | Python 版本 | 支持情况 |
 | ----------- | -------- |
 | 3.6         | ✔️        |
 | 3.7         | ✔️        |
 | 3.8         | ✔️        |
-| 3.9         | /        |
+| 3.9         | ✔️        |
 
 ## Built-in Applications
 * 猫猫围栏
@@ -59,12 +56,12 @@ MegFlow 提供快速视觉应用落地流程，最快 15 分钟搭建起视频�
 - 支持 demux/reorder/transform 等通用函数式组件
 - Python 插件内置有栈协程，不依赖 asyncio
 - 基础测试工具，支持插件沙盒，用于单测插件
+- 基础调试工具，支持建图实时预览/qps profile
 
 ## Coming Soon
 - 进程级别的节点、子图支持
 - 插件自动化测试部署
-- 调试工具，建图实时预览 profile 工具
-- 性能监控，inspect 工具
+- 性能监控，inspect 等工具
 - 更多内置应用和组件
 
 ## Contact Us

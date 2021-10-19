@@ -31,7 +31,7 @@ impl BinaryOpr {
                 b = recv_b.select_next_some() => {
                     if let Ok(b) = b {
                         self.c.send_any(b).await.ok();
-                        recv_a.push(self.a.recv_any());
+                        recv_b.push(self.b.recv_any());
                     }
                 }
                 complete => break,

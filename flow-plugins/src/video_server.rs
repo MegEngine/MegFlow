@@ -8,26 +8,19 @@
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT ARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
+use super::utils::codec;
 use super::utils::error;
 use ::log::error;
 use anyhow::Result;
-use ffmpeg_next::format::{input, Pixel};
-use ffmpeg_next::media::Type;
-use ffmpeg_next::software::scaling::{context::Context, flag::Flags};
-use ffmpeg_next::util::frame::video::Video;
 use flow_rs::prelude::*;
 use flow_rs::rt::sync::Mutex;
 use futures_util::{pin_mut, select, stream::FuturesUnordered, FutureExt, StreamExt};
-use numpy::ToPyArray;
 use pyo3::prelude::*;
-use pyo3::types::IntoPyDict;
 use rweb::*;
 use serde::Serialize;
 use std::collections::HashMap;
-use std::path::Path;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
-use std::sync::Once;
 use toml::value::Table;
 
 type RwebResult = Result<String, Rejection>;
@@ -177,7 +170,7 @@ impl VideoServer {
                         let url_cloned = url.clone();
                         let port_cloned = port.clone();
                         let handle = flow_rs::rt::task::spawn_blocking(move || -> Result<(), ffmpeg_next::Error> {
-                            if let Err(err) = decode_video(id, &url_cloned, &port_cloned) {
+                            if let Err(err) = codec::decode_video(id, &url_cloned, &port_cloned) {
                                 error!("video[{}] {} decode fault: {:?}", id, url_cloned, err);
                                 Err(err)
                             } else {
@@ -234,83 +227,4 @@ impl Messages {
     fn with_lock(self) -> MessagesWithLock {
         Arc::new(Mutex::new(self))
     }
-}
-
-static ONCE_INIT: Once = Once::new();
-
-fn decode_video(
-    id: u64,
-    path: impl AsRef<Path>,
-    sender: &Sender,
-) -> Result<(), ffmpeg_next::Error> {
-    ONCE_INIT.call_once(|| {
-        ffmpeg_next::init().unwrap();
-    });
-
-    let mut ictx = input(&path)?;
-
-    let input = ictx
-        .streams()
-        .best(Type::Video)
-        .ok_or(ffmpeg_next::Error::StreamNotFound)?;
-
-    let video_stream_index = input.index();
-
-    let mut decoder = input.codec().decoder().video()?;
-
-    let mut scaler = Context::get(
-        decoder.format(),
-        decoder.width(),
-        decoder.height(),
-        Pixel::BGR24,
-        decoder.width(),
-        decoder.height(),
-        Flags::BILINEAR,
-    )?;
-
-    let mut fid = 0;
-
-    'main: for (stream, packet) in ictx.packets() {
-        if stream.index() == video_stream_index {
-            decoder.send_packet(&packet)?;
-
-            let mut decoded = Video::empty();
-
-            while decoder.receive_frame(&mut decoded).is_ok() {
-                let mut bgr_frame = Video::empty();
-                scaler.run(&decoded, &mut bgr_frame)?;
-
-                let ndarray = Python::with_gil(|py| -> PyResult<_> {
-                    let data = bgr_frame.data(0);
-                    let ndarray = data.to_pyarray(py).reshape([
-                        bgr_frame.height() as usize,
-                        bgr_frame.stride(0) / 3,
-                        3,
-                    ])?;
-
-                    Ok([("data", ndarray.to_object(py))]
-                        .into_py_dict(py)
-                        .to_object(py))
-                })
-                .unwrap();
-
-                let mut envelope = Envelope::new(ndarray);
-                envelope.info_mut().from_addr = Some(id);
-                envelope.info_mut().partial_id = Some(fid);
-                let ret = flow_rs::rt::task::block_on(async { sender.send(envelope).await });
-                fid += 1;
-
-                if matches!(ret, Err(_)) {
-                    break 'main;
-                }
-            }
-        }
-    }
-
-    decoder.send_eof()?;
-
-    let mut decoded = Video::empty();
-    while decoder.receive_frame(&mut decoded).is_ok() {}
-
-    Ok(())
 }

@@ -10,6 +10,7 @@
  */
 use crate::broker::BrokerClient;
 use crate::channel::{ChannelStorage, Receiver, Sender};
+use crate::future::select_ok;
 use crate::graph::GraphSlice;
 use crate::prelude::ChannelBase;
 use crate::registry::Collect;
@@ -33,18 +34,26 @@ pub struct DynPorts<V> {
     local_key: u64,
     target: String,
     cap: usize,
-    broker: Option<BrokerClient>,
+    brokers: HashMap<String, BrokerClient>,
     cache: HashMap<u64, V>,
     _v_holder: PhantomData<V>,
 }
 
 impl<V> DynPorts<V> {
-    pub fn new(local_key: u64, target: String, cap: usize, broker: BrokerClient) -> DynPorts<V> {
+    pub fn new(
+        local_key: u64,
+        target: String,
+        cap: usize,
+        brokers: Vec<BrokerClient>,
+    ) -> DynPorts<V> {
         DynPorts {
             local_key,
             target,
             cap,
-            broker: Some(broker),
+            brokers: brokers
+                .into_iter()
+                .map(|x| (x.topic().to_owned(), x))
+                .collect(),
             cache: HashMap::new(),
             _v_holder: Default::default(),
         }
@@ -55,7 +64,29 @@ impl<V> DynPorts<V> {
         key: u64,
         resource: ResourceCollection,
     ) -> Result<JoinHandle<()>> {
-        let broker = self.broker.as_ref().expect("not init");
+        self.create_spec(
+            key,
+            self.brokers
+                .keys()
+                .next()
+                .expect("not init")
+                .clone()
+                .as_str(),
+            resource,
+        )
+        .await
+    }
+
+    pub async fn create_spec(
+        &mut self,
+        key: u64,
+        which: &str,
+        resource: ResourceCollection,
+    ) -> Result<JoinHandle<()>> {
+        let broker = self
+            .brokers
+            .get(which)
+            .ok_or_else(|| anyhow!("{} not found", which))?;
         if let Some(slice) = GraphSlice::registry_local()
             .get(self.local_key)
             .get(broker.topic())
@@ -95,7 +126,7 @@ impl<V> DynPorts<V> {
 
 impl DynPorts<Receiver> {
     pub fn try_fetch(&self) -> Option<(u64, Receiver)> {
-        if let Some(broker) = self.broker.as_ref() {
+        for broker in self.brokers.values() {
             if let Some(mut conns) = broker.try_fetch::<DynConns>() {
                 let conn = conns.outputs.remove(&self.target).unwrap_or_else(|| {
                     panic!("port {} not found in graph {}", self.target, broker.topic())
@@ -107,13 +138,20 @@ impl DynPorts<Receiver> {
     }
 
     pub async fn fetch(&self) -> Result<(u64, Receiver)> {
-        if let Some(broker) = self.broker.as_ref() {
-            if let Ok(mut conns) = broker.fetch::<DynConns>().await {
-                let conn = conns.outputs.remove(&self.target).unwrap_or_else(|| {
-                    panic!("port {} not found in graph {}", self.target, broker.topic())
-                });
-                return Ok((conns.name, conn));
-            }
+        let fut: Vec<_> = self
+            .brokers
+            .values()
+            .map(|x| x.fetch::<DynConns>())
+            .collect();
+        if let Ok(mut conns) = select_ok(fut).await {
+            let conn = conns.outputs.remove(&self.target).unwrap_or_else(|| {
+                panic!(
+                    "port {} not found in graph {:?}",
+                    self.target,
+                    self.brokers.keys()
+                )
+            });
+            return Ok((conns.name, conn));
         }
         Err(anyhow!("broker is closed"))
     }
@@ -135,10 +173,9 @@ impl DynPorts<Receiver> {
 
     pub fn is_closed(&self) -> bool {
         let mut is_closed = self
-            .broker
-            .as_ref()
-            .map(|broker| broker.is_closed())
-            .unwrap_or(false);
+            .brokers
+            .values()
+            .fold(false, |is_closed, broker| is_closed && broker.is_closed());
         for chan in self.cache.values() {
             is_closed = is_closed && chan.is_closed();
         }
@@ -148,7 +185,7 @@ impl DynPorts<Receiver> {
 
 impl DynPorts<Sender> {
     pub fn try_fetch(&mut self) -> Option<(u64, Sender)> {
-        if let Some(broker) = self.broker.as_ref() {
+        for broker in self.brokers.values() {
             if let Some(mut conns) = broker.try_fetch::<DynConns>() {
                 let conn = conns.inputs.remove(&self.target).unwrap_or_else(|| {
                     panic!("port {} not found in graph {}", self.target, broker.topic())
@@ -160,13 +197,20 @@ impl DynPorts<Sender> {
     }
 
     pub async fn fetch(&mut self) -> Result<(u64, Sender)> {
-        if let Some(broker) = self.broker.as_ref() {
-            if let Ok(mut conns) = broker.fetch::<DynConns>().await {
-                let conn = conns.inputs.remove(&self.target).unwrap_or_else(|| {
-                    panic!("port {} not found in graph {}", self.target, broker.topic())
-                });
-                return Ok((conns.name, conn));
-            }
+        let fut: Vec<_> = self
+            .brokers
+            .values()
+            .map(|x| x.fetch::<DynConns>())
+            .collect();
+        if let Ok(mut conns) = select_ok(fut).await {
+            let conn = conns.inputs.remove(&self.target).unwrap_or_else(|| {
+                panic!(
+                    "port {} not found in graph {:?}",
+                    self.target,
+                    self.brokers.keys()
+                )
+            });
+            return Ok((conns.name, conn));
         }
         Err(anyhow!("broker is closed"))
     }
@@ -187,7 +231,7 @@ impl DynPorts<Sender> {
     }
 
     pub fn close(&self) {
-        if let Some(broker) = &self.broker {
+        for broker in self.brokers.values() {
             broker.close();
         }
         for chan in self.cache.values() {

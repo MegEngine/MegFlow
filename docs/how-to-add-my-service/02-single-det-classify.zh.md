@@ -25,7 +25,7 @@ $ cat ${MegFlow}/flow-python/examples/simple_det_classify/dump.py
         # div 
         _div = mge.Tensor(np.array([57.375, 57.120, 58.395], dtype=np.float32))
         out = F.div(out, _div)
-        # dimshuffile 
+        # dimshuffle 
         out = F.transpose(out, (0,3,1,2))
 
         outputs = model(out)

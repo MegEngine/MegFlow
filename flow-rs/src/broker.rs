@@ -13,6 +13,7 @@ use crate::rt::channel::*;
 use crate::rt::task::JoinHandle;
 use std::collections::HashMap;
 use std::sync::atomic::AtomicBool;
+use std::sync::atomic::AtomicUsize;
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
 
@@ -25,6 +26,7 @@ type SubSender = Sender<SealedEnvelope>;
 pub struct Broker {
     subs: HashMap<String, (NotifySender, NotifyReceiver, Vec<SubSender>)>,
     running: Arc<AtomicBool>,
+    count: Arc<AtomicUsize>,
 }
 
 pub struct BrokerClient {
@@ -34,6 +36,7 @@ pub struct BrokerClient {
     sub: SubReceiver,
     topic: String,
     running: Arc<AtomicBool>,
+    count: Arc<AtomicUsize>,
 }
 
 impl Broker {
@@ -41,6 +44,7 @@ impl Broker {
         Broker {
             subs: HashMap::new(),
             running: Arc::new(AtomicBool::new(false)),
+            count: Arc::new(AtomicUsize::new(0)),
         }
     }
 
@@ -51,6 +55,7 @@ impl Broker {
         });
         let (s, r) = unbounded();
         subs.push(s.clone());
+        self.count.fetch_add(1, Ordering::Relaxed);
         BrokerClient {
             id: subs.len() - 1,
             notify: notify.clone(),
@@ -58,6 +63,7 @@ impl Broker {
             sub: r,
             topic,
             running: self.running.clone(),
+            count: self.count.clone(),
         }
     }
 
@@ -87,6 +93,14 @@ impl Broker {
                 handle.await;
             }
         })
+    }
+}
+
+impl Drop for BrokerClient {
+    fn drop(&mut self) {
+        if self.count.fetch_sub(1, Ordering::AcqRel) == 1 {
+            self.close();
+        }
     }
 }
 

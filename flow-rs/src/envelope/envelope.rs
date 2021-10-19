@@ -9,9 +9,10 @@
  * "AS IS" BASIS, WITHOUT ARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 use super::{AnyEnvelope, SealedEnvelope};
+use std::sync::Arc;
 
 /// `EnvelopeInfo` is a type that represents common information for a message
-#[derive(Default, Copy, Clone)]
+#[derive(Default, Clone)]
 pub struct EnvelopeInfo {
     /// Sequence id, and could be repeat
     pub partial_id: Option<u64>,
@@ -21,6 +22,8 @@ pub struct EnvelopeInfo {
     pub to_addr: Option<u64>,
     /// Address where the envelope transfer to
     pub transfer_addr: Option<u64>,
+    /// Extra info about the envelope
+    pub tag: Option<String>,
 }
 /// `Envelope<M>` is a type that contains a info:`EnvelopeInfo` and a message:`M`
 ///
@@ -41,7 +44,7 @@ pub struct EnvelopeInfo {
 /// # }
 /// ```
 pub struct Envelope<M> {
-    info: EnvelopeInfo,
+    info: Arc<EnvelopeInfo>, // cow
     msg: Option<M>,
 }
 
@@ -51,9 +54,12 @@ where
 {
     /// Create a envelope with message
     pub fn new(msg: M) -> Envelope<M> {
+        Self::with_info(msg, Default::default())
+    }
+    pub fn with_info(msg: M, info: EnvelopeInfo) -> Envelope<M> {
         Envelope {
             msg: Some(msg),
-            info: Default::default(),
+            info: Arc::new(info),
         }
     }
     /// Create a envelope without message
@@ -79,7 +85,7 @@ where
     pub fn repack<T>(&self, msg: T) -> Envelope<T> {
         Envelope {
             msg: Some(msg),
-            info: self.info,
+            info: self.info.clone(),
         }
     }
     /// Repack a message in place
@@ -90,7 +96,7 @@ where
     pub fn take(&mut self) -> Envelope<M> {
         Envelope {
             msg: self.msg.take(),
-            info: self.info,
+            info: self.info.clone(),
         }
     }
     /// Return a reference to the message
@@ -118,7 +124,7 @@ where
     fn clone(&self) -> Self {
         Envelope {
             msg: self.msg.clone(),
-            info: self.info,
+            info: self.info.clone(),
         }
     }
 }
@@ -137,7 +143,7 @@ where
         &self.info
     }
     fn info_mut(&mut self) -> &mut EnvelopeInfo {
-        &mut self.info
+        Arc::make_mut(&mut self.info)
     }
 }
 

@@ -64,7 +64,7 @@ $ run_with_plugins -c cat_finder/image_cpu.toml  -p cat_finder    # 无 GPU 的 
 $ export LD_LIBRARY_PATH=`conda info --base`/pkgs/python-3.8.11-xxx/lib:${LD_LIBRARY_PATH}
 ```
 
-现在 8081 端口部署了“猫体注册”服务，只需要打开浏览器上传图片、猫咪名称即可。`cat_finder/image_gpu.toml` 详细解释见 [how-to-add-graph](../../../docs/how-to-add-my-service/appendix-A-graph-definition.md) 。这里只需要浏览器打开主机所在 8081 端口服务（如 http://127.0.0.1:8081/docs ）。
+现在 8081 端口部署了“猫体注册”服务，只需要打开浏览器上传图片、猫咪名称即可。`cat_finder/image_gpu.toml` 详细解释见 [how-to-add-graph](../../../docs/how-to-add-my-service/appendix-A-graph-definition.zh.md) 。这里只需要浏览器打开主机所在 8081 端口服务（如 http://127.0.0.1:8081/docs ）。
 
 ![](images/cat_finder_image_select.jpg)
 

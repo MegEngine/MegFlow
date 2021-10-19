@@ -24,7 +24,7 @@ if __name__ == '__main__':
     setup(
         options={
             'bdist_wheel': {
-                'python_tag': "py{}.{}".format(py_version.major,
+                'python_tag': "py{}{}".format(py_version.major,
                                               py_version.minor),
             }
         },
@@ -52,10 +52,7 @@ if __name__ == '__main__':
             'Topic :: Software Development :: Libraries',
             'Topic :: Software Development :: Libraries :: Python Modules',
         ],
-        python_requires='>={}.{},<{}.{}'.format(py_version.major,
-                                                py_version.minor,
-                                                py_version.major,
-                                                py_version.minor + 1),
+        install_requires=open('requirements.txt').read().splitlines(),
         package_data={"": ['run_with_plugins_inner']},
         entry_points={
             'console_scripts':['run_with_plugins=megflow.command_line:main'],

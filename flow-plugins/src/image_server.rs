@@ -77,8 +77,13 @@ async fn analyze(
     let r = {
         let (s, r) = oneshot::channel();
         state.mapping.lock().await.insert(id, s);
-        let mut envelope = Envelope::new(pyobject);
-        envelope.info_mut().partial_id = Some(id);
+        let envelope = Envelope::with_info(
+            pyobject,
+            EnvelopeInfo {
+                partial_id: Some(id),
+                ..Default::default()
+            },
+        );
         state.out.send(envelope).await.ok();
         r
     };

@@ -40,6 +40,25 @@ class PredictorLite:
 
         self.net = net
 
+    def inference_batch(self, img):
+        t0 = time.time()
+
+        # build input tensor
+        inp_data = self.net.get_io_tensor("data")
+        inp_data.set_data_by_share(img)
+
+        # forward
+        self.net.forward()
+        self.net.wait()
+
+        # postprocess
+        output_keys = self.net.get_all_output_name()
+        output = self.net.get_io_tensor(output_keys[0]).to_numpy()
+        logger.debug("resnet18 infer avg time: {:.4f}s".format(
+            (time.time() - t0) / img.shape[0]))
+
+        return np.argmax(output, axis=1).tolist()
+
     def inference(self, img):
         t0 = time.time()
 
@@ -80,3 +99,8 @@ if __name__ == "__main__":
         logger.error(f"open {args.path} failed")
     out = predictor.inference(image)
     logger.info(f'{out}')
+
+    for i in [1, 4, 8, 16, 32, 64, 128, 256]:
+        data = np.ones((i, 224, 224, 3), dtype=np.uint8)
+        out_batch = predictor.inference_batch(data)
+        logger.info(f'batch {i+1} {out_batch}')

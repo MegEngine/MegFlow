@@ -1,0 +1,31 @@
+main = "video"
+
+[[graphs]]
+name = "subgraph"
+inputs = [{name="inp", cap=16, ports=["trans:inp"]}]
+outputs = [{name="out", cap=16, ports=["trans:out"]}]
+
+    [[graphs.nodes]]
+    name = "trans"
+    ty = "Transform"
+
+[[graphs]]
+name = "video"
+connections = [
+    { cap=16, ports=["server:inp", "trans:out"] },
+    { cap=16, ports=["server:out", "trans:inp"] }
+]
+
+    # VideoServer: 
+    # @inp: input port, message format: JSON string (pyobject)
+    # @out: output port, message format: dict { 'data': <numpy> } (pyobject)
+    [[graphs.nodes]]
+    name = "server"
+    ty = "VideoServer"
+    port = 8080 # int, the port on which server will listen
+    # just an example, which can not run because of invalid message format
+    [[graphs.nodes]]
+    name = "trans"
+    ty = "subgraph"
+
+    

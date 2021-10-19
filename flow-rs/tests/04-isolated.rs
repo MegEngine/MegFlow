@@ -16,7 +16,7 @@ nodes=[
 ]
         "#,
     )?;
-    graph.start(None).await;
+    graph.start().await;
     Ok(())
 }
 
@@ -31,8 +31,19 @@ name="a"
 ty="IsolatedNever"
 [[graphs]]
 name="test"
+[[graphs.inputs]]
+name="inp"
+cap=1
+ports=["t:inp"]
+[[graphs.outputs]]
+name="out"
+cap=1
+ports=["t:out"]
+[[graphs.nodes]]
+name="t"
+ty="Transform"
         "#,
     )?;
-    graph.start(None).await;
+    graph.start().await;
     Ok(())
 }

@@ -42,6 +42,7 @@ impl DynDemux {
                 .info()
                 .to_addr
                 .expect("the envelope has no destination address");
+            let tag = msg.info().tag.as_ref();
             if msg.is_none() {
                 self.out.fetch_with_cache().await.remove(&id);
                 if let Some(task) = self.tasks.remove(&id) {
@@ -49,13 +50,23 @@ impl DynDemux {
                 }
             } else {
                 if !self.out.cache().contains_key(&id) {
-                    self.tasks.insert(
-                        id,
-                        self.out
-                            .create(id, self.resources.clone().unwrap())
-                            .await
-                            .expect("create subgraph fault"),
-                    );
+                    if let Some(tag) = tag {
+                        self.tasks.insert(
+                            id,
+                            self.out
+                                .create_spec(id, tag, self.resources.clone().unwrap())
+                                .await
+                                .expect("create subgraph fault"),
+                        );
+                    } else {
+                        self.tasks.insert(
+                            id,
+                            self.out
+                                .create(id, self.resources.clone().unwrap())
+                                .await
+                                .expect("create subgraph fault"),
+                        );
+                    }
                 }
                 let out = self.out.fetch_with_cache().await.get(&id).unwrap();
                 out.send_any(msg).await.ok();
@@ -104,7 +115,7 @@ mod test {
         let demux = Sandbox::pure("Demux").unwrap();
         let input = demux.input("inp").unwrap();
         let output = demux.output("out").unwrap();
-        let handle = demux.start(None);
+        let handle = demux.start();
         let mut envelope = Envelope::new(0usize).seal();
         envelope.info_mut().to_addr = Some(0);
         input.send_any(envelope).await.ok();

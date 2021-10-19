@@ -10,7 +10,7 @@ name = "shared"
 ty = "RepeatProcess"
 
 [[graphs]]
-name = "TransGraph"
+name = "TransGraph0"
 inputs = [{ name = "whatever", cap = 16, ports = ["shared:inp"] }]
 connections = [
     { cap = 16, ports = ["shared:out", "trans:inp"] },
@@ -32,6 +32,28 @@ connections = [
     n = 5
 
 [[graphs]]
+name = "TransGraph1"
+inputs = [{ name = "whatever", cap = 16, ports = ["shared:inp"] }]
+connections = [
+    { cap = 16, ports = ["shared:out", "trans:inp"] },
+    { cap = 16, ports = ["trans:out", "destination:inp"] }
+]
+
+    [[graphs.nodes]]
+    name = "trans"
+    ty = "Transform"   
+
+    [[graphs.nodes]]
+    name = "destination"
+    ty = "Printer"
+    res = ["global_buf", "parent_buf", "buf"]
+
+    [[graphs.resources]]
+    name = "buf"
+    ty = "Buffer"
+    n = 10
+
+[[graphs]]
 name = "logical_test"
 connections = [
   { cap = 1, ports = ["source:out", "demux:inp"] },
@@ -49,7 +71,7 @@ connections = [
     
     [[graphs.nodes]]
     name = "destination"
-    ty = "TransGraph"
+    ty = "TransGraph0|TransGraph1"
     res = ["parent_buf"]
 
     [[graphs.resources]]

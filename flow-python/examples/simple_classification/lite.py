@@ -10,6 +10,7 @@
 # coding=utf-8
 
 import argparse
+import time
 import cv2
 import numpy as np
 import megenginelite as mgelite
@@ -63,6 +64,8 @@ class PredictorLite:
         return image
 
     def inference(self, mat):
+        t0 = time.time()
+
         img = self.preprocess(mat,
                               input_size=(224, 224),
                               scale_im=False,
@@ -80,6 +83,8 @@ class PredictorLite:
         # postprocess
         output_keys = self.net.get_all_output_name()
         output = self.net.get_io_tensor(output_keys[0]).to_numpy()
+        logger.debug("resnet18 infer time: {:.4f}s".format(time.time() - t0))
+
         return np.argmax(output[0])
 
 

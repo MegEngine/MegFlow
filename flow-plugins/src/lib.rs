@@ -8,8 +8,11 @@
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT ARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
+mod image_input;
 mod image_server;
+
 mod utils;
+mod video_input;
 mod video_server;
 
 #[doc(hidden)]

@@ -62,12 +62,13 @@ mod test {
     #[rt::test]
     async fn test_closed() {
         let chan = ChannelStorage::unbound();
-        let s = chan.sender();
         let r = chan.receiver();
+        let s = chan.sender();
         s.close();
         assert!(!r.is_closed());
         assert!(r.recv_any().await.is_err());
         assert!(r.is_closed());
+        chan.wait_rx_closed().await;
 
         let chan = ChannelStorage::unbound();
         let s = chan.sender();
@@ -77,5 +78,6 @@ mod test {
         assert!(r.recv_any().await.is_err());
         assert!(r.is_closed());
         drop(s);
+        chan.wait_tx_closed().await;
     }
 }

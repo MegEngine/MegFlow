@@ -21,7 +21,7 @@ pub struct AnyNode {
 impl AnyNode {
     pub fn new(local_key: u64, cfg: &config::Node) -> Result<AnyNode> {
         Ok(AnyNode {
-            nodes: crate::node::load(local_key, cfg)?,
+            nodes: crate::node::load_static(local_key, cfg)?,
             info: cfg.clone(),
         })
     }

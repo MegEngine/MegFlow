@@ -24,7 +24,9 @@ Welcome to MegFlow's documentation!
   :name: sec-how-to-use
 
   how-to-add-my-service/01-single-classification-model.zh
-  how-to-add-my-service/appendix-A-graph-definition
+  how-to-add-my-service/02-single-det-classify.zh
+  how-to-add-my-service/03-batching-and-pipeline-test.zh
+  how-to-add-my-service/appendix-A-graph-definition.zh
   how-to-add-my-service/appendix-B-python-plugin.zh
 
 .. toctree::

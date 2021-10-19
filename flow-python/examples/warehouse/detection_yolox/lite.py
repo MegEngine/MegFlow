@@ -7,12 +7,11 @@ import os
 import time
 
 import cv2
-import megengine as mge
 import megenginelite as mgelite
 from loguru import logger
 
 from .coco_classes import COCO_CLASSES
-from .process import postprocess, preprocess
+from .process import postprocess, postprocess_ndarray, preprocess
 from .visualize import vis
 import numpy as np
 
@@ -49,7 +48,7 @@ def make_parser():
 
 def get_image_list(path):
     image_names = []
-    for maindir, subdir, file_name_list in os.walk(path):
+    for maindir, _, file_name_list in os.walk(path):
         for filename in file_name_list:
             apath = os.path.join(maindir, filename)
             ext = os.path.splitext(apath)[1]
@@ -155,17 +154,12 @@ class PredictorLite(object):
 
         outputs = self.lite_postprocess(outputs[0], list(self.test_size))
         outputs = outputs[np.newaxis, :]
-        if "gpu" in self.device:
-            output = mge.tensor(outputs)
-        else:
-            output = mge.tensor(outputs, device="cpux")
 
-        ret = postprocess(output, self.num_classes, self.confthre,
-                          self.nmsthre)
-        if ret is None:
+        bboxes = postprocess_ndarray(outputs, self.num_classes, self.confthre,
+                                     self.nmsthre)
+        if bboxes is None:
             return None
-        bboxes = ret.copy()
-        for i in range(bboxes.shape[0]):
+        for i in range(len(bboxes)):
             bbox = bboxes[i][0:4] / ratio
             bbox[0] = self.restrict(bbox[0], 0, max_w)
             bbox[1] = self.restrict(bbox[1], 0, max_h)
@@ -174,7 +168,7 @@ class PredictorLite(object):
             bboxes[i][0:4] = bbox
 
         logger.debug("YOLOX infer time: {:.4f}s".format(time.time() - t0))
-        return bboxes
+        return np.array(bboxes)
 
     def visual(self, output, img, cls_conf=0.35):
         if output is None:

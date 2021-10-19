@@ -8,13 +8,13 @@
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT ARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-use super::load;
+use super::load_static;
 use crate::prelude::*;
 use crate::rt::channel::{unbounded, Receiver as ReceiverT, Sender as SenderT};
 use crate::rt::sync::RwLock;
 use anyhow::Result;
 use std::collections::HashMap;
-use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::atomic::{fence, AtomicUsize, Ordering};
 use std::sync::Arc;
 
 #[derive(Clone)]
@@ -52,7 +52,7 @@ impl Shared {
         cfg: &crate::config::interlayer::Node,
         graphs: &crate::config::interlayer::Config,
     ) -> Result<Shared> {
-        let mut nodes = load(local_key, cfg)?;
+        let mut nodes = load_static(local_key, cfg)?;
         let mut inputs = HashMap::new();
         let mut outputs = HashMap::new();
 
@@ -86,7 +86,7 @@ impl Shared {
                 cap
             };
 
-        for input in cfg.inputs.keys() {
+        for input in &cfg.inputs {
             let cap = find_cap(input);
             let chan = ChannelStorage::bound(cap);
             for node in &mut nodes {
@@ -95,7 +95,7 @@ impl Shared {
             inputs.insert(input.clone(), Arc::new(chan.sender()));
         }
 
-        for output in cfg.outputs.keys() {
+        for output in &cfg.outputs {
             let cap = find_cap(output);
             let chan = ChannelStorage::bound(cap);
             for node in &mut nodes {
@@ -187,6 +187,11 @@ impl Actor for Shared {
                 while let Ok(mut msg) = self.rx.recv().await {
                     let closed_n = Arc::new(AtomicUsize::new(self.inputs.len()));
                     let id = counter;
+                    for (k, v) in outputs.iter() {
+                        let output = msg.outputs.remove(k).expect("shared port match fault");
+                        v.write().await.insert(id, output);
+                    }
+                    fence(Ordering::SeqCst);
                     for (k, output) in self.inputs.iter_mut() {
                         let input = msg.inputs.remove(k).expect("shared port match fault");
                         let output = output.clone();
@@ -210,10 +215,7 @@ impl Actor for Shared {
                             }
                         });
                     }
-                    for (k, v) in outputs.iter() {
-                        let output = msg.outputs.remove(k).expect("shared port match fault");
-                        v.write().await.insert(id, output);
-                    }
+
                     counter += 1;
                 }
             });
@@ -231,10 +233,15 @@ impl SharedProxy {
         tx: SenderT<SharedConns>,
         cfg: &crate::config::interlayer::Node,
     ) -> Result<SharedProxy> {
-        let inputs: Vec<_> = inputs(local_key, &cfg.entity.ty)?.into_iter().collect();
-        let outputs: Vec<_> = outputs(local_key, &cfg.entity.ty)?.into_iter().collect();
+        // shared subgraph dont support dyn type
+        let inputs: Vec<_> = inputs(local_key, cfg.entity.ty.first().unwrap())?
+            .into_iter()
+            .collect();
+        let outputs: Vec<_> = outputs(local_key, cfg.entity.ty.first().unwrap())?
+            .into_iter()
+            .collect();
         Ok(SharedProxy {
-            ty: cfg.entity.ty.clone(),
+            ty: cfg.entity.ty.first().unwrap().to_owned(),
             tx,
             conns: SharedConns {
                 inputs: HashMap::new(),

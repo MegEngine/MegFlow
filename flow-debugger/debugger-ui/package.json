@@ -1,0 +1,54 @@
+{
+  "name": "debugger-ui",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@codemirror/basic-setup": "^0.19.0",
+    "@codemirror/legacy-modes": "^0.19.0",
+    "@codemirror/state": "^0.19.1",
+    "@codemirror/stream-parser": "^0.19.1",
+    "@codemirror/theme-one-dark": "^0.19.0",
+    "@codemirror/view": "^0.19.1",
+    "@popperjs/core": "^2.9.3",
+    "@reduxjs/toolkit": "^1.5.1",
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.3.2",
+    "@testing-library/user-event": "^7.1.2",
+    "lodash": "^4.17.21",
+    "react": "^17.0.2",
+    "react-charts": "^3.0.0-beta.32",
+    "react-dom": "^17.0.2",
+    "react-popper": "^2.2.5",
+    "react-redux": "^7.2.3",
+    "react-scripts": "^2.0.0",
+    "react-wait": "^0.3.0",
+    "reactjs-popup": "^2.0.5",
+    "rodemirror": "^1.6.3",
+    "split-grid": "^1.0.11",
+    "toml": "^3.0.0",
+    "vis-data": "^7.1.2",
+    "vis-network": "^9.0.5"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "fix": "npx prettier --write ./src"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

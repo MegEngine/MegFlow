@@ -19,3 +19,4 @@ pyo3
 docs/_build
 *.dot
 .clippy.toml
+run_with_plugins_inner
