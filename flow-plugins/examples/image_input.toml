@@ -1,0 +1,13 @@
+main = "input_image"
+
+[[graphs]]
+name = "input_image"
+connections = [{ cap=16, ports=["server:inp", "server:out"] }]
+
+    # ImageInput: 
+    # @inp: input port, message format: Any
+    # @out: output port, message format: dict { 'data': <numpy>, 'extra_data': <String> } (pyobject)
+    [[graphs.nodes]]
+    name = "server"
+    ty = "ImageInput"
+    urls = ["", ""] # image folder path

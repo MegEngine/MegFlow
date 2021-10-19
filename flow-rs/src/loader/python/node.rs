@@ -87,13 +87,18 @@ impl PyNode {
                 let cell = PyCell::new(py, sp).unwrap();
                 self.imp.as_ref(py).setattr(name, cell).unwrap();
             }
-            for k in res.keys() {
-                let r: Arc<PyObject> = res
-                    .get(k.as_str())
-                    .unwrap_or_else(|| panic!("resource {} not found", k));
-                self.imp.as_ref(py).setattr(k, r.clone_ref(py)).unwrap();
-            }
         });
+
+        for k in res.keys() {
+            let any_r = res
+                .get_any(k.as_str())
+                .await
+                .unwrap_or_else(|| panic!("resource {} not found", k));
+            Python::with_gil(|py| {
+                let r = any_r.to_python(py);
+                self.imp.as_ref(py).setattr(k, r).unwrap();
+            });
+        }
     }
 
     async fn exec(&mut self) {
@@ -145,7 +150,7 @@ impl Node for PyNode {
             unreachable!();
         }
     }
-    fn set_port_dynamic(&mut self, _: u64, _: &str, _: String, _: usize, _: BrokerClient) {
+    fn set_port_dynamic(&mut self, _: u64, _: &str, _: String, _: usize, _: Vec<BrokerClient>) {
         unimplemented!()
     }
     fn close(&mut self) {

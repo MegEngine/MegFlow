@@ -113,6 +113,7 @@ pub fn unbounded<T>() -> Arc<Channel<T>> {
 pub struct Sender<T> {
     /// Inner channel state.
     pub(super) channel: Arc<Channel<T>>,
+    pub(super) close_ops: Arc<Event>,
 }
 
 impl<T> Sender<T> {
@@ -168,7 +169,12 @@ impl<T> Sender<T> {
     }
 
     pub fn close(&self) -> bool {
-        self.channel.close()
+        if self.channel.close() {
+            self.close_ops.notify(usize::MAX);
+            true
+        } else {
+            false
+        }
     }
 
     pub fn is_closed(&self) -> bool {
@@ -203,8 +209,8 @@ impl<T> Sender<T> {
 impl<T> Drop for Sender<T> {
     fn drop(&mut self) {
         // Decrement the sender count and close the channel if it drops down to zero.
-        if self.channel.sender_count.fetch_sub(1, Ordering::AcqRel) == 1 {
-            self.channel.close();
+        if self.channel.sender_count.fetch_sub(1, Ordering::AcqRel) == 1 && self.channel.close() {
+            self.close_ops.notify(usize::MAX);
         }
     }
 }
@@ -226,6 +232,7 @@ impl<T> Clone for Sender<T> {
 
         Sender {
             channel: self.channel.clone(),
+            close_ops: self.close_ops.clone(),
         }
     }
 }
@@ -244,6 +251,7 @@ pub struct Receiver<T> {
 
     /// Listens for a send or close event to unblock this stream.
     pub(super) listener: Option<EventListener>,
+    pub(super) close_ops: Arc<Event>,
 }
 
 impl<T> Receiver<T> {
@@ -296,7 +304,12 @@ impl<T> Receiver<T> {
     }
 
     pub fn close(&self) -> bool {
-        self.channel.close()
+        if self.channel.close() {
+            self.close_ops.notify(usize::MAX);
+            true
+        } else {
+            false
+        }
     }
 
     pub fn is_closed(&self) -> bool {
@@ -331,8 +344,8 @@ impl<T> Receiver<T> {
 impl<T> Drop for Receiver<T> {
     fn drop(&mut self) {
         // Decrement the receiver count and close the channel if it drops down to zero.
-        if self.channel.receiver_count.fetch_sub(1, Ordering::AcqRel) == 1 {
-            self.channel.close();
+        if self.channel.receiver_count.fetch_sub(1, Ordering::AcqRel) == 1 && self.channel.close() {
+            self.close_ops.notify(usize::MAX);
         }
     }
 }
@@ -355,6 +368,7 @@ impl<T> Clone for Receiver<T> {
         Receiver {
             channel: self.channel.clone(),
             listener: None,
+            close_ops: self.close_ops.clone(),
         }
     }
 }

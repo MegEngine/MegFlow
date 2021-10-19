@@ -23,6 +23,7 @@ def repeat(n, s, r):
             msg['message'] = "a message[{}] repeat {} by process node".format(
                 envelope.msg['message'], i)
             s.send(envelope.repack(msg))
+    print('==== logical_test pass ====')
 
 
 @register(inputs=['inp'], outputs=['out'], exclusive=True)

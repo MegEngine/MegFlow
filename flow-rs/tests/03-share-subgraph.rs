@@ -5,7 +5,7 @@ use flow_rs::prelude::*;
 
 #[rt::test]
 async fn test_basis() -> Result<()> {
-    let _ = load(
+    let mut graph = load(
         None,
         r#"
 main="test"
@@ -17,7 +17,7 @@ inputs=[
     {name="a",cap=1,ports=["b:a"]},
     {name="b",cap=1,ports=["b:b"]}
 ]
-outputs=[{name="c",cap=1,ports=["b:c"]}]
+outputs=[{name="c",cap=2,ports=["b:c"]}]
 [[graphs]]
 name="test"
 inputs=[{name="inp",cap=1,ports=["t1:inp","t2:inp"]}]
@@ -35,11 +35,23 @@ nodes=[
         "#,
     )?;
 
+    let inp = graph.input("inp").unwrap();
+    let out = graph.output("out").unwrap();
+    let handle = graph.start();
+
+    inp.send(Envelope::new(1usize)).await.ok();
+    inp.close();
+    assert!(out.recv::<usize>().await.is_ok());
+    assert!(out.recv::<usize>().await.is_ok());
+    assert!(out.recv::<usize>().await.is_err());
+    handle.await;
+
     Ok(())
 }
 
-#[rt::test]
-async fn test_empty() -> Result<()> {
+#[test]
+#[should_panic]
+fn test_empty() {
     let _ = load(
         None,
         r#"
@@ -70,7 +82,6 @@ nodes=[
     {name="t3",ty="Transform"}
 ]
         "#,
-    )?;
-
-    Ok(())
+    )
+    .is_ok();
 }

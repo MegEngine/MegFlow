@@ -1,0 +1,18 @@
+.container {
+    height: 100%;
+    width: 100%;
+    background-color: #f9ffff;
+}
+
+.list {
+    border: 1px solid #dedede;
+    border-top: none;
+    border-bottom: none;
+    padding: 0.5em;
+    background-color: #f9ffff;
+    display: flex;
+    height: auto;
+    width: 100%;
+    justify-content: flex-start;
+    flex-direction: column;
+}

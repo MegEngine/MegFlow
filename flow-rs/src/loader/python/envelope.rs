@@ -41,9 +41,10 @@ impl PyEnvelope {
         };
 
         if let Some(info) = info {
+            let target = envelope.info_mut();
             macro_rules! restore {
                 ($k:ident) => {
-                    envelope.info_mut().$k = info
+                    target.$k = info
                         .get_item(stringify!($k))
                         .expect(concat!("expect ", stringify!($k), " field"))
                         .extract()?;
@@ -53,6 +54,7 @@ impl PyEnvelope {
             restore!(to_addr);
             restore!(transfer_addr);
             restore!(partial_id);
+            restore!(tag);
         }
         Ok(PyEnvelope {
             imp: Some(envelope),
@@ -61,7 +63,7 @@ impl PyEnvelope {
 
     fn __getstate__(&mut self, py: Python) -> PyResult<PyObject> {
         let envelope = self.imp.as_mut().expect(ERR_MSG);
-        let dict = envelope.info().into_py_dict(py);
+        let dict = envelope.info().clone().into_py_dict(py);
         dict.set_item("msg", envelope.get_mut().clone_ref(py))?;
         Ok(dict.to_object(py))
     }
@@ -128,6 +130,18 @@ impl PyEnvelope {
         let envelope = self.imp.as_mut().expect(ERR_MSG);
         envelope.info_mut().partial_id = Some(addr)
     }
+
+    #[getter(tag)]
+    fn get_tag(&self) -> Option<&String> {
+        let envelope = self.imp.as_ref().expect(ERR_MSG);
+        envelope.info().tag.as_ref()
+    }
+
+    #[setter(tag)]
+    fn set_tag(&mut self, tag: String) {
+        let envelope = self.imp.as_mut().expect(ERR_MSG);
+        envelope.info_mut().tag = Some(tag);
+    }
 }
 
 impl IntoPyDict for EnvelopeInfo {
@@ -142,6 +156,7 @@ impl IntoPyDict for EnvelopeInfo {
         store!(to_addr);
         store!(transfer_addr);
         store!(partial_id);
+        store!(tag);
         dict
     }
 }

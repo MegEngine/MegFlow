@@ -11,6 +11,7 @@
 use super::{inner, ChannelBase, Receiver, Sender, SenderRecord};
 use crate::envelope::SealedEnvelope;
 use crate::rt::sync::Mutex;
+use event_listener::Event;
 use std::collections::HashMap;
 use std::process;
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -24,6 +25,8 @@ pub struct ChannelStorage {
     sender_record: SenderRecord,
     rx_counter: Arc<AtomicUsize>,
     tx_counter: Arc<AtomicUsize>,
+    rx_close_ops: Arc<Event>,
+    tx_close_ops: Arc<Event>,
 }
 
 impl ChannelBase for ChannelStorage {
@@ -44,6 +47,8 @@ impl ChannelStorage {
             sender_record: Arc::new(Mutex::new(HashMap::new())),
             rx_counter: Arc::new(AtomicUsize::new(0)),
             tx_counter: Arc::new(AtomicUsize::new(0)),
+            rx_close_ops: Arc::new(Event::new()),
+            tx_close_ops: Arc::new(Event::new()),
         }
     }
     pub fn unbound() -> ChannelStorage {
@@ -52,6 +57,8 @@ impl ChannelStorage {
             receiver_epoch: Arc::new(AtomicUsize::new(0)),
             sender_epoch: Arc::new(AtomicUsize::new(0)),
             sender_record: Arc::new(Mutex::new(HashMap::new())),
+            tx_close_ops: Arc::new(Event::new()),
+            rx_close_ops: Arc::new(Event::new()),
             rx_counter: Arc::new(AtomicUsize::new(0)),
             tx_counter: Arc::new(AtomicUsize::new(0)),
         }
@@ -65,6 +72,7 @@ impl ChannelStorage {
         Sender::new(
             inner::Sender {
                 channel: self.storage.clone(),
+                close_ops: self.tx_close_ops.clone(),
             },
             self.sender_epoch.clone(),
             self.sender_record.clone(),
@@ -78,10 +86,12 @@ impl ChannelStorage {
         if count > usize::MAX / 2 {
             process::abort();
         }
+
         Receiver::new(
             inner::Receiver {
                 channel: self.storage.clone(),
                 listener: None,
+                close_ops: self.rx_close_ops.clone(),
             },
             self.receiver_epoch.clone(),
             self.rx_counter.clone(),
@@ -121,5 +131,39 @@ impl ChannelStorage {
 
     pub fn swap_rx_counter(&self) -> usize {
         self.rx_counter.swap(0, Ordering::Relaxed)
+    }
+
+    pub async fn wait_rx_closed(&self) {
+        let mut listener = None;
+        loop {
+            if self.is_closed() {
+                return;
+            }
+            match listener.take() {
+                None => {
+                    listener = Some(self.rx_close_ops.listen());
+                }
+                Some(l) => {
+                    l.await;
+                }
+            }
+        }
+    }
+
+    pub async fn wait_tx_closed(&self) {
+        let mut listener = None;
+        loop {
+            if self.is_closed() {
+                return;
+            }
+            match listener.take() {
+                None => {
+                    listener = Some(self.tx_close_ops.listen());
+                }
+                Some(l) => {
+                    l.await;
+                }
+            }
+        }
     }
 }

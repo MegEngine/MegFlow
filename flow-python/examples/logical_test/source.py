@@ -22,6 +22,7 @@ class Source:
             msg['message'] = 'send to {}'.format(i)
             envelope = Envelope.pack(msg)
             envelope.to_addr = i
+            envelope.tag = "TransGraph{}".format(i % 2)
             self.out.send(envelope)
 
         sleep(5)

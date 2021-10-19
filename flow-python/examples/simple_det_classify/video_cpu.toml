@@ -19,6 +19,8 @@ ty = "Classify"
 path = "models/simple_det_classify_models/resnet18_preproc_inside.mge"
 device = "cpu"
 device_id = 0
+max_batch = 4
+wait_time = 100
 
 [[graphs]]
 name = "subgraph"

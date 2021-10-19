@@ -16,6 +16,7 @@ mod unlimited;
 mod utils;
 
 use crate::registry::Collect;
+use crate::resource::Resource;
 
 use super::{Loader, Plugin, PluginType};
 use anyhow::Result;
@@ -81,6 +82,12 @@ impl ResourcePlugin {
     }
 }
 
+impl Resource for PyObject {
+    fn to_python(&self, py: pyo3::Python) -> pyo3::PyObject {
+        self.clone_ref(py)
+    }
+}
+
 impl Plugin for ResourcePlugin {
     fn submit(&self) {
         let res = self.res.clone();
@@ -96,12 +103,18 @@ impl Plugin for ResourcePlugin {
                             match res.call1(py, (name.as_str(), pyargs)) {
                                 Err(err) => {
                                     err.print(py);
-                                    panic!("parse python code fault");
+                                    None
                                 }
-                                Ok(ret) => ret,
+                                Ok(ret) => Some(ret),
                             }
                         });
-                        Arc::new(imp)
+                        match imp {
+                            Some(imp) => Ok(Arc::new(imp)),
+                            _ => Err(std::io::Error::new(
+                                std::io::ErrorKind::OutOfMemory,
+                                "maybe out of memory",
+                            )),
+                        }
                     }),
                 },
             );

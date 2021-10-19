@@ -10,14 +10,13 @@
  */
 use crate::broker::Broker;
 use crate::registry::Collect;
-use crate::resource::ResourceCollection;
+use crate::resource::*;
 use crate::rt::task::JoinHandle;
 use crate::{
     channel::{Receiver, Sender},
     config::interlayer,
-    config::presentation,
     graph::context,
-    node::{inputs, load, outputs, Actor},
+    node::{inputs, load_static, outputs, Actor},
     prelude::ChannelStorage,
 };
 use anyhow::Result;
@@ -49,9 +48,9 @@ impl Sandbox {
         crate::registry::initialize(local_key);
 
         let config = interlayer::Node {
-            entity: presentation::Entity {
+            entity: interlayer::Entity {
                 name: format!("sandbox-{}", ty),
-                ty: ty.to_owned(),
+                ty: vec![ty.to_owned()],
                 args,
             },
             res,
@@ -59,12 +58,13 @@ impl Sandbox {
             inputs: Default::default(),
             outputs: Default::default(),
             is_dyn: false,
+            is_shared: false,
         };
         let inputs_name: Vec<String> = inputs(local_key, ty)?.into_iter().collect();
         let outputs_name: Vec<String> = outputs(local_key, ty)?.into_iter().collect();
         let mut inputs = HashMap::new();
         let mut outputs = HashMap::new();
-        let mut actor = load(local_key, &config)?.pop().unwrap();
+        let mut actor = load_static(local_key, &config)?.pop().unwrap();
         let mut broker = Broker::new();
 
         if inputs_name.iter().any(|x| x.starts_with("dyn")) {
@@ -90,7 +90,7 @@ impl Sandbox {
                 inputs.insert(input.to_owned(), chan);
             } else {
                 let client = broker.subscribe("_NoopProducer_".to_owned());
-                actor.set_port_dynamic(local_key, input, "out".to_owned(), 16, client);
+                actor.set_port_dynamic(local_key, input, "out".to_owned(), 16, vec![client]);
             }
         }
         for output in &outputs_name {
@@ -104,7 +104,7 @@ impl Sandbox {
                 outputs.insert(output.to_owned(), chan);
             } else {
                 let client = broker.subscribe("_NoopConsumer_".to_owned());
-                actor.set_port_dynamic(local_key, output, "inp".to_owned(), 16, client);
+                actor.set_port_dynamic(local_key, output, "inp".to_owned(), 16, vec![client]);
             }
         }
         Ok(Sandbox {
@@ -125,14 +125,15 @@ impl Sandbox {
         self.outputs.get(name).map(|x| x.receiver())
     }
 
-    pub fn start(mut self, resources: Option<ResourceCollection>) -> JoinHandle<()> {
+    pub fn start(mut self) -> JoinHandle<()> {
         let local_key = self.local_key;
         let ctx = context("Sandbox".to_owned(), self.ty.clone(), local_key);
         crate::rt::task::spawn(async move {
             futures_util::join!(
                 self.actor.start(
-                    ctx,
-                    resources.unwrap_or_else(move || ResourceCollection::new(local_key))
+                    ctx.clone(),
+                    UniqueResourceCollection::new(ctx.local_key, ctx.id, &Default::default())
+                        .take_into_arc()
                 ),
                 self.broker.run()
             );
@@ -155,17 +156,18 @@ fn graph_register(local_key: u64, ty: &str, port_name: &str) {
     let node = interlayer::Node {
         entity: interlayer::Entity {
             name: "noop".to_owned(),
-            ty: ty.to_owned(),
+            ty: vec![ty.to_owned()],
             args: Default::default(),
         },
         cloned: None,
-        inputs: inputs.iter().map(|x| (x.clone(), x.clone())).collect(),
-        outputs: outputs.iter().map(|x| (x.clone(), x.clone())).collect(),
+        inputs: inputs.iter().cloned().collect(),
+        outputs: outputs.iter().cloned().collect(),
         is_dyn: false,
+        is_shared: false,
         res: vec![],
     };
     let port = interlayer::Port {
-        node_type: ty.to_owned(),
+        node_type: vec![ty.to_owned()],
         node_name: "noop".to_owned(),
         port_type: interlayer::PortTy::Unit,
         port_tag: None,
@@ -183,6 +185,8 @@ fn graph_register(local_key: u64, ty: &str, port_name: &str) {
         outputs: outputs.clone(),
         connections: vec![(port_name.to_owned(), conn)].into_iter().collect(),
         resources: Default::default(),
+        is_shared: false,
+        global_res: vec![],
     };
     let info = crate::node::NodeInfo {
         inputs: cfg.inputs.clone(),

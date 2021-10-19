@@ -99,7 +99,7 @@ connections = [
 * `classify` 结点的参数。最重要的是 `ty="Classify"`指明了类名，MegFlow 将在当前目录搜索`Classify`类。path/device/device_id 分别是模型路径/用 CPU 推理/用哪个核，属于用户自定义配置
 * 服务类型。这里想运行图片服务 `ty = "ImageServer"`，如果想运行视频解析服务改 `ty = "VideoServer"`；图片服务默认返回图片，想返回 string 需要配置 `response = "json"`
 
-[完整的计算图 config 定义](appendix-A-graph-definition.md)
+[完整的计算图 config 定义](appendix-A-graph-definition.zh.md)
 
 ## 实现配置中的 node
 

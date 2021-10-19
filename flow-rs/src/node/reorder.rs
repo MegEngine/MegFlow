@@ -86,7 +86,7 @@ mod test {
         let reorder = Sandbox::pure("Reorder").unwrap();
         let input = reorder.input("inp").unwrap();
         let output = reorder.output("out").unwrap();
-        let handle = reorder.start(None);
+        let handle = reorder.start();
         let send_fut = async move {
             let mut rng: StdRng = SeedableRng::from_entropy();
             let mut list: Vec<u64> = (0..10).collect();

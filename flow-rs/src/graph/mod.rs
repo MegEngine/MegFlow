@@ -32,7 +32,75 @@ pub(crate) struct GraphSlice {
 crate::collect!(String, GraphSlice);
 
 /// Represents a graph with nodes and connections, which implement `Node` and `Actor`.
-pub struct Graph {
+pub struct MainGraph {
+    graph: Graph,
+    global_resources: ResourceCollection,
+    global_ctx: Context,
+}
+
+impl MainGraph {
+    pub(crate) fn new(
+        mut graph: Graph,
+        global_ctx: Context,
+        global_resources: ResourceCollection,
+    ) -> MainGraph {
+        let mut v = vec![];
+        for name in &graph.inputs {
+            v.push((name.clone(), graph.conns[name].make()));
+        }
+        for name in &graph.outputs {
+            v.push((name.clone(), graph.conns[name].make()));
+        }
+
+        for (name, conn) in v {
+            graph.set_port(name.as_str(), None, &conn);
+        }
+        MainGraph {
+            graph,
+            global_ctx,
+            global_resources,
+        }
+    }
+    /// Get an input port from the graph by name
+    pub fn input(&self, name: &str) -> Option<Sender> {
+        self.graph.conns.get(name).map(|x| x.get().sender())
+    }
+    /// Get an output port from the graph by name
+    pub fn output(&self, name: &str) -> Option<Receiver> {
+        self.graph.conns.get(name).map(|x| x.get().receiver())
+    }
+    /// Stop the graph, it is equivalent to drop all inputs of the graph
+    pub fn stop(&mut self) {
+        self.graph.close()
+    }
+    /// Run the graph, and return a `JoinHandle`, which can be cancel or wait
+    pub fn start(&mut self) -> JoinHandle<()> {
+        let handle = self
+            .graph
+            .start(Some(std::mem::take(&mut self.global_resources)));
+        let global_ctx = self.global_ctx.clone();
+        crate::rt::task::spawn(async move {
+            handle.await;
+            SharedProxy::registry_local()
+                .get(global_ctx.local_key)
+                .for_each(|proxy| proxy.close());
+            global_ctx.close();
+
+            let handles = crate::node::SharedHandle::registry_local()
+                .get(global_ctx.local_key)
+                .to_vec();
+            for handle in handles {
+                let handle =
+                    std::sync::Arc::try_unwrap(handle).unwrap_or_else(|_| panic!("internal error"));
+                handle.0.await;
+            }
+            // clear graph local resources
+            finalize(global_ctx.local_key);
+        })
+    }
+}
+
+pub(crate) struct Graph {
     nodes: HashMap<String, AnyNode>,
     conns: HashMap<String, AnyChannel>,
     inputs: Vec<String>,
@@ -40,8 +108,8 @@ pub struct Graph {
     broker: Broker,
     shares: HashMap<String, SharedProxy>,
     ctx: Context,
-    global_ctx: Option<Context>,
-    resources: ResourceCollection,
+    resources: UniqueResourceCollection,
+    is_shared: bool,
 }
 
 impl Graph {
@@ -51,18 +119,8 @@ impl Graph {
         let mut broker = Broker::new();
         let mut shares = HashMap::new();
 
-        let mut resources = ResourceCollection::new(ctx.local_key);
-
-        for (name, res) in &config.resources {
-            resources.insert(name.clone(), res.ty.as_str(), &res.args);
-        }
-
-        let global_res = GLOBAL_RESOURCES.read().unwrap();
-        resources = resources.chain(global_res.get(&ctx.local_key).unwrap());
-
-        for (name, res) in &config.resources {
-            resources.insert(name.clone(), res.ty.as_str(), &res.args);
-        }
+        // global
+        let resources = UniqueResourceCollection::new(ctx.local_key, ctx.id, &config.resources);
 
         for (name, cfg) in &config.nodes {
             if !cfg.is_dyn {
@@ -96,19 +154,23 @@ impl Graph {
                         .unwrap();
                     for port in cfg.rx.iter().chain(cfg.tx.iter()) {
                         if port.is_dyn() {
+                            // add dyn subgraph resources into trigger node
                             let mut res =
                                 config.nodes.get(&subgraph.node_name).unwrap().res.clone();
                             let nodes = nodes.get_mut(&port.node_name).unwrap();
                             let info = nodes.info_mut();
                             info.res.append(&mut res);
                             for node in nodes.get_mut().iter_mut() {
-                                let client = broker.subscribe(subgraph.node_type.clone());
+                                let mut clients = vec![];
+                                for topic in &subgraph.node_type {
+                                    clients.push(broker.subscribe(topic.trim().to_owned()));
+                                }
                                 node.set_port_dynamic(
                                     ctx.local_key,
                                     &port.port_name,
                                     subgraph.port_name.clone(),
                                     cfg.cap,
-                                    client,
+                                    clients,
                                 );
                             }
                         }
@@ -123,12 +185,17 @@ impl Graph {
                                 node.set_port(&port.port_name, port.port_tag, channel.get());
                             }
                         } else {
+                            if config.is_shared {
+                                return Err(anyhow!("nested shared graph is not support"));
+                            }
                             let shared_proxy =
                                 shares.entry(port.node_name.clone()).or_insert_with(|| {
                                     SharedProxy::registry_local()
                                         .get(ctx.local_key)
                                         .get(&port.node_name)
-                                        .unwrap()
+                                        .unwrap_or_else(|| {
+                                            panic!("unexpected node {}", port.node_name)
+                                        })
                                         .as_ref()
                                         .clone()
                                 });
@@ -156,7 +223,6 @@ impl Graph {
         }
 
         Ok(Graph {
-            global_ctx: None,
             ctx,
             resources,
             nodes,
@@ -165,50 +231,85 @@ impl Graph {
             inputs: config.inputs.clone(),
             outputs: config.outputs.clone(),
             shares,
+            is_shared: config.is_shared,
         })
     }
-    /// Run the graph, and return a `JoinHandle`, which can be cancel or wait
-    pub fn start(&mut self, resource: Option<ResourceCollection>) -> JoinHandle<()> {
-        let resource = resource.unwrap_or_else(|| ResourceCollection::new(self.ctx.local_key));
-        let res = resource.chain(&self.resources);
+
+    pub(crate) fn start(&mut self, resource: Option<ResourceCollection>) -> JoinHandle<()> {
+        let ext_resource = resource.unwrap_or_else(|| {
+            UniqueResourceCollection::new(self.ctx.local_key, self.ctx.id, &Default::default())
+                .take_into_arc()
+        });
+        let in_resource = std::mem::take(&mut self.resources);
         let shares = std::mem::take(&mut self.shares);
         for (_, shared) in shares {
             shared.build();
         }
         let mut handles = vec![self.broker.run()];
         let mut alone_tasks = vec![self.dmon()];
-
-        for node in self.nodes.values_mut() {
-            let res_names: Vec<_> = node.info().res.to_vec();
-            let is_alone = node.info().inputs.is_empty() && node.info().outputs.is_empty();
-            for node in node.get_into() {
-                let res = res.filter(
-                    res_names
-                        .iter()
-                        .map(|x| x.as_str())
-                        .collect::<Vec<_>>()
-                        .as_slice(),
-                );
-                if is_alone {
-                    alone_tasks.push(node.start(self.ctx.clone(), res));
-                } else {
-                    handles.push(node.start(self.ctx.clone(), res));
-                }
-            }
-        }
+        let nodes: Vec<_> = self
+            .nodes
+            .values_mut()
+            .map(|node| {
+                let is_alone = node.info().inputs.is_empty() && node.info().outputs.is_empty();
+                let res_names: Vec<_> = node.info().res.to_vec();
+                (is_alone, res_names, node.get_into())
+            })
+            .collect();
 
         let context = self.ctx.clone();
-        let global_ctx = self.global_ctx.clone();
         let inputs: Vec<_> = self
             .inputs
             .iter()
             .map(|name| self.conns[name].get().clone())
             .collect();
+        let outputs: Vec<_> = self
+            .outputs
+            .iter()
+            .map(|name| self.conns[name].get().clone())
+            .collect();
+        let direct_term = inputs
+            .iter()
+            .map(|input| input.sender_count())
+            .sum::<usize>()
+            == 0;
 
-        crate::rt::task::spawn(async move {
+        let handle = crate::rt::task::spawn(async move {
+            let res = ext_resource.chain(in_resource).await;
+            for (is_alone, res_names, nodes) in nodes {
+                for node in nodes {
+                    let res = res.filter(
+                        res_names
+                            .iter()
+                            .map(|x| x.as_str())
+                            .collect::<Vec<_>>()
+                            .as_slice(),
+                    );
+                    if is_alone {
+                        alone_tasks.push(node.start(context.clone(), res));
+                    } else {
+                        handles.push(node.start(context.clone(), res));
+                    }
+                }
+            }
+
             let wait_ctx = context.wait().fuse();
             let wait_tasks = futures_util::future::join_all(handles).fuse();
+            let mut wait_i =
+                futures_util::future::join_all(inputs.iter().map(|conn| conn.wait_rx_closed()))
+                    .fuse();
+            let mut wait_o =
+                futures_util::future::join_all(outputs.iter().map(|conn| conn.wait_tx_closed()))
+                    .fuse();
             pin_mut!(wait_ctx, wait_tasks);
+
+            let mut state = 0;
+            let mut cb = || {
+                state += 1;
+                if state == 3 {
+                    context.close();
+                }
+            };
 
             loop {
                 select! {
@@ -217,58 +318,28 @@ impl Graph {
                             input.close();
                         }
                     }
-                    _ = wait_tasks => context.close(),
-                    complete => break,
+                    _ = wait_tasks => {
+                        cb()
+                    },
+                    _ = wait_o => {
+                        cb()
+                    },
+                    _ = wait_i => {
+                        cb()
+                    }
+                    complete => {
+                        break;
+                    },
                 }
             }
 
             futures_util::future::join_all(alone_tasks).await;
+        });
 
-            if let Some(global_ctx) = global_ctx {
-                SharedProxy::registry_local()
-                    .get(context.local_key)
-                    .for_each(|proxy| proxy.close());
-                global_ctx.close();
-
-                let handles = crate::node::SharedHandle::registry_local()
-                    .get(context.local_key)
-                    .to_vec();
-                for handle in handles {
-                    let handle = std::sync::Arc::try_unwrap(handle)
-                        .unwrap_or_else(|_| panic!("internal error"));
-                    handle.0.await;
-                }
-                // clear graph local resources
-                finalize(context.local_key);
-            }
-        })
-    }
-    /// Get an input port from the graph by name
-    pub fn input(&self, name: &str) -> Option<Sender> {
-        self.conns.get(name).map(|x| x.get().sender())
-    }
-    /// Get an output port from the graph by name
-    pub fn output(&self, name: &str) -> Option<Receiver> {
-        self.conns.get(name).map(|x| x.get().receiver())
-    }
-    /// Stop the graph, it is equivalent to drop all inputs of the graph
-    pub fn stop(&mut self) {
-        self.close()
-    }
-
-    pub(crate) fn mark_main(&mut self, global_ctx: Context) {
-        let mut v = vec![];
-        for name in &self.inputs {
-            v.push((name.clone(), self.conns[name].make()));
-        }
-        for name in &self.outputs {
-            v.push((name.clone(), self.conns[name].make()));
+        if direct_term {
+            self.close();
         }
 
-        for (name, conn) in v {
-            self.set_port(name.as_str(), None, &conn);
-        }
-
-        self.global_ctx = Some(global_ctx);
+        handle
     }
 }

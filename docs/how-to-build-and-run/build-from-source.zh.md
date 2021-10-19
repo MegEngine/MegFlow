@@ -68,12 +68,6 @@ $ cd flow-python
 $ python3 setup.py install --user
 ```
 
-**常见问题**：`error while loading shared libraries: libpython3.8.xxx`，意为 libpython.so 找不到。如果使用 conda 就在 miniconda 安装目录下面，只需要设置环境变量
-
-```bash
-$ export LD_LIBRARY_PATH=`conda info --base`/pkgs/python-3.8.11-xxx/lib:${LD_LIBRARY_PATH}
-```
-
 P.S. 默认 ffmpeg 依赖自动从 github 上拉取源码构建，这会使得首次构建的时间较长。若希望缩短首次构建时间，或者希望依赖一个指定版本的 ffmpeg，可以启用环境变量`CARGO_FEATURE_PREBUILD`并参考[rust-ffmpeg](https://github.com/zmwangx/rust-ffmpeg/wiki/Notes-on-building)自行构建
 
 ## 三、Python“开机自检”

@@ -11,9 +11,9 @@
 
 import json
 import numpy as np
+import cv2
 from loguru import logger
 from megflow import register
-
 from .lite import PredictorLite
 
 
@@ -22,6 +22,8 @@ class Classify:
     def __init__(self, name, arg):
         logger.info("loading Resnet18 Classification...")
         self.name = name
+        self.batch_size = arg['max_batch']
+        self.timeout = arg['wait_time']
 
         # load ReID model and warmup
         self._model = PredictorLite(path=arg['path'],
@@ -52,21 +54,47 @@ class Classify:
         return int(l), int(t), int(r), int(b)
 
     def exec(self):
-        envelope = self.inp.recv()
-        if envelope is None:
+        # batching
+        (envelopes, _) = self.inp.batch_recv(self.batch_size, self.timeout)
+
+        if len(envelopes) == 0:
             return
 
-        data = envelope.msg['data']
-        items = envelope.msg['items']
-        results = []
-        for _, item in enumerate(items):
-            assert 'bbox' in item
-            bbox = item['bbox']
-            l, t, r, b = self.expand(bbox, data.shape[1], data.shape[0], 1.1)
-            _type = self._model.inference(data[t:b, l:r])
-            results.append({
-                "type": str(_type),
-                "frame_id": str(envelope.partial_id)
-            })
+        crops = []
+        for env in envelopes:
+            data = env.msg['data']
+            items = env.msg['items']
+            for item in items:
+                assert 'bbox' in item
+                bbox = item['bbox']
+                l, t, r, b = self.expand(bbox, data.shape[1], data.shape[0],
+                                         1.1)
+                crop = cv2.resize(data[t:b, l:r], (224, 224))
+                crops.append(crop[np.newaxis, :])
+        if len(crops) > 0:
+            data = np.concatenate(crops)
+            types = self._model.inference_batch(data)
+            for _type in types:
+                self.out.send(envelopes[0].repack(json.dumps(str(_type))))
 
-        self.out.send(envelope.repack(json.dumps(results)))
+    # batch_size == 1
+    # def exec(self):
+    #     envelope = self.inp.recv()
+    #     if envelope is None:
+    #         return
+
+    #     data = envelope.msg['data']
+    #     items = []
+    #     results = []
+    #     if 'items' in envelope.msg:
+    #         items = envelope.msg['items']
+    #     for _, item in enumerate(items):
+    #         assert 'bbox' in item
+    #         bbox = item['bbox']
+    #         l, t, r, b = self.expand(bbox, data.shape[1], data.shape[0], 1.1)
+    #         _type = self._model.inference(data[t:b, l:r])
+    #         results.append({
+    #             "type": str(_type),
+    #             "frame_id": str(envelope.partial_id)
+    #         })
+    #     self.out.send(envelope.repack(json.dumps(results)))

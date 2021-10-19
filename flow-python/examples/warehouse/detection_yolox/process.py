@@ -26,16 +26,11 @@ def is_overlap_v1(rect1, rect2, iou_threshold):
     return ov >= iou_threshold
 
 
-def cpu_nms(boxes, scores, iou_threshold=0.3):
+def cpu_nms(boxes, iou_threshold=0.3):
     if 0 == len(boxes):
         return []
     rects = list(boxes)
-    for i in range(len(rects)):
-        rects[i] = list(rects[i])
-        rects[i].append(scores[i])
-        rects[i].append(i)
-
-    rects.sort(key=lambda x: x[4], reverse=True)
+    rects.sort(key=lambda x: x[4] * x[5], reverse=True)
 
     rect_valid = [True for i in range(len(rects))]
     for i in range(len(rects)):
@@ -46,7 +41,7 @@ def cpu_nms(boxes, scores, iou_threshold=0.3):
                     rect_valid[j] = False
                 j = j + 1
 
-    return [x[5] for i, x in enumerate(rects) if rect_valid[i]]
+    return [x for i, x in enumerate(rects) if rect_valid[i]]
 
 
 def preprocess(image, input_size, mean, std, swap=(2, 0, 1)):
@@ -81,6 +76,46 @@ def argmax_keepdims(x, axis):
     output_shape = list(x.shape)
     output_shape[axis] = 1
     return np.argmax(x, axis=axis).reshape(output_shape)
+
+
+def postprocess_ndarray(prediction, num_classes, conf_thre=0.7, nms_thre=0.45):
+    box_corner = np.zeros_like(prediction)
+    box_corner[:, :, 0] = prediction[:, :, 0] - prediction[:, :, 2] / 2
+    box_corner[:, :, 1] = prediction[:, :, 1] - prediction[:, :, 3] / 2
+    box_corner[:, :, 2] = prediction[:, :, 0] + prediction[:, :, 2] / 2
+    box_corner[:, :, 3] = prediction[:, :, 1] + prediction[:, :, 3] / 2
+    prediction[:, :, :4] = box_corner[:, :, :4]
+
+    output = [None for _ in range(len(prediction))]
+    for i, image_pred in enumerate(prediction):
+
+        # If none are remaining => process next image
+        if not image_pred.shape[0]:
+            continue
+        # Get score and class with highest confidence
+        class_conf = np.max(image_pred[:, 5:5 + num_classes], 1, keepdims=True)
+
+        class_pred = argmax_keepdims(image_pred[:, 5:5 + num_classes], 1)
+
+        class_conf_squeeze = np.squeeze(class_conf)
+
+        conf_mask = image_pred[:, 4] * class_conf_squeeze >= conf_thre
+        detections = np.concatenate(
+            (image_pred[:, :5], class_conf, class_pred), 1)
+        detections = detections[conf_mask]
+        if not detections.shape[0]:
+            continue
+
+        detections = cpu_nms(detections, nms_thre)
+
+        if output[i] is None:
+            output[i] = detections
+        else:
+            output[i] = np.concatenate((output[i], detections))
+
+    if output[0] is not None:
+        return output[0]
+    return None
 
 
 def postprocess(prediction, num_classes, conf_thre=0.7, nms_thre=0.45):

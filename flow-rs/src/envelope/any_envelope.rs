@@ -1,4 +1,3 @@
-use super::EnvelopeInfo;
 /**
  * \file flow-rs/src/envelope/any_envelope.rs
  * MegFlow is Licensed under the Apache License, Version 2.0 (the "License")
@@ -9,6 +8,7 @@ use super::EnvelopeInfo;
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT ARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
+use super::EnvelopeInfo;
 use dyn_clone::{clone_trait_object, DynClone};
 use std::any::{Any, TypeId};
 

@@ -8,6 +8,7 @@
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT ARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
+mod bcast;
 mod demux;
 mod noop;
 mod port;
@@ -47,7 +48,7 @@ pub trait Node {
         port_name: &str,
         target: String,
         cap: usize,
-        broker: BrokerClient,
+        brokers: Vec<BrokerClient>,
     );
     fn close(&mut self);
     fn is_allinp_closed(&self) -> bool;
@@ -61,22 +62,20 @@ pub trait Actor: Node + Send + 'static {
     }
 }
 
-pub(crate) fn load(
+pub(crate) fn load_static(
     local_key: u64,
     config: &crate::config::interlayer::Node,
 ) -> Result<Vec<Box<dyn Actor>>> {
-    if let Some(node) = NodeSlice::registry_local()
-        .get(local_key)
-        .get(&config.entity.ty)
-    {
+    if config.entity.ty.len() > 1 {
+        return Err(anyhow!("static subgraph/node dont support dyn type"));
+    }
+    let ty = config.entity.ty.first().unwrap();
+    if let Some(node) = NodeSlice::registry_local().get(local_key).get(ty) {
         Ok((0..config.cloned.unwrap_or(1))
             .into_iter()
             .map(|_| (node.cons)(config.entity.name.clone(), &config.entity.args))
             .collect())
-    } else if let Some(graph) = GraphSlice::registry_local()
-        .get(local_key)
-        .get(&config.entity.ty)
-    {
+    } else if let Some(graph) = GraphSlice::registry_local().get(local_key).get(ty) {
         (0..config.cloned.unwrap_or(1))
             .into_iter()
             .map(|_| (graph.cons)(config.entity.name.clone()))
@@ -84,7 +83,7 @@ pub(crate) fn load(
             .collect()
     } else {
         Err(anyhow!(
-            "unexpected node {}:{}",
+            "unexpected node {}:{:?}",
             config.entity.name,
             config.entity.ty
         ))

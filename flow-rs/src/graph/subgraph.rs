@@ -26,6 +26,9 @@ impl Node for Graph {
                         node.set_port(&port.port_name, tag, channel);
                     }
                 } else {
+                    if self.is_shared {
+                        panic!("nested shared graph is not support");
+                    }
                     let proxy = self
                         .shares
                         .entry(port.node_name.clone())
@@ -47,7 +50,7 @@ impl Node for Graph {
         }
     }
 
-    fn set_port_dynamic(&mut self, _: u64, _: &str, _: String, _: usize, _: BrokerClient) {
+    fn set_port_dynamic(&mut self, _: u64, _: &str, _: String, _: usize, _: Vec<BrokerClient>) {
         unimplemented!()
     }
 

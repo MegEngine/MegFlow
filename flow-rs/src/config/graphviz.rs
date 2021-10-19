@@ -10,7 +10,7 @@
  */
 use super::interlayer::*;
 use anyhow::Result;
-use std::collections::HashMap;
+use std::collections::{BTreeSet, HashMap};
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
@@ -41,7 +41,7 @@ fn dump_dot(config: &Config) -> String {
         }
         *id
     };
-    let is_graph = |name| config.graphs.iter().any(|x| &x.name == name);
+    let is_graph = |name: &str| config.graphs.iter().any(|x| x.name == name);
     // flatten subgraph i/o ports
     for graph in &config.graphs {
         for pname in graph.inputs.iter().chain(graph.outputs.iter()) {
@@ -51,7 +51,13 @@ fn dump_dot(config: &Config) -> String {
                 conn.tx
                     .iter()
                     .chain(conn.rx.iter())
-                    .map(|x| x.node_name.clone())
+                    .map(|x| {
+                        if config.nodes.contains_key(&x.node_name) {
+                            ("global".to_owned(), x.node_name.clone())
+                        } else {
+                            (graph.name.clone(), x.node_name.clone())
+                        }
+                    })
                     .collect::<Vec<_>>(),
             );
         }
@@ -69,9 +75,9 @@ fn dump_dot(config: &Config) -> String {
         for (name, _) in graph
             .nodes
             .iter()
-            .filter(|(_, config)| !is_graph(&config.entity.ty))
+            .filter(|(_, config)| !config.entity.ty.iter().any(|x| is_graph(x)))
         {
-            let id = mapping(name);
+            let id = mapping((graph.name.clone(), name));
             buf.push(format!("n{} [label=\"{}\"]", id, name));
         }
         // write connections into buf
@@ -80,31 +86,39 @@ fn dump_dot(config: &Config) -> String {
                 ($x: ident, $x_len: ident) => {
                     let mut $x = vec![];
                     for p in &conn.$x {
-                        let pname = format!("{}:{}", p.node_type, p.port_name);
-                        if flatten_ports.contains_key(&pname) {
-                            let flatten_ports = flatten_ports.get(&pname).unwrap();
-                            let mut flatten_ports =
-                                flatten_ports.iter().map(|p| mapping(p)).collect();
-                            $x.append(&mut flatten_ports);
-                        } else {
-                            $x.push(mapping(&p.node_name));
+                        for ty in &p.node_type {
+                            let pname = format!("{}:{}", ty, p.port_name);
+                            if flatten_ports.contains_key(&pname) {
+                                let flatten_ports = flatten_ports.get(&pname).unwrap();
+                                let mut flatten_ports =
+                                    flatten_ports.iter().map(|p| mapping((p.0.clone(), &p.1))).collect();
+                                $x.append(&mut flatten_ports);
+                            } else if config.nodes.contains_key(&p.node_name) {
+                                $x.push(mapping(("global".to_owned(), &p.node_name)));
+                            } else {
+                                $x.push(mapping((graph.name.clone(), &p.node_name)));
+                            }
                         }
+
                     }
                     if $x.is_empty() {
                         if is_subgraph {
                             continue;
                         } else {
+                            let id = mapping((graph.name.clone(), name));
                             buf.push(format!(
-                                "{} [shape=circle,fillcolor=black, style=filled, fontcolor=white]",
-                                name
+                                "n{} [label=\"{}\", shape=circle,fillcolor=black, style=filled, fontcolor=white]",
+                                id, name
                             ));
-                            $x.push(mapping(name));
+                            $x.push(id);
                         }
                     }
                     let ($x_len, $x) = (
                         $x.len(),
                         $x.iter()
                             .map(|x| format!("n{}", x))
+                            .collect::<BTreeSet<_>>()
+                            .into_iter()
                             .collect::<Vec<_>>()
                             .join(","),
                     );
@@ -133,9 +147,9 @@ fn dump_dot(config: &Config) -> String {
     for (name, _) in config
         .nodes
         .iter()
-        .filter(|(_, config)| !is_graph(&config.entity.ty))
+        .filter(|(_, config)| !config.entity.ty.iter().any(|x| is_graph(x)))
     {
-        let id = mapping(name);
+        let id = mapping(("global".to_owned(), name));
         buf.push(format!("n{} [label=\"{}\"]", id, name));
     }
     buf.push("}".to_string());

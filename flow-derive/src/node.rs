@@ -88,7 +88,7 @@ pub fn expand(input: DeriveInput) -> TokenStream {
         if match_last_ty(ty, "DynPorts") {
             quote_spanned! {ident.span()=>
                 if port_name == concat!("dyn@", stringify!(#ident)) {
-                    self.#ident = flow_rs::node::DynPorts::new(local_key, target, cap, broker);
+                    self.#ident = flow_rs::node::DynPorts::new(local_key, target, cap, brokers);
                 } else
             }
         } else {
@@ -100,10 +100,8 @@ pub fn expand(input: DeriveInput) -> TokenStream {
             quote_spanned! {ident.span()=>
                 self.#ident.clear();
             }
-        } else if match_last_ty(ty, "DynPorts") {
-            quote_spanned! (ident.span()=>self.#ident.close();)
         } else {
-            quote_spanned! (ident.span()=>self.#ident.abort();)
+            quote!()
         }
     }
     fn is_close_f((_, ident, ty): IterArgs) -> TokenStream {
@@ -140,7 +138,7 @@ pub fn expand(input: DeriveInput) -> TokenStream {
                     port_name: &str,
                     target: String,
                     cap: usize,
-                    broker: flow_rs::broker::BrokerClient,
+                    brokers: Vec<flow_rs::broker::BrokerClient>,
                 ) {
                     #(#set_dyni) *
                     #(#set_dyno) *

@@ -9,6 +9,7 @@
  * "AS IS" BASIS, WITHOUT ARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 pub mod bare_json;
+pub mod codec;
 pub mod either;
 pub mod error;
 pub mod image;

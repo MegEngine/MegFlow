@@ -109,7 +109,7 @@ ports = ["trans{}:out", "trans{}:inp"]
     let mut graph = load(None, config.as_str()).unwrap();
     let input = graph.input("in").unwrap();
     let output = graph.output("out").unwrap();
-    let handle = graph.start(None);
+    let handle = graph.start();
     let sf = async_std::task::spawn(async move {
         for _ in 0..data_num {
             input
