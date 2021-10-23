@@ -31,4 +31,4 @@ RUN cargo build \
     && cargo run --example run_with_plugins -- -p logical_test
 
 RUN cargo build --example run_with_plugins --release \
-    && ln -s ../../target/release/examples/run_with_plugins
+    && ln -s  target/release/examples/run_with_plugins
