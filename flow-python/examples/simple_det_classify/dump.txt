@@ -32,9 +32,12 @@ def dump_static_graph(model, graph_name, shape):
     def pred_func(data):
         out = data.astype(np.float32)
 
+        batch_size = shape[0]
         output_h, output_w = 224, 224
         # resize
-        M = mge.tensor(np.array([[1,0,0], [0,1,0], [0,0,1]], dtype=np.float32).reshape((1,3,3)))
+        M = mge.tensor(np.array([[1,0,0], [0,1,0], [0,0,1]], dtype=np.float32))
+        M_shape = F.concat([shape[0], M.shape])
+        M = F.broadcast_to(M, M_shape)
         out = F.vision.warp_perspective(out, M, (output_h, output_w), format='NHWC')
         # mean
         _mean = mge.Tensor(np.array([103.530, 116.280, 123.675], dtype=np.float32))
