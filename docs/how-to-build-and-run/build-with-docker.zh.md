@@ -3,17 +3,9 @@
 MegFlow 提供了 [Dockerfile](../../Dockerfile)，能够“可复现地”生成运行环境、减少依赖缺失的痛苦
 
 ## 下载模型包
-docker 运行方式，建议把模型包下好，
-解压备用。
-
-
-| 云盘 | google drive | dropbox |
-| - | - | - |
-| [链接](https://pan.baidu.com/s/1SoxHZjdWyPRIAwfcHWUQTQ) 提取码: ebcn  | [google](https://drive.google.com/file/d/1EwMJFjNp2kuNglutoleZOVsqccSOW2Z4/view?usp=sharing)  |  [dropbox](https://www.dropbox.com/s/akhkxedyo2ubmys/models.zip?dl=0) |
-
+docker 运行方式，建议把模型包下好，解压备用。[下载地址](../download-models.zh.md)
 
 ## 编译 Docker 镜像
-
 
 ```bash
 $ cd MegFlow

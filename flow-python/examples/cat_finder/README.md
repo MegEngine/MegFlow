@@ -7,9 +7,9 @@
 
 | 云盘 | google drive | dropbox |
 | - | - | - |
-| [链接](https://pan.baidu.com/s/1SoxHZjdWyPRIAwfcHWUQTQ) 提取码: ebcn  | [google](https://drive.google.com/file/d/1EwMJFjNp2kuNglutoleZOVsqccSOW2Z4/view?usp=sharing)  |  [dropbox](https://www.dropbox.com/s/akhkxedyo2ubmys/models.zip?dl=0) |
+| 链接: https://pan.baidu.com/s/1ZLVBR0igJ1hL6PoYQDtByA 提取码: 8ajf | [google](https://drive.google.com/file/d/1EwMJFjNp2kuNglutoleZOVsqccSOW2Z4/view?usp=sharing)  |  [dropbox](https://www.dropbox.com/s/akhkxedyo2ubmys/models.zip?dl=0) |
 
-解压，软链到 examples/models 目录
+取最新的 models_xxx.zip，解压、软链到 examples/models 目录
 
 ```bash
 $ cd flow-python/examples
@@ -76,9 +76,9 @@ $ export LD_LIBRARY_PATH=`conda info --base`/pkgs/python-3.8.11-xxx/lib:${LD_LIB
 
 **此处 wsl2 常见问题**：win10 wsl2 用 127.0.0.1 地址打不开服务，**注意 127 是指物理机， wsl2 运行的是虚拟机**，需要 `wsl -- ifconfig` 获取 ip，后面都用虚拟机的 ip。
 
-**此处 docker 常见问题**：服务部署在 docker 里、客户端无法直连，这里提供 2 种方法：
+**此处 docker 常见问题**：服务部署在 docker 里、客户端无法直连，这里提供一些方法：
 
-1. 运行时容器使用端口映射。例如把内部容器的 8081 映射成外部物理机的 18081、把 8082 映射成 18082
+1） 运行时容器使用端口映射。例如把内部容器的 8081 映射成外部物理机的 18081、把 8082 映射成 18082
 ```bash
 $ docker run -p 18081:8081 -p 18082:8082  -it ubuntu /bin/bash
 ```
@@ -91,11 +91,13 @@ d4b5b563051e   ubuntu    "/bin/bash"   9 seconds ago   Up 8 seconds   0.0.0.0:18
 ```
 浏览器打开宿主机的 ip:18081 端口即可使用
 
-2. 在容器内用 `cURL` 发 HTTP POST 请求，不再用 web UI
+2）在容器内用 `cURL` 发 HTTP POST 请求，不再用 web UI
 ```bash
 $ curl http://127.0.0.1:8081/analyze/my_cat_name  -X POST --header "Content-Type:image/*"   --data-binary @test.jpeg  --output out.jpg
 ```
 `my_cat_name` 是注册的猫咪名称；`test.jpeg` 是测试图片；`output.jpg` 是返回的可视化图片。
+
+3）Python 提供了调用参照 [image_client.py](../../examples/misc/image_client.py) 
 
 ## 五、准备视频识别
 
@@ -173,7 +175,7 @@ $ curl 'http://127.0.0.1:8082/list'   # list all stream
 路径中的 `%2F`、`%3A` 是 [URL](https://www.ietf.org/rfc/rfc1738.txt) 的转义字符
 
 ### 3）Python 代码方式
-参照 [simple_det_classify client.py](../simple_det_classify/client.py) 实现
+参照 [video_client.py](../../examples/misc/video_client.py) 实现
 
 ## 八、模型列表
 
