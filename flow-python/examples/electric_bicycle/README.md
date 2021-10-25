@@ -7,18 +7,8 @@
 
 *nix 系统（Linux/Mac），x86 芯片。支持 onnx runtime 即可。
 
-## 模型下载
+## [模型下载](../../../docs/download-models.zh.md)
 
-| 云盘 | google drive | dropbox |
-| - | - | - |
-| [链接](https://pan.baidu.com/s/1SoxHZjdWyPRIAwfcHWUQTQ) 提取码: ebcn  | [google](https://drive.google.com/file/d/1EwMJFjNp2kuNglutoleZOVsqccSOW2Z4/view?usp=sharing)  |  [dropbox](https://www.dropbox.com/s/akhkxedyo2ubmys/models.zip?dl=0) |
-
-解压，软链到 examples/models 目录
-
-```bash
-$ cd flow-python/examples
-$ ln -s ${DOWNLOAD_DIR}/models models
-```
 ## 启动服务
 
 安装运行依赖

@@ -4,37 +4,7 @@
 
 ## 分类模型支持动态 batch
 
-resnet 的 dump.py 调整，支持动态 batch_size，新的 trace inference 如下
-
-```bash
-$ cat dump.py
-...
-    @jit.trace(capture_as_const=True)
-    def pred_func(data):
-        out = data.astype(np.float32)
-        output_h, output_w = 224, 224
-        # resize
-        M = mge.tensor(np.array([[1,0,0], [0,1,0], [0,0,1]], dtype=np.float32))        
-        M_shape = F.concat([data.shape[0],M.shape])
-        M = F.broadcast_to(M, M_shape)
-        out = F.vision.warp_perspective(out, M, (output_h, output_w), format='NHWC')
-        # mean
-        _mean = mge.Tensor(np.array([103.530, 116.280, 123.675], dtype=np.float32))
-        out = F.sub(out, _mean)
-        # div 
-        _div = mge.Tensor(np.array([57.375, 57.120, 58.395], dtype=np.float32))
-        out = F.div(out, _div)
-        # dimshuffile 
-        out = F.transpose(out, (0,3,1,2))
-
-        outputs = model(out)
-        return outputs
-...
-```
-dump 命令和 tutorial02 一样
-```bash
-$  python3 dump.py -a resnet18 -s 1 224 224 3
-```
+resnet 的 dump 需要支持多 batch 输入，样例 [dump_resnet.py](../../flow-python/examples/misc/dump_resnet.py)
 
 ## 分类用 batch_recv 接口
 

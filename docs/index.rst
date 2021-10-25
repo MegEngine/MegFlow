@@ -13,10 +13,13 @@ Welcome to MegFlow's documentation!
   :caption: how to build and run
   :name: sec-introduction
 
+  how-to-build-and-run/run-in-15-minutes.zh
   how-to-build-and-run/build-with-docker.zh
   how-to-build-and-run/build-from-source.zh
   how-to-build-and-run/build-on-win10.zh
+  how-to-build-and-run/build-on-aarch64.zh
   how-to-build-and-run/generate-rtsp.zh
+  download-models.zh
 
 .. toctree::
   :maxdepth: 1
@@ -34,5 +37,6 @@ Welcome to MegFlow's documentation!
   :caption: home
 
   FAQ.zh
+  how-to-debug.zh
   how-to-contribute.zh
   how-to-pack-python-whl.zh

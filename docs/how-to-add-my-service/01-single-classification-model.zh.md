@@ -147,9 +147,8 @@ $ curl http://127.0.0.1:8081/analyze/image_name  -X POST --header "Content-Type:
 
 ### Python Client
 
+[图片 client 代码](../../flow-python/examples/misc/image_client.py)
 ```Python
-$ cat ${MegFlow_DIR}/flow-python/examples/simple_classification/client.py
-
 import requests
 import cv2
 

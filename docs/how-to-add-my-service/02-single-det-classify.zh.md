@@ -4,20 +4,20 @@
 
 ## 移除分类预处理
 
-之前提到过：MegEngine 除了不需要转模型，还能消除预处理。我们修改 `dump.py` 把预处理从 SDK/业务代码提到模型内。这样的好处是：**划清工程和算法的边界**，预处理本来就应该由 scientist 维护，每次只需要 release mge 文件，减少交接内容
+之前提到过：MegEngine 除了不需要转模型，还能消除预处理。我们修改 [dump.py](../../flow-python/examples/misc/dump_resnet.py) 把预处理从 SDK/业务代码提到模型内。这样的好处是：**划清工程和算法的边界**，预处理本来就应该由 scientist 维护，每次只需要 release mge 文件，减少交接内容
 
-```bash
-$ cat ${MegFlow}/flow-python/examples/simple_det_classify/dump.py
+```Python
 ...
-    data = mge.Tensor(np.ones(shape, dtype=np.uint8))
-
     @jit.trace(capture_as_const=True)
     def pred_func(data):
         out = data.astype(np.float32)
-        # resnet18 预处理
+
         output_h, output_w = 224, 224
         # resize
-        M = mge.tensor(np.array([[1,0,0], [0,1,0], [0,0,1]], dtype=np.float32).reshape((1,3,3)))
+        print(shape)
+        M = mge.tensor(np.array([[1,0,0], [0,1,0], [0,0,1]], dtype=np.float32))        
+        M_shape = F.concat([data.shape[0],M.shape])
+        M = F.broadcast_to(M, M_shape)
         out = F.vision.warp_perspective(out, M, (output_h, output_w), format='NHWC')
         # mean
         _mean = mge.Tensor(np.array([103.530, 116.280, 123.675], dtype=np.float32))
@@ -25,7 +25,7 @@ $ cat ${MegFlow}/flow-python/examples/simple_det_classify/dump.py
         # div 
         _div = mge.Tensor(np.array([57.375, 57.120, 58.395], dtype=np.float32))
         out = F.div(out, _div)
-        # dimshuffle 
+        # dimshuffile 
         out = F.transpose(out, (0,3,1,2))
 
         outputs = model(out)
@@ -123,8 +123,9 @@ $ curl 'http://127.0.0.1:8085/list'   # list all stream
 
 ### Python Client
 
+[视频 client 代码](../../flow-python/examples/misc/video_client.py)
+
 ```Python
-$ cat ${MegFlow_DIR}/flow-python/examples/simple_det_classify/client.py
 
 import requests
 import urllib
