@@ -112,7 +112,6 @@ impl Receiver {
         let imp = self.imp.as_ref().expect("not init");
         let envelope = imp.recv().await.map_err(|e| {
             self.is_closed.store(true, Ordering::Relaxed);
-            imp.close_ops.notify(usize::MAX);
             e
         })?;
         if envelope.is::<DummyEnvelope>() {

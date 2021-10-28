@@ -10,7 +10,8 @@
 MegFlow 提供快速视觉应用落地流程，最快 15 分钟搭建起视频分析服务。其特性体现在：
 
 * 直接用 Python 搭建计算图（如先检测、再跟踪、最后质量判断加识别），不必关心 C++、图优化相关问题
-* 省去 C++ SDK 集成，通过流程改进应对人力不足、时间紧、视觉功能多的情况
+* 省去 SDK 集成、提升开发体验，通过流程改进应对人力不足、时间紧、功能多的情况
+* 提供 pipeline 搭建、测试、调试、部署、结果可视化一条龙服务
 
 ## HowTo
 * how to build and run
@@ -24,6 +25,7 @@ MegFlow 提供快速视觉应用落地流程，最快 15 分钟搭建起视频�
   * [tutorial01: image classification service](docs/how-to-add-my-service/01-single-classification-model.zh.md)
   * [tutorial02: detect and classify on video stream](docs/how-to-add-my-service/02-single-det-classify.zh.md)
   * [tutorial03: batching and pipeline test](docs/how-to-add-my-service/03-batching-and-pipeline-test.zh.md)
+  * [tutorial04: visualization](docs/how-to-add-my-service/04-web-visualization.zh.md)
 * [how to debug](docs/how-to-debug.zh.md)
 * [how to contribute](docs/how-to-contribute.zh.md)
 * [FAQ](docs/FAQ.zh.md)
@@ -31,7 +33,7 @@ MegFlow 提供快速视觉应用落地流程，最快 15 分钟搭建起视频�
 ## Current Support Matrix
 
 | 系统环境 | win10 docker/wsl2 | ubuntu | centOS | macos |
-| -----------  | ------------------------- | ---------- | ---------  | ----- |
+| ----------- | ------------------------- | ---------- | ---------- | --------- |
 | x86 | ✔️ | ✔️ | ✔️ | ✔️ |  
 | ARMv8 | - | ✔️ | ✔️ | - |
 
@@ -74,13 +76,16 @@ MegFlow 提供快速视觉应用落地流程，最快 15 分钟搭建起视频�
 
 ## Acknowledgement
 
-MegFlow 模型和推理学习了这些项目：
+MegFlow examples 模型和推理学习了这些项目：
 * [MegEngine](https://github.com/megengine/megengine)
 * [Models](https://github.com/megengine/models)
 * [onnx](https://github.com/onnx/onnx)
 * [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX)
 * [AlignedReID](https://github.com/huanghoujing/AlignedReID-Re-Production-Pytorch)
 * [MEMD](https://github.com/megvii-research/MEMD)
+
+MegFlow 结果可视化使用了以下项目：
+* [flv.js](http://bilibili.github.io/flv.js/demo/)
 
 MegFlow Python 使用了下列项目：
 * [OpenCV](https://github.com/opencv/opencv)
@@ -121,4 +126,3 @@ MegFlow Rust 使用了以下项目：
 * [toml](https://github.com/alexcrichton/toml-rs)
 * [urlencoding](https://github.com/kornelski/urlencoding)
 * [warp](https://github.com/seanmonstar/warp)
-

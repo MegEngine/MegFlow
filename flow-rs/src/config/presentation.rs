@@ -12,6 +12,7 @@ use serde::Deserialize;
 use toml::value::Table;
 
 #[derive(Deserialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
 pub struct Connection {
     pub cap: usize,
     pub ports: Vec<String>,
@@ -42,6 +43,7 @@ pub struct Node {
 }
 
 #[derive(Deserialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
 pub struct Graph {
     pub name: String,
     #[serde(default)]
@@ -57,6 +59,7 @@ pub struct Graph {
 }
 
 #[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Config {
     #[serde(default)]
     pub resources: Vec<Entity>,

@@ -169,12 +169,7 @@ impl<T> Sender<T> {
     }
 
     pub fn close(&self) -> bool {
-        if self.channel.close() {
-            self.close_ops.notify(usize::MAX);
-            true
-        } else {
-            false
-        }
+        self.channel.close()
     }
 
     pub fn is_closed(&self) -> bool {
@@ -209,7 +204,8 @@ impl<T> Sender<T> {
 impl<T> Drop for Sender<T> {
     fn drop(&mut self) {
         // Decrement the sender count and close the channel if it drops down to zero.
-        if self.channel.sender_count.fetch_sub(1, Ordering::AcqRel) == 1 && self.channel.close() {
+        if self.channel.sender_count.fetch_sub(1, Ordering::AcqRel) == 1 {
+            self.channel.close();
             self.close_ops.notify(usize::MAX);
         }
     }
@@ -304,12 +300,7 @@ impl<T> Receiver<T> {
     }
 
     pub fn close(&self) -> bool {
-        if self.channel.close() {
-            self.close_ops.notify(usize::MAX);
-            true
-        } else {
-            false
-        }
+        self.channel.close()
     }
 
     pub fn is_closed(&self) -> bool {
@@ -344,7 +335,8 @@ impl<T> Receiver<T> {
 impl<T> Drop for Receiver<T> {
     fn drop(&mut self) {
         // Decrement the receiver count and close the channel if it drops down to zero.
-        if self.channel.receiver_count.fetch_sub(1, Ordering::AcqRel) == 1 && self.channel.close() {
+        if self.channel.receiver_count.fetch_sub(1, Ordering::AcqRel) == 1 {
+            self.channel.close();
             self.close_ops.notify(usize::MAX);
         }
     }
