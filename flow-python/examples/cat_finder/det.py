@@ -49,12 +49,12 @@ class Detect:
         if envelope is None:
             return
 
-        image = envelope.msg
-        image['items'] = []
+        msg = envelope.msg
+        msg['items'] = []
 
         process = envelope.partial_id % self._interval == 0
         if process:
-            data = image['data']
+            data = msg['data']
             outputs = self._predictor.inference(data)
             # skip if detect nothing
             if outputs is not None:
@@ -71,7 +71,7 @@ class Detect:
                     item["cls"] = round(output[6])
                     item["score"] = output[4] * output[5]
                     items.append(item)
-                image['items'] = items
+                msg['items'] = items
 
                 # import cv2
                 # x = self._predictor.visual(outputs, data)
@@ -79,5 +79,6 @@ class Detect:
                 # cv2.imwrite(name, x)
 
             if self._visualize == 1:
-                image['data'] = self._predictor.visual(outputs, data)
-            self.out.send(envelope)
+                msg['data'] = self._predictor.visual(outputs, data)
+        msg['process'] = process
+        self.out.send(envelope)

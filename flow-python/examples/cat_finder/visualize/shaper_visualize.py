@@ -14,8 +14,8 @@ from megflow import register
 from warehouse.quality_naive import Quality
 
 
-@register(inputs=['inp'], outputs=['out'])
-class Shaper:
+@register(inputs=['inp'], outputs=['out', 'visualize'])
+class ShaperVisualize:
     def __init__(self, name, args):
         self.name = name
         self._mode = args['mode']
@@ -62,7 +62,8 @@ class Shaper:
                     self._map[tid] = envelope.repack(msg)
 
                 data = msg['data']
-                l, t, r, b = self.expand(box, data.shape[1], data.shape[0], 1.1)
+                l, t, r, b = self.expand(box, data.shape[1], data.shape[0],
+                                         1.1)
                 crop = data[t:b, l:r]
                 assert crop is not None
                 quality = Quality.area(crop)
@@ -78,12 +79,14 @@ class Shaper:
                         tid_msg['quality'] = quality
                         tid_msg['crop'] = crop
 
-        if 'failed_ids' in msg:
             ids = msg['failed_ids']
             if len(ids) > 0:
                 logger.debug(f'shaper recv failed_ids {ids}')
 
                 for id in ids:
                     if id in self._map:
+                        msg['crop'] = self._map[id].msg['crop']
                         self.out.send(self._map[id])
                         self._map.pop(id)
+
+        self.visualize.send(envelope)

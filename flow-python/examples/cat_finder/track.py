@@ -27,12 +27,12 @@ class Track:
             logger.info('stream tracker finish')
             return
 
-        items = envelope.msg['items']
-        # logger.debug(f'track input: {items}')
+        msg = envelope.msg
+        if msg['process']:
+            items = msg['items']
 
-        tracks, failed_ids = self._tracker.track(items)
-        envelope.msg['tracks'] = tracks
-        envelope.msg['failed_ids'] = failed_ids
-        # logger.debug(f'track output: {tracks},  failed_ids: {failed_ids}')
-
+            tracks, failed_ids = self._tracker.track(items)
+            msg['tracks'] = tracks
+            msg['failed_ids'] = failed_ids
+            # logger.debug(f'track output: {tracks},  failed_ids: {failed_ids}')
         self.out.send(envelope)

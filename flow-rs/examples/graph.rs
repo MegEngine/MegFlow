@@ -123,7 +123,6 @@ ports = ["trans{}:out", "trans{}:inp"]
         for _ in 0..data_num {
             output.recv::<u32>().await.ok();
         }
-        output
     });
     let start = Instant::now();
     let (input, _) = futures_util::future::join(sf, rf).await;

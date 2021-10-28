@@ -3,26 +3,7 @@
 ## 一、功能概述
 注册的猫猫离开围栏，会收到一条告警信息。未注册的不会报警。 CPU 配置已提供，没有 GPU 也可以运行。
 
-## 二、模型和自测数据下载
-
-| 云盘 | google drive | dropbox |
-| - | - | - |
-| 链接: https://pan.baidu.com/s/1ZLVBR0igJ1hL6PoYQDtByA 提取码: 8ajf | [google](https://drive.google.com/file/d/1EwMJFjNp2kuNglutoleZOVsqccSOW2Z4/view?usp=sharing)  |  [dropbox](https://www.dropbox.com/s/akhkxedyo2ubmys/models.zip?dl=0) |
-
-取最新的 models_xxx.zip，解压、软链到 examples/models 目录
-
-```bash
-$ cd flow-python/examples
-$ ln -s ${DOWNLOAD_DIR}/models models
-```
-
-如果有 MegFlow-models repo，可以直接
-
-```bash
-$ cd MegFlow-models
-$ git-lfs update
-$ git lfs pull
-```
+## 二、[模型和自测数据下载](../../../docs/download-models.zh.md)
 
 ## 三、软件安装
 
@@ -56,12 +37,6 @@ $ cd flow-python/examples
 $ pip3 install -r requires.txt
 $ run_with_plugins -c cat_finder/image_gpu.toml  -p cat_finder    # 有 GPU 的机器执行这个
 $ run_with_plugins -c cat_finder/image_cpu.toml  -p cat_finder    # 无 GPU 的 laptop 执行这句
-```
-
-**此处常见问题**：`error while loading shared libraries: libpython3.8.xxx`，意为 libpython.so 找不到。如果使用 conda 就在 miniconda 安装目录下面，只需要设置环境变量
-
-```bash
-$ export LD_LIBRARY_PATH=`conda info --base`/pkgs/python-3.8.11-xxx/lib:${LD_LIBRARY_PATH}
 ```
 
 现在 8081 端口部署了“猫体注册”服务，只需要打开浏览器上传图片、猫咪名称即可。`cat_finder/image_gpu.toml` 详细解释见 [how-to-add-graph](../../../docs/how-to-add-my-service/appendix-A-graph-definition.zh.md) 。这里只需要浏览器打开主机所在 8081 端口服务（如 http://127.0.0.1:8081/docs ）。
@@ -177,11 +152,6 @@ $ curl 'http://127.0.0.1:8082/list'   # list all stream
 ### 3）Python 代码方式
 参照 [video_client.py](../../examples/misc/video_client.py) 实现
 
-## 八、模型列表
+## 八、 Web 实时展示解析结果
 
-本服务有以下模型的痕迹
-
-* [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX)， coco 数据集
-* Resnet50，imagenet 数据集。最后一层应用 global pooling
-* [AlignedReID](https://arxiv.org/abs/1711.08184)，market1501 数据集。推理阶段移除 local 分支
-
+参考 [tutorial04](../../../docs/how-to-add-my-service/04-web-visualization.zh.md) 操作说明
