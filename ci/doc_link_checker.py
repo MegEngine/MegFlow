@@ -38,7 +38,8 @@ def traverse(_dir):
         for filename in files:
             if filename.endswith('.md'):
                 path = os.path.join(home, filename)
-                analyze_doc(home, path)
+                if os.path.islink(path) == False:
+                    analyze_doc(home, path)
 
 if __name__ == "__main__":
     traverse(".")

@@ -85,15 +85,12 @@ $ ./run_with_plugins -p logical_test
 
 接下来开始运行好玩的 Python 应用
 
-*  [猫猫围栏运行手册](../../flow-python/examples/cat_finder/README.md)
+*  [猫猫围栏运行手册](../built-in-applications/cat_finder.md)
    *  图片注册猫猫
    *  部署视频围栏，注册的猫离开围栏时会发通知
    *  未注册的不会提示
-*  [电梯电瓶车告警](../../flow-python/examples/electric_bicycle/README.md)
+*  [电梯电瓶车告警](../built-in-applications/electric_bicycle.md)
    *  电梯里看到电瓶车立即报警
-*  Comming Soon
-   *  OCR： 通用字符识别
-
 
 ## 六、其他选项
 ```bash

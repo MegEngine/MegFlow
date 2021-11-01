@@ -22,13 +22,22 @@ Welcome to MegFlow's documentation!
   download-models.zh
 
 .. toctree::
+  :maxdepth: 1 
+  :caption: built-in applications
+  :name: sec-introduction
+
+  built-in-applications/cat_finder
+  built-in-applications/electric_bicycle
+
+.. toctree::
   :maxdepth: 1
-  :caption: how to use 
+  :caption: how to use
   :name: sec-how-to-use
 
   how-to-add-my-service/01-single-classification-model.zh
   how-to-add-my-service/02-single-det-classify.zh
   how-to-add-my-service/03-batching-and-pipeline-test.zh
+  how-to-add-my-service/04-web-visualization.zh
   how-to-add-my-service/appendix-A-graph-definition.zh
   how-to-add-my-service/appendix-B-python-plugin.zh
 

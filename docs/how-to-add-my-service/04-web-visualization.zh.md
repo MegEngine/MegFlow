@@ -46,7 +46,7 @@ $ python3 push_video.py
 
 3）运行猫猫围栏可视化配置
 
-猫猫围栏环境设置见 [ cat_finder README](../../flow-python/examples/cat_finder/README.md)。运行起 video 基础版后，能够运行video 可视化版本
+猫猫围栏环境设置见 [ cat_finder README](../built-in-applications/cat_finder.md)。运行起 video 基础版后，能够运行video 可视化版本
 
 ```bash
 $ cd ${MegFlow_dir}/flow-python/examples
