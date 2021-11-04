@@ -1,5 +1,0 @@
-numpy
-scipy
-opencv-python
-loguru
-redis
