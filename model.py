@@ -26,7 +26,7 @@ class Classify:
                                     device=arg['device'],
                                     device_id=arg['device_id'])
 
-    def exec(self):
+    def exec (self):
         envelope = self.inp.recv()
         if envelope is None:
             return

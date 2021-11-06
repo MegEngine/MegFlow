@@ -44,7 +44,6 @@ class PredictorLite:
 
         self.net = net
 
-
     def inference(self, img):
         t0 = time.time()
 
@@ -69,9 +68,7 @@ class PredictorLite:
 
 def make_parser():
     parser = argparse.ArgumentParser("Single Model Demo!")
-    parser.add_argument("--path",
-                        default="./test.png",
-                        help="path to image")
+    parser.add_argument("--path", default="./test.png", help="path to image")
     parser.add_argument("--model",
                         default=None,
                         type=str,
@@ -83,7 +80,5 @@ if __name__ == "__main__":
     args = make_parser().parse_args()
     predictor = PredictorLite(args.model)
     image = cv2.imread(args.path)
-    if image is None:
-        logger.error(f"open {args.path} failed")
     out = predictor.inference(image)
-    logger.info(f'{out}')
+    print(out)
