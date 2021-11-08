@@ -50,12 +50,19 @@ megvii
 
 ## Python“开机自检”
 
+### 下载 MegFlow 源码(需要使用到flow-python/examples中文件)
+```bash
+$ git clone https://github.com/MegEngine/Models.git
+```
+
+### 运行“开机自检”
 ```bash
 $ cd ${MegFlow_PATH}/flow-python/examples  # 这行必须
 $ run_with_plugins -p logical_test
 ```
 
 `logical_test` 是 examples 下最基础的计算图测试用例，运行能正常结束表示 MegFlow 编译成功、基本语义无问题。
+目前版本输出为 logical_test pass 即为正确
 
 此处常见问题：`error while loading shared libraries: libpython3.8.xxx`。如果使用 conda 只需要
 ```bash
