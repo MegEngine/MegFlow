@@ -1,14 +1,8 @@
-main = "image"
+main = "video"
 
 [[nodes]]
 name = "det"
 ty = "Detect"
-device = "cpu"
-device_id = 0
-
-[[nodes]]
-name = "attr"
-ty = "Attribute"
 device = "cpu"
 device_id = 0
 
@@ -20,8 +14,15 @@ connections = [
   { cap = 16, ports = ["det:out", "attr:inp"] },
 ]
 
+    [[graph.nodes]]
+    name = "attr"
+    ty = "Attribute"
+    device = "cpu"
+    device_id = 0
+
+
 [[graphs]]
-name = "image"
+name = "video"
 connections = [
   { cap = 16, ports = ["source:out", "destination:inp"] },
   { cap = 16, ports = ["source:inp", "destination:out"] }

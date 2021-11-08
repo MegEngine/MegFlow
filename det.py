@@ -25,3 +25,4 @@ class Detect:
 
         print('Detect')
         self.out.send(envelope)
+
