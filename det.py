@@ -11,17 +11,17 @@
 
 from megflow import register
 
+
 @register(inputs=['inp'], outputs=['out'])
 class Detect:
     def __init__(self, name, arg):
-        print('init det')
         self.name = name
+        print('Detect init')
 
     def exec (self):
         envelope = self.inp.recv()
-        print('det')
         if envelope is None:
             return
-        print('det')
-        self.out.send(envelope)
 
+        print('Detect')
+        self.out.send(envelope)

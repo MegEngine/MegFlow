@@ -31,6 +31,8 @@ connections = [
     name = "source"
     ty = "ImageServer"
     port = 8080
+    # uncomment this line to return json string
+    # response = "json" 
     
     [[graphs.nodes]]
     name = "destination"

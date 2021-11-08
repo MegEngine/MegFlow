@@ -11,15 +11,18 @@
 
 from megflow import register
 
+
 @register(inputs=['inp'], outputs=['out'])
 class Attribute:
     def __init__(self, name, arg):
         self.name = name
+        print('Attribute init')
 
     def exec (self):
         envelope = self.inp.recv()
         if envelope is None:
             return
-        print('attr')
-        self.out.send(envelope)
 
+        print("Attribute")
+        self.out.send(envelope)
+        # self.out.send(envelope.repack("json string"))
