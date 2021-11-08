@@ -76,8 +76,3 @@ def make_parser():
                         help=".mge for eval")
     return parser
 
-
-if __name__ == "__main__":
-    args = make_parser().parse_args()
-    predictor = PredictorLite(args.model)
-    out = predictor.inference(cv2.imread(args.path))
