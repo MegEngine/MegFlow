@@ -26,7 +26,7 @@ class Model:
         self._model = PredictorLite(path=arg['path'],
                                     device=arg['device'],
                                     device_id=arg['device_id'])
-        logger.info("Resnet18  loaded.")
+        logger.info("Model loaded.")
 
     def exec(self):
         envelope = self.inp.recv()
