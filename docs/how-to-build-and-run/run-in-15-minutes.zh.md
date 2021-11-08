@@ -52,7 +52,7 @@ megvii
 
 ### 下载 MegFlow 源码(需要使用到flow-python/examples中文件)
 ```bash
-git clone https://github.com/MegEngine/Models.git
+$ git clone https://github.com/MegEngine/Models.git
 ```
 
 ### 运行“开机自检”
