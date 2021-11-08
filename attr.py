@@ -24,5 +24,4 @@ class Attribute:
             return
 
         print("Attribute")
-        self.out.send(envelope)
-        # self.out.send(envelope.repack("json string"))
+        self.out.send(envelope.repack("json string"))
