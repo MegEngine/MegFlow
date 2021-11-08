@@ -10,6 +10,7 @@
 # coding=utf-8
 
 import argparse
+import json
 import time
 import cv2
 import numpy as np
@@ -47,6 +48,10 @@ class PredictorLite:
         t0 = time.time()
 
         img = cv2.resize(img, (self.HEIGHT, self.WIDTH))
+        img = img.astype(np.float32)
+        img = img[:,:,::-1]
+        img.transpose((2,0,1))
+        img = np.ascontiguousarray(img, dtype=np.float32)
         # build input tensor
         inp_data = self.net.get_io_tensor("##INP##")
         inp_data.set_data_by_share(img)
