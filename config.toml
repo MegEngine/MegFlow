@@ -1,21 +1,27 @@
-main = "quickstart-modelserving"
+main = "image"
+
+[[nodes]]
+name = "det"
+ty = "Detect"
+device = "cpu"
+device_id = 0
+
+[[nodes]]
+name = "attr"
+ty = "Attribute"
+device = "cpu"
+device_id = 0
 
 [[graphs]]
 name = "subgraph"
-inputs = [{ name = "inp", cap = 16, ports = ["model:inp"] }]
-outputs = [{ name = "out", cap = 16, ports = ["model:out"] }]
+inputs = [{ name = "inp", cap = 16, ports = ["det:inp"] }]
+outputs = [{ name = "out", cap = 16, ports = ["attr:out"] }]
 connections = [
+  { cap = 16, ports = ["det:out", "attr:inp"] },
 ]
 
-    [[graphs.nodes]]
-    name = "model"
-    ty = "Model"
-    path = "##PATH##"
-    device = "cpu"
-    device_id = 0
-    
 [[graphs]]
-name = "tutorial_01_image"
+name = "image"
 connections = [
   { cap = 16, ports = ["source:out", "destination:inp"] },
   { cap = 16, ports = ["source:inp", "destination:out"] }
@@ -25,7 +31,6 @@ connections = [
     name = "source"
     ty = "ImageServer"
     port = 8080
-    response = "json"
     
     [[graphs.nodes]]
     name = "destination"

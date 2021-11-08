@@ -9,28 +9,19 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-import json
-import numpy as np
-from loguru import logger
 from megflow import register
 
-from .lite import PredictorLite
-
-
 @register(inputs=['inp'], outputs=['out'])
-class Classify:
+class Detect:
     def __init__(self, name, arg):
-        logger.info("loading model...")
+        print('init det')
         self.name = name
-        self._model = PredictorLite(path=arg['path'],
-                                    device=arg['device'],
-                                    device_id=arg['device_id'])
 
     def exec (self):
         envelope = self.inp.recv()
+        print('det')
         if envelope is None:
             return
+        print('det')
+        self.out.send(envelope)
 
-        data = envelope.msg['data']
-        result = self._model.inference(data)
-        self.out.send(envelope.repack(result))
