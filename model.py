@@ -18,7 +18,7 @@ from .lite import PredictorLite
 
 
 @register(inputs=['inp'], outputs=['out'])
-class Classify:
+class Model:
     def __init__(self, name, arg):
         logger.info("loading model...")
         self.name = name
