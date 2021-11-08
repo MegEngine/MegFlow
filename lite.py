@@ -41,7 +41,6 @@ class PredictorLite:
         inp_shape = net.get_io_tensor("##INP##").to_numpy().shape
         self.HEIGHT = inp_shape[2]
         self.WIDTH = inp_shape[3]
-
         self.net = net
 
     def inference(self, img):
@@ -67,8 +66,10 @@ class PredictorLite:
 
 
 def make_parser():
-    parser = argparse.ArgumentParser("Single Model Demo!")
-    parser.add_argument("--path", default="./test.png", help="path to image")
+    parser = argparse.ArgumentParser("ModelServing Demo!")
+    parser.add_argument("--path",
+                        default="./test.png",
+                        help="path to images or video")
     parser.add_argument("--model",
                         default=None,
                         type=str,
@@ -79,6 +80,5 @@ def make_parser():
 if __name__ == "__main__":
     args = make_parser().parse_args()
     predictor = PredictorLite(args.model)
-    image = cv2.imread(args.path)
-    out = predictor.inference(image)
-    print(out)
+    out = predictor.inference(cv2.imread(args.path))
+    logger.info(f'{out}')

@@ -20,17 +20,19 @@ from .lite import PredictorLite
 @register(inputs=['inp'], outputs=['out'])
 class Model:
     def __init__(self, name, arg):
-        logger.info("loading model...")
         self.name = name
+
+        # load ReID model and warmup
         self._model = PredictorLite(path=arg['path'],
                                     device=arg['device'],
                                     device_id=arg['device_id'])
+        logger.info("Resnet18  loaded.")
 
-    def exec (self):
+    def exec(self):
         envelope = self.inp.recv()
         if envelope is None:
             return
 
         data = envelope.msg['data']
         result = self._model.inference(data)
-        self.out.send(envelope.repack(result))
+        self.out.send(envelope.repack(json.dumps(str(result))))

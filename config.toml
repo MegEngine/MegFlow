@@ -1,4 +1,4 @@
-main = "quickstart-modelserving"
+main = "modelserving"
 
 [[graphs]]
 name = "subgraph"
@@ -15,7 +15,7 @@ connections = [
     device_id = 0
     
 [[graphs]]
-name = "tutorial_01_image"
+name = "modelserving"
 connections = [
   { cap = 16, ports = ["source:out", "destination:inp"] },
   { cap = 16, ports = ["source:inp", "destination:out"] }
