@@ -19,7 +19,6 @@ MegFlow 提供快速视觉应用落地流程，最快 15 分钟搭建起视频�
 * 如何编译运行
   * [使用预编译 .whl](docs/how-to-build-and-run/run-in-15-minutes.zh.md)
   * [docker 编译](docs/how-to-build-and-run/build-with-docker.zh.md)
-  * [docker 运行](docs/how-to-build-and-run/run-with-docker.zh.md)
   * [ubuntu 源码编译](docs/how-to-build-and-run/build-from-source.zh.md)
   * [win10 wsl 编译](docs/how-to-build-and-run/build-on-win10.zh.md)
   * [armv8 编译](docs/how-to-build-and-run/build-on-aarch64.zh.md)
