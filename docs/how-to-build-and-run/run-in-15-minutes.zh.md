@@ -50,9 +50,9 @@ megvii
 
 ## Python“开机自检”
 
-### 下载 MegFlow 源码(需要使用到flow-python/examples中文件)
+### 下载 MegFlow 源码（需要使用到 flow-python/examples 中文件）
 ```bash
-$ git clone https://github.com/MegEngine/Models.git
+$ git clone https://github.com/MegEngine/MegFlow.git
 ```
 
 ### 运行“开机自检”
