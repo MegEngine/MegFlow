@@ -11,6 +11,9 @@ RUN apt update \
     && apt install -y git \
     && apt install -y build-essential
 
+RUN apt install -y libssl-dev
+RUN apt update && apt-get install -y pkg-config --fix-missing
+
 ENV CARGO_HOME /cargo
 ENV RUSTUP_HOME /rustup
 RUN curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf -o run.sh \

@@ -24,8 +24,8 @@ MegFlow 提供快速视觉应用落地流程，最快 15 分钟搭建起视频�
   * [armv8 编译](docs/how-to-build-and-run/build-on-aarch64.zh.md)
   * [生成 RTSP 地址](docs/how-to-build-and-run/generate-rtsp.zh.md)
 * 构建自己的 pipeline
-  * [tutorial01: image classification service](docs/how-to-add-my-service/01-single-classification-model.zh.md)
-  * [tutorial02: detect and classify on video stream](docs/how-to-add-my-service/02-single-det-classify.zh.md)
+  * [tutorial01: quickstart 问答式创建应用](docs/how-to-add-my-service/01-quickstart.zh.md)
+  * [tutorial02: detect and classify on video stream](docs/how-to-add-my-service/02-det-attr.zh.md)
   * [tutorial03: batching and pipeline test](docs/how-to-add-my-service/03-batching-and-pipeline-test.zh.md)
   * [tutorial04: visualization](docs/how-to-add-my-service/04-web-visualization.zh.md)
 * [how to debug](docs/how-to-debug.zh.md)

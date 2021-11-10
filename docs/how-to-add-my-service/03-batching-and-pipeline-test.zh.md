@@ -1,6 +1,6 @@
 # 批量推理和 Pipeline 级测试
 
-本文将在 [tutorial02](02-single-det-classify.zh.md) 的基础上扩展功能：动态 batching 测试 QPS 提升。
+本文将在 [tutorial02](02-det-attr.zh.md) 的基础上扩展功能：动态 batching 测试 QPS 提升。
 
 ## 分类模型支持动态 batch
 

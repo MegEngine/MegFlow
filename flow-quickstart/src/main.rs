@@ -218,7 +218,7 @@ fn create_with_type(s: &str) -> Result<Action, &'static str> {
 
 fn start() -> Vec<Node<'static>> {
     let create_project = Node {
-        question: "Enter the root fullpath for the project.",
+        question: "Enter root path for the project.",
         default: "megflow-app",
         callback: make_project,
     };
