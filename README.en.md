@@ -19,7 +19,6 @@ Build video analysis service in 15 minutes.
 * how to build and run
   * [run with prebuilt .whl](docs/how-to-build-and-run/run-in-15-minutes.zh.md)
   * [build with docker](docs/how-to-build-and-run/build-with-docker.zh.md)
-  * [run with docker](docs/how-to-build-and-run/run-with-docker.zh.md)
   * [build from source](docs/how-to-build-and-run/build-from-source.zh.md)
   * [build on win10](docs/how-to-build-and-run/build-on-win10.zh.md)
   * [build  on armv8](docs/how-to-build-and-run/build-on-aarch64.zh.md)
