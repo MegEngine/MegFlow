@@ -6,9 +6,19 @@ on:
     branches: [master]
 jobs:
   build:
-    name: ubuntu-x86-cpu
+    name: codecov
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
+      - name: cancel-previous-runs
+        uses: styfle/cancel-workflow-action@0.9.1
+        with:
+          access_token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - run: sudo apt update && sudo apt install yasm
+      - run: cargo build
+      - run: sudo apt install python3.8-dev
+      - run: cargo test
       - uses: maboesanman/rust-codecov@v0
-  
