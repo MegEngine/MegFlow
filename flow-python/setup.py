@@ -53,8 +53,8 @@ if __name__ == '__main__':
             'Topic :: Software Development :: Libraries :: Python Modules',
         ],
         install_requires=open('requirements.txt').read().splitlines(),
-        package_data={"": ['run_with_plugins_inner']},
+        package_data={"": ['megflow_run_inner', 'megflow_quickstart_inner']},
         entry_points={
-            'console_scripts':['run_with_plugins=megflow.command_line:main'],
+            'console_scripts':['megflow_run=megflow.command_line:run', 'megflow_quickstart=megflow.command_line:quickstart'],
         },
     )

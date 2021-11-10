@@ -22,4 +22,4 @@ jobs:
       - run: sudo apt install python3.8-dev
       - run: cargo test
       - run: cd flow-python && python3 setup.py install --user
-      - run: cd flow-python/examples && cargo run --example run_with_plugins -- -p logical_test
+      - run: cd flow-python/examples && cargo run --example megflow_run -- -p logical_test

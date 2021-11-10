@@ -103,7 +103,7 @@ connections = [
 运行服务
 ```bash
 $ cd flow-python/examples
-$ run_with_plugins -c simple_det_classify/video_cpu.toml  -p simple_det_classify
+$ megflow_run -c simple_det_classify/video_cpu.toml  -p simple_det_classify
 ```
 
 ### WebUI 方式

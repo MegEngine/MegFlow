@@ -38,12 +38,12 @@ Type "help", "copyright", "credits" or "license" for more information.
 >>> import megflow
 ```
 
-.whl 提供了 `run_with_plugins`命令，某些环境可能要`export PATH=~/.local/bin/:${PATH}`
+.whl 提供了 `megflow_run`命令，某些环境可能要`export PATH=~/.local/bin/:${PATH}`
 
 ```bash
 $ apt install build-essential -y
-$ run_with_plugins -h
-run_with_plugins 1.0
+$ megflow_run -h
+megflow_run 1.0
 megvii
 ...
 ```
@@ -58,7 +58,7 @@ $ git clone https://github.com/MegEngine/MegFlow.git
 ### 运行“开机自检”
 ```bash
 $ cd ${MegFlow_PATH}/flow-python/examples  # 这行必须
-$ run_with_plugins -p logical_test
+$ megflow_run -p logical_test
 ```
 
 `logical_test` 是 examples 下最基础的计算图测试用例，运行能正常结束表示 MegFlow 编译成功、基本语义无问题。
@@ -68,12 +68,12 @@ $ run_with_plugins -p logical_test
 ```bash
 $ export LD_LIBRARY_PATH=`conda info --base`/pkgs/python-3.8.11-xxx/lib:${LD_LIBRARY_PATH}
 ```
-`run_with_plugins` 是计算图的实现。使用者不需要关心 Rust/cargo，只需要
+`megflow_run` 是计算图的实现。使用者不需要关心 Rust/cargo，只需要
 
   * `import megflow` 成功
-  * `run_with_plugins -h` 正常
+  * `megflow_run -h` 正常
 
-> 工作原理：[megflow](../../flow-python/megflow/__init__.py) 仅是一层接口，由 run_with_plugins “注入”建图/调度/优化等实现。
+> 工作原理：[megflow](../../flow-python/megflow/__init__.py) 仅是一层接口，由 megflow_run “注入”建图/调度/优化等实现。
 
 ## Python Built-in Applications
 

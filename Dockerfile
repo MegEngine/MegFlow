@@ -28,7 +28,7 @@ RUN cargo build \
     && cd flow-python \
     && python3 setup.py install --user \
     && cd examples \
-    && cargo run --example run_with_plugins -- -p logical_test
+    && cargo run --example megflow_run -- -p logical_test
 
-RUN cargo build --example run_with_plugins --release \
-    && ln -s  target/release/examples/run_with_plugins
+RUN cargo build --example megflow_run --release \
+    && ln -s target/release/examples/megflow_run

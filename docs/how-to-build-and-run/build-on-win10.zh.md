@@ -22,7 +22,7 @@ $ git clone https://github.com/MegEngine/MegFlow
 ...
 $ cd MegFlow
 $ docker build -t megflow .
-... # 等待镜像完成，却决于网络和 CPU
+... # 等待镜像完成，取决于网络和 CPU
 ```
 > 注意：**不要移动 Dockerfile 文件的位置**。受 [EAR](https://www.federalregister.gov/documents/2019/10/09/2019-22210/addition-of-certain-entities-to-the-entity-list) 约束，MegFlow 无法提供现成的 docker 镜像，需要自己 build 出来，这个过程用了相对路径。
 

@@ -132,7 +132,7 @@ class Classify:
 运行服务
 ```bash
 $ cd flow-python/examples
-$ run_with_plugins -c simple_classification/image_cpu.toml  -p  simple_classification
+$ megflow_run -c simple_classification/image_cpu.toml  -p  simple_classification
 ```
 
 ### WebUI 方式

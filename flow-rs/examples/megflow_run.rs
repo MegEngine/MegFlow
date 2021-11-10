@@ -1,5 +1,5 @@
 /**
- * \file flow-rs/examples/run_with_plugins.rs
+ * \file flow-rs/examples/megflow_run.rs
  * MegFlow is Licensed under the Apache License, Version 2.0 (the "License")
  *
  * Copyright (c) 2019-2021 Megvii Inc. All rights reserved.
@@ -16,14 +16,14 @@ use std::path::PathBuf;
 
 #[flow_rs::rt::main]
 async fn main() {
-    let matches = clap_app!(run_with_plugins => 
+    let matches = clap_app!(megflow_run =>
         (version: "1.0")
         (author: "megvii")
-        (@arg DEBUG: --debug [PORT] "debug mode")
-        (@arg DUMP: --dump "the path to dump graph")
-        (@arg MODULE_PATH: -m --module [MODULE] "module path")
-        (@arg PLUGIN_PATH: -p --plugin <PLUGIN> "plugin path")
-        (@arg CONFIG_PATH: -c --config [CONFIG] "config path"))
+        (@arg DEBUG: --debug [PORT] "Debug mode")
+        (@arg DUMP: --dump "The path to dump graph")
+        (@arg MODULE_PATH: -m --module [MODULE] "Module path")
+        (@arg PLUGIN_PATH: -p --plugin [PLUGIN] "Plugin path")
+        (@arg CONFIG_PATH: -c --config [CONFIG] "Config path"))
     .get_matches();
 
     let dump = matches.is_present("DUMP");

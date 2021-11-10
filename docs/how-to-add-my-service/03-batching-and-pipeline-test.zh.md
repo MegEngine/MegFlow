@@ -53,7 +53,7 @@ pipeline 建图等不变，新增了一种 source 叫做 `ImageInput`，调用�
 
 运行方法不变
 ```bash
-$ run_with_plugins -c simple_classification/image_test.toml  -p simple_classification
+$ megflow_run -c simple_classification/image_test.toml  -p simple_classification
 ```
 
 ### 视频列表测试
@@ -77,5 +77,5 @@ $ run_with_plugins -c simple_classification/image_test.toml  -p simple_classific
 
 使用方法不变
 ```bash
-$ run_with_plugins  -c simple_det_classify/video_test.toml   -p simple_det_classify
+$ megflow_run  -c simple_det_classify/video_test.toml   -p simple_det_classify
 ```
