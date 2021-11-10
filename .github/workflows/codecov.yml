@@ -8,12 +8,11 @@ jobs:
   build:
     name: ubuntu-x86-cpu
     runs-on: ubuntu-latest
-
-  steps:
-  - uses: actions/checkout@master
-  - uses: codecov/codecov-action@v2
-    with:
-      files: ./coverage.xml # optional
-      name: codecov-umbrella # optional
-      fail_ci_if_error: true # optional (default = false)
-      verbose: true # optional (default = false)
+    steps:
+      - uses: actions/checkout@master
+      - uses: codecov/codecov-action@v2
+        with:
+          files: ./coverage.xml # optional
+          name: codecov-umbrella # optional
+          fail_ci_if_error: true # optional (default = false)
+          verbose: true # optional (default = false)
