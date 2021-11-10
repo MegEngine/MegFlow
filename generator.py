@@ -9,19 +9,17 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-from megflow import register
+from megflow import register, Envelope
 
 
 @register(inputs=['inp'], outputs=['out'])
-class Detect:
+class Generator:
     def __init__(self, name, arg):
         self.name = name
-        print('Detect init')
+        print('Flask init')
 
     def exec(self):
-        envelope = self.inp.recv()
-        if envelope is None:
-            return
-
-        print('Detect recv {}'.format(envelope))
-        self.out.send(envelope)
+        for i in range(100):
+            msg = {"data": "value"}
+            envelope = Envelope.pack(msg)
+            self.out.send(envelope)

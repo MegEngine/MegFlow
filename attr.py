@@ -18,7 +18,7 @@ class Attribute:
         self.name = name
         print('Attribute init')
 
-    def exec (self):
+    def exec(self):
         envelope = self.inp.recv()
         if envelope is None:
             return
