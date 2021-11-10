@@ -16,7 +16,7 @@ from megflow import register, Envelope
 class Generator:
     def __init__(self, name, arg):
         self.name = name
-        print('Flask init')
+        print('generator init')
 
     def exec(self):
         for i in range(100):
