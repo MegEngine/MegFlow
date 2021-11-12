@@ -19,7 +19,7 @@ jobs:
           toolchain: stable
       - run: sudo apt update && sudo apt install yasm
       - run: sudo apt install -y libssl-dev
-      - run: sudo apt update && apt-get install -y pkg-config --fix-missing
+      - run: sudo apt update && sudo apt-get install -y pkg-config --fix-missing
       - run: cargo build
       - run: sudo apt install python3.8-dev
       - run: cargo test
