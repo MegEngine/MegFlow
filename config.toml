@@ -14,7 +14,7 @@ connections = [
   { cap = 16, ports = ["det:out", "attr:inp"] },
 ]
 
-    [[graph.nodes]]
+    [[graphs.nodes]]
     name = "attr"
     ty = "Attribute"
     device = "cpu"
