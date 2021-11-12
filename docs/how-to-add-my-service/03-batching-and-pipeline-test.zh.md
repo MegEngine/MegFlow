@@ -1,6 +1,6 @@
 # 批量推理和 Pipeline 级测试
 
-本文将在 [tutorial02](02-single-det-classify.zh.md) 的基础上扩展功能：动态 batching 测试 QPS 提升。
+本文将在 [tutorial02](02-det-attr.zh.md) 的基础上扩展功能：动态 batching 测试 QPS 提升。
 
 ## 分类模型支持动态 batch
 
@@ -53,7 +53,7 @@ pipeline 建图等不变，新增了一种 source 叫做 `ImageInput`，调用�
 
 运行方法不变
 ```bash
-$ run_with_plugins -c simple_classification/image_test.toml  -p simple_classification
+$ megflow_run -c simple_classification/image_test.toml  -p simple_classification
 ```
 
 ### 视频列表测试
@@ -77,5 +77,5 @@ $ run_with_plugins -c simple_classification/image_test.toml  -p simple_classific
 
 使用方法不变
 ```bash
-$ run_with_plugins  -c simple_det_classify/video_test.toml   -p simple_det_classify
+$ megflow_run  -c simple_det_classify/video_test.toml   -p simple_det_classify
 ```

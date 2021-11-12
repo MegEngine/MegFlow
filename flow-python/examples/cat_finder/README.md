@@ -35,8 +35,8 @@ $ python3
 ```bash
 $ cd flow-python/examples
 $ pip3 install -r requires.txt
-$ run_with_plugins -c cat_finder/image_gpu.toml  -p cat_finder    # 有 GPU 的机器执行这个
-$ run_with_plugins -c cat_finder/image_cpu.toml  -p cat_finder    # 无 GPU 的 laptop 执行这句
+$ megflow_run -c cat_finder/image_gpu.toml  -p cat_finder    # 有 GPU 的机器执行这个
+$ megflow_run -c cat_finder/image_cpu.toml  -p cat_finder    # 无 GPU 的 laptop 执行这句
 ```
 
 现在 8081 端口部署了“猫体注册”服务，只需要打开浏览器上传图片、猫咪名称即可。`cat_finder/image_gpu.toml` 详细解释见 [how-to-add-graph](../../../docs/how-to-add-my-service/appendix-A-graph-definition.zh.md) 。这里只需要浏览器打开主机所在 8081 端口服务（如 http://127.0.0.1:8081/docs ）。
@@ -79,8 +79,8 @@ $ curl http://127.0.0.1:8081/analyze/my_cat_name  -X POST --header "Content-Type
 启动解析服务
 ```bash
 $ cd flow-python/examples
-$ run_with_plugins -c cat_finder/video_gpu.toml  -p cat_finder  # 有 GPU 的机器
-$ run_with_plugins -c cat_finder/video_cpu.toml  -p cat_finder  # 无 GPU 的设备用这句
+$ megflow_run -c cat_finder/video_gpu.toml  -p cat_finder  # 有 GPU 的机器
+$ megflow_run -c cat_finder/video_cpu.toml  -p cat_finder  # 无 GPU 的设备用这句
 ```
 浏览器打开 8082 端口服务（如 http://127.0.0.1:8082/docs ，注意区分物理机和虚拟机的对应 ip）
 

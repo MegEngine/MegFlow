@@ -4,7 +4,8 @@ members = [
     "flow-derive",
     "flow-plugins",
     "flow-debugger",
-    "flow-message"
+    "flow-message",
+    "flow-quickstart",
 ]
 
 [profile.dev]

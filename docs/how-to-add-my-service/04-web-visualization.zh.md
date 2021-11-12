@@ -50,7 +50,7 @@ $ python3 push_video.py
 
 ```bash
 $ cd ${MegFlow_dir}/flow-python/examples
-$ run_with_plugins -c cat_finder/video_visualize.toml  -p cat_finder
+$ megflow_run -c cat_finder/video_visualize.toml  -p cat_finder
 ...
 ```
 浏览器打开 8002 端口，提供 rtsp 地址或视频文件绝对路径，try it out。

@@ -19,4 +19,10 @@ pyo3
 docs/_build
 *.dot
 .clippy.toml
-run_with_plugins_inner
+flow-python/examples/models
+flow-python/examples/megflow_quickstart
+flow-python/examples/megflow_run
+flow-python/examples/megflow-app
+flow-python/examples/run_with_plugins
+flow-python/megflow/megflow_quickstart_inner
+flow-python/megflow/megflow_run_inner

@@ -1,0 +1,15 @@
+FROM megflow:latest as stage
+ARG PY_VERSION
+
+# build .whl
+RUN eval "$(conda shell.bash hook)" && conda activate py${PY_VERSION} \
+    && cargo build --release \
+    && cargo build --example megflow_run \
+    && cp target/release/examples/megflow_run flow-python/megflow/megflow_run_inner  \
+    && cp target/release/megflow_quickstart flow-python/megflow/megflow_quickstart_inner  \
+    && cd flow-python \
+    && python3 setup.py bdist_wheel -p linux-x86_64 -d ../dist
+
+# copy back to host
+FROM scratch AS export-stage
+COPY --from=stage /megflow-runspace/dist/ .
