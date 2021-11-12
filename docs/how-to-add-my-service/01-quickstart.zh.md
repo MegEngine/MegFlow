@@ -91,6 +91,13 @@ custom
 * 分支名称
 * 如有 placeholder，应该替换成什么
 
+placeholder 使用的正则匹配是 
+```bash
+$ cat flow-quickstart/main.rs
+...
+    let re = Regex::new(r"##[_\-a-zA-Z0-9]*##").unwrap();
+...
+```
 
 ## MegFlow 服务使用方式
 
