@@ -8,7 +8,7 @@
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT ARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-use clap::clap_app;
+use clap::{App, Arg};
 use flow_rs::loader;
 use flow_rs::prelude::*;
 use std::env::current_dir;
@@ -16,15 +16,52 @@ use std::path::PathBuf;
 
 #[flow_rs::rt::main]
 async fn main() {
-    let matches = clap_app!(megflow_run =>
-        (version: "1.0")
-        (author: "megvii")
-        (@arg DEBUG: --debug [PORT] "Debug mode")
-        (@arg DUMP: --dump "The path to dump graph")
-        (@arg MODULE_PATH: -m --module [MODULE] "Module path")
-        (@arg PLUGIN_PATH: -p --plugin [PLUGIN] "Plugin path")
-        (@arg CONFIG_PATH: -c --config [CONFIG] "Config path"))
-    .get_matches();
+    let matches = App::new("megflow_run")
+        .version("1.0.0")
+        .author("megengine <megengine@megvii.com>")
+        .arg(
+            Arg::new("DEBUG")
+                .long("debug")
+                .value_name("DEBUG")
+                .about("Debug mode")
+                .multiple_occurrences(false)
+                .required(false),
+        )
+        .arg(
+            Arg::new("DUMP")
+                .long("dump")
+                .about("The path to dump graph")
+                .multiple_occurrences(false)
+                .required(false),
+        )
+        .arg(
+            Arg::new("MODULE_PATH")
+                .long("module")
+                .short('m')
+                .value_name("MODULE_PATH")
+                .about("Module path")
+                .multiple_occurrences(false)
+                .required(false),
+        )
+        .arg(
+            Arg::new("PLUGIN_PATH")
+                .long("plugin")
+                .short('p')
+                .value_name("PLUGIN_PATH")
+                .about("Plugin path")
+                .multiple_occurrences(false)
+                .required(false),
+        )
+        .arg(
+            Arg::new("CONFIG_PATH")
+                .long("config")
+                .short('c')
+                .value_name("CONFIG_PATH")
+                .about("Config path")
+                .multiple_occurrences(false)
+                .required(false),
+        )
+        .get_matches();
 
     let dump = matches.is_present("DUMP");
     let module = matches

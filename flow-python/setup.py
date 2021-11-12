@@ -55,6 +55,6 @@ if __name__ == '__main__':
         install_requires=open('requirements.txt').read().splitlines(),
         package_data={"": ['megflow_run_inner', 'megflow_quickstart_inner']},
         entry_points={
-            'console_scripts':['megflow_run=megflow.command_line:run', 'megflow_quickstart=megflow.command_line:quickstart'],
+            'console_scripts':['megflow_run=megflow.command_line:run', 'megflow_quickstart=megflow.command_line:quickstart', 'run_with_plugins=megflow.command_line:main'],
         },
     )

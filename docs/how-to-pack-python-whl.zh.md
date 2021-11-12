@@ -1,18 +1,24 @@
 # 打包成 Python .whl
+
 ## 作用
 打成 whl 包，使用方直接安装即可，不再需要编译。
 
-## 依赖
-相关 Rust/Python 环境得 Ready，见[源码编译文档](how-to-build-and-run/build-from-source.zh.md)。
-
 ## 执行
-所有命令都已写好，复制执行即可。最终安装包都在 `dist` 目录
+
+现在使用 Dockerfile 生成各 python 版本 .whl
+
 ```bash
-$ cd ${MegFlow_PATH}/flow-python/
-$ cat gen_whl.sh
-...
-$ ls -alh dist/
-...
+$ cd ${MegFlow_dir}
+$ # 构造开发环境，安装依赖。已执行过 docker 编译可以跳过此步骤
+$ docker build -t megflow-devel -f Dockerfile-github.dev .
+$ # 创建结果目录
+$ mkdir dist
+$ # docker 打包  whl
+$ # https://stackoverflow.com/questions/33377022/how-to-copy-files-from-dockerfile-to-host
+$ DOCKER_BUILDKIT=1 docker build --build-arg PY_VERSION=3.8 -f Dockerfile.github-release --output dist .
 ```
 
-> 运行完要确认 `ldd` 链接的 libpython.so 版本是否正确
+**注意** COPY to host 需要：
+* Docker 19.03 以上版本
+* 需要 DOCKER_BUILDKIT 环境变量
+* 需要 --output 参数

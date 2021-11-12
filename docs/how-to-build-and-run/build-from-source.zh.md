@@ -46,10 +46,13 @@ $ conda activate py38
 
 ## 二、编译
 
-MegFlow 需要编译 ffmpeg。考虑到 ffmpeg 依赖较多、本身又是常用工具，最简单的办法就是直接装 ffmpeg 把编译依赖装上
+megflow_run 内置 VideoServer 需要 ffmpeg 解码；megflow_quickstart 需要 OpenSSL 拉取模板。
 
 ```bash
 $ sudo apt install yasm git build-essential ffmpeg
+$ sudo apt install -y libssl-dev
+$ sudo apt update && apt-get install -y pkg-config --fix-missing
+
 $ ffmpeg 
 ffmpeg version 3.4.8...
 $ sudo apt install clang
