@@ -10,7 +10,7 @@
 ```bash
 $ cd ${MegFlow_dir}
 $ # 构造开发环境，安装依赖。已执行过 docker 编译可以跳过此步骤
-$ docker build -t megflow-devel -f Dockerfile-github.dev .
+$ docker build -t megflow -f Dockerfile.github-dev .
 $ # 创建结果目录
 $ mkdir dist
 $ # docker 打包  whl

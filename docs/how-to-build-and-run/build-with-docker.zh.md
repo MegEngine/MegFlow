@@ -9,7 +9,7 @@ docker 运行方式，建议把模型包下好，解压备用。[下载地址](.
 
 ```bash
 $ cd MegFlow
-$ docker build -t megflow -f Dockerfile-github.dev .
+$ docker build -t megflow -f Dockerfile.github-dev .
 ```
 稍等一段时间（取决于网络和 CPU）镜像构建完成并做了基础自测
 > 注意：**不要移动 Dockerfile 文件的位置**。受 [EAR](https://www.federalregister.gov/documents/2019/10/09/2019-22210/addition-of-certain-entities-to-the-entity-list) 约束，MegFlow 无法提供现成的 docker 镜像，需要自己 build 出来，这个过程用了相对路径。
