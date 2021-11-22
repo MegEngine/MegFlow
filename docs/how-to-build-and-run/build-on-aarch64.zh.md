@@ -1,10 +1,22 @@
 # aarch64 源码编译
 
-## 一、测试环境
-华为鲲鹏 ARM 服务器，centOS 7.9
+## 一、环境安装
 
-## 二、环境安装
-**gcc 需要 >= 7.5 版本，默认的 `aarch64-redhat-linux-gcc 4.8.5`  缺 `__ARM_NEON` 没法用** 
+所需依赖包查看 Dockerfile，若已安装可跳过
+
+```bash
+$ cat Dockerfile.github-dev
+...
+# install requirements
+RUN apt-get update
+RUN apt-get install -y wget yasm clang git build-essential
+RUN apt install -y libssl-dev
+RUN apt update && apt-get install -y pkg-config --fix-missing
+RUN apt-get install -y curl
+...
+```
+
+**如果是华为鲲鹏 ARM 服务器， gcc 需要 >= 7.5 版本，默认的 `aarch64-redhat-linux-gcc 4.8.5`  缺 `__ARM_NEON` 没法用** 
 ```bash
 $ yum install -y centos-release-scl
 $ yum install -y devtoolset-8-gcc devtoolset-8-gcc-c++
@@ -32,9 +44,9 @@ cargo 1.53.0 (4369396ce 2021-04-27)
 打开 [miniconda 官网](https://docs.conda.io/en/latest/miniconda.html) 下载 miniconda 安装包，修改权限并安装。
 
 ```bash
-$ wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-$ chmod a+x Miniconda3-latest-Linux-x86_64.sh
-$ ./Miniconda3-latest-Linux-x86_64.sh
+$ wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-aarch64.sh
+$ chmod a+x Miniconda3-latest-Linux-aarch64.sh
+$ ./Miniconda3-latest-Linux-aarch64.sh
 ```
 
 安装时接受 conda 修改默认 .bashrc 环境变量（zsh 用户还需自行修改 .zshrc 中的 conda initialize 配置）。成功后 `conda` 可正常运行
