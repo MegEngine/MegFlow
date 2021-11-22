@@ -62,7 +62,7 @@ $ conda activate py38
 ```
 
 
-## 三、编译
+## 二、编译
 
 编译底层 Rust 组件，安装 Python module 
 
@@ -78,7 +78,7 @@ $ python3 setup.py install --user
 P.S. 默认 ffmpeg 依赖自动从 github 上拉取源码构建，这会使得首次构建的时间较长。若希望缩短首次构建时间，或者希望依赖一个指定版本的 ffmpeg，可以启用环境变量`CARGO_FEATURE_PREBUILD`并参考[rust-ffmpeg](https://github.com/zmwangx/rust-ffmpeg/wiki/Notes-on-building)自行构建
 
 
-## 四、Python“开机自检”
+## 三、Python“开机自检”
 ```bash
 $ cd examples
 $ cargo build --example megflow_run --release # 编译出 megflow bin
@@ -93,7 +93,7 @@ $ ./megflow_run -p logical_test
   * `megflow_run -h` 正常
 
 
-## 五、Python Built-in Applications
+## 四、Python Built-in Applications
 
 接下来开始运行好玩的 Python 应用
 
@@ -104,7 +104,7 @@ $ ./megflow_run -p logical_test
 *  [电梯电瓶车告警](../built-in-applications/electric_bicycle.md)
    *  电梯里看到电瓶车立即报警
 
-## 六、其他选项
+## 五、其他选项
 ```bash
 $ cargo run --example graph -- ${args} # 测试 MegFlow 的延迟/吞吐/调度开销, 更多使用说明通过--help 查看
 $ cargo run --example megflow_run -- ${args} # 基于插件 + 参数文件形式运行 MegFlow, 更多说明通过--help 查看
