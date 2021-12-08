@@ -63,11 +63,11 @@ pub fn last_inner_ty(ty: &syn::Type) -> Option<&syn::Type> {
         if let syn::PathArguments::AngleBracketed(ref inner_ty) =
             p.path.segments.last().unwrap().arguments
         {
-            if inner_ty.args.len() != 1 {
+            if inner_ty.args.is_empty() {
                 return None;
             }
 
-            let inner_ty = inner_ty.args.first().unwrap();
+            let inner_ty = inner_ty.args.last().unwrap();
             if let syn::GenericArgument::Type(ref t) = inner_ty {
                 return Some(t);
             }
@@ -96,10 +96,9 @@ pub fn extract_ports(
     fields(data)
         .filter(|field| {
             match_last_ty(&field.ty, ty_name)
-                || (match_last_ty(&field.ty, "DynPorts")
-                    && match_last_ty(last_inner_ty(&field.ty).unwrap(), ty_name))
-                || (match_last_ty(&field.ty, "Vec")
-                    && match_last_ty(last_inner_ty(&field.ty).unwrap(), ty_name))
+                || last_inner_ty(&field.ty)
+                    .map(|inner_ty| match_last_ty(inner_ty, ty_name))
+                    .unwrap_or(false)
         })
         .map(|field| (&port_func, &field.ident, &field.ty))
         .map(f)

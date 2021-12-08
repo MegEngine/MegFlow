@@ -16,6 +16,10 @@ def analyze_doc(home, path):
                     start = item.find('(')
                     end = item.find(')')
                     ref = item[start+1: end]
+                    if ref.endswith('.py') or ref.endswith('.rs'):
+                        if not ref.startswith('http'):
+                            problem_list.append(ref)
+                            continue
                     if ref.startswith('http') or ref.startswith('#'):
                         continue
                     fullpath = os.path.join(home, ref)

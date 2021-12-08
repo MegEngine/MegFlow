@@ -26,9 +26,6 @@ Welcome to MegFlow's documentation!
   :caption: built-in applications
   :name: sec-introduction
 
-  built-in-applications/cat_finder
-  built-in-applications/electric_bicycle
-
 .. toctree::
   :maxdepth: 1
   :caption: how to use

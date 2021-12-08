@@ -1,4 +1,4 @@
-main = "input_video"
+main = "video"
 
 [[graphs]]
 name = "subgraph"

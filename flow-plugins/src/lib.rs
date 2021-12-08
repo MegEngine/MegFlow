@@ -8,15 +8,23 @@
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT ARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-mod image_input;
-mod image_server;
-
 mod utils;
-mod video_input;
-mod video_server;
+#[cfg(feature = "python")]
+#[path = "./"]
+mod python {
+    mod image_input;
+    mod image_server;
+    mod video_input;
+    mod video_server;
+
+    pub(super) fn export() {
+        pyo3::prepare_freethreaded_python();
+    }
+}
 
 #[doc(hidden)]
 pub fn export() {
-    pyo3::prepare_freethreaded_python();
     pretty_env_logger::init();
+    #[cfg(feature = "python")]
+    python::export();
 }

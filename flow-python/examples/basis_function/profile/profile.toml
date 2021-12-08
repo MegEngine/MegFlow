@@ -1,0 +1,30 @@
+main = "Example"
+[[graphs]]
+name = "Example"
+
+[[graphs.connections]]
+cap = 64
+ports = ["src:out", "trans0:inp"]
+[[graphs.connections]]
+cap = 64
+ports = ["sink:inp", "trans1:out"]
+
+[[graphs.connections]]
+cap = 64
+ports = ["trans1:inp", "trans0:out"]
+[[graphs.nodes]]
+name = "trans0"
+ty = "Transport"
+[[graphs.nodes]]
+name = "trans1"
+ty = "Transport"
+
+[[graphs.nodes]]
+name = "src"
+ty = "Source"
+n = 1
+[[graphs.nodes]]
+name = "sink"
+ty = "Sink"
+n = 1
+    

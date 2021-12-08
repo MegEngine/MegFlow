@@ -9,6 +9,7 @@
  * "AS IS" BASIS, WITHOUT ARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 use super::{AnyEnvelope, SealedEnvelope};
+use std::any::Any;
 use std::sync::Arc;
 
 /// `EnvelopeInfo` is a type that represents common information for a message
@@ -22,8 +23,10 @@ pub struct EnvelopeInfo {
     pub to_addr: Option<u64>,
     /// Address where the envelope transfer to
     pub transfer_addr: Option<u64>,
-    /// Extra info about the envelope
+    /// A tag to mark dynamic graph which the envelope send to
     pub tag: Option<String>,
+    /// Extra data
+    pub extra_data: Option<Arc<dyn Any + Send + Sync>>,
 }
 /// `Envelope<M>` is a type that contains a info:`EnvelopeInfo` and a message:`M`
 ///

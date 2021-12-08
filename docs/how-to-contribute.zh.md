@@ -1,3 +1,8 @@
+---
+id: how-to-contribute
+sidebar_position: 5
+---
+
 # 如何提交代码
 
 ## 一、fork 分支

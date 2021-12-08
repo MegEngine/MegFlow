@@ -30,6 +30,12 @@ pub fn expand(input: DeriveInput) -> TokenStream {
                     chan.send_any(flow_rs::envelope::DummyEnvelope{}.seal()).await.ok();
                 }
             }
+        } else if match_last_ty(ty, "HashMap") {
+            quote_spanned! {ident.span()=>
+                for chan in self.#ident.values() {
+                    chan.send_any(flow_rs::envelope::DummyEnvelope{}.seal()).await.ok();
+                }
+            }
         } else if match_last_ty(ty, "DynPorts") {
             quote_spanned! (ident.span()=>
                 for chan in self.#ident.cache().values() {
@@ -44,6 +50,12 @@ pub fn expand(input: DeriveInput) -> TokenStream {
         if match_last_ty(ty, "Vec") {
             quote_spanned! {ident.span()=>
                 for chan in &self.#ident {
+                    min_empty_n = std::cmp::min(chan.empty_n(), min_empty_n)
+                }
+            }
+        } else if match_last_ty(ty, "HashMap") {
+            quote_spanned! {ident.span()=>
+                for chan in self.#ident.values() {
                     min_empty_n = std::cmp::min(chan.empty_n(), min_empty_n)
                 }
             }

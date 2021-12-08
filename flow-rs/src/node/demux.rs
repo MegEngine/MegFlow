@@ -79,7 +79,7 @@ impl DynDemux {
 node_register!("DynDemux", DynDemux);
 
 #[inputs(inp)]
-#[outputs(out:[])]
+#[outputs(out:{})]
 #[derive(Node, Actor, Default)]
 struct Demux {}
 
@@ -97,8 +97,9 @@ impl Demux {
                 .info()
                 .to_addr
                 .expect("the envelope has no destination address");
-            let id = id as usize;
-            self.out[id].send_any(msg).await.ok();
+            if let Some(out) = self.out.get(&id) {
+                out.send_any(msg).await.ok();
+            }
         }
         Ok(())
     }

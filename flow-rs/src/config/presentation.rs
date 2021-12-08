@@ -8,24 +8,26 @@
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT ARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-use serde::Deserialize;
+use flow_rs::prelude::Parser;
+use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 use toml::value::Table;
 
-#[derive(Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct Connection {
     pub cap: usize,
     pub ports: Vec<String>,
 }
 
-#[derive(Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct NamedConn {
     pub name: String,
     #[serde(flatten)]
     pub conn: Connection,
 }
 
-#[derive(Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Entity {
     pub name: String,
     pub ty: String,
@@ -33,7 +35,7 @@ pub struct Entity {
     pub args: Table,
 }
 
-#[derive(Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Node {
     #[serde(flatten)]
     pub entity: Entity,
@@ -42,7 +44,7 @@ pub struct Node {
     pub cloned: Option<usize>,
 }
 
-#[derive(Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, Parser)]
 #[serde(deny_unknown_fields)]
 pub struct Graph {
     pub name: String,
@@ -58,9 +60,11 @@ pub struct Graph {
     pub connections: Vec<Connection>,
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize, Parser)]
 #[serde(deny_unknown_fields)]
 pub struct Config {
+    #[serde(default)]
+    pub include: Vec<PathBuf>,
     #[serde(default)]
     pub resources: Vec<Entity>,
     #[serde(default)]

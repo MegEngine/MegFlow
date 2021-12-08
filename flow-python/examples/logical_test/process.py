@@ -15,14 +15,16 @@ from multiprocessing import Process, Pipe
 
 def repeat(n, s, r):
     while True:
-        envelope = r.recv()
-        if envelope is None:
+        message = r.recv()
+
+        if message is None:
             break
+        
         for i in range(n):
             msg = {}
             msg['message'] = "a message[{}] repeat {} by process node".format(
-                envelope.msg['message'], i)
-            s.send(envelope.repack(msg))
+                message['message'], i)
+            s.send(msg)
     print('==== logical_test pass ====')
 
 
@@ -40,8 +42,11 @@ class RepeatProcess:
         self.p.start()
 
     def __del__(self):
-        self.send.send(None)
-        self.p.join()
+        try:
+            self.send.send(None)
+            self.p.join()
+        except:
+            pass
 
     def exec(self):
         envelope = self.inp.recv()
@@ -50,10 +55,10 @@ class RepeatProcess:
             return
 
         try:
-            self.send.send(envelope)
+            self.send.send(envelope.msg)
         except:
             pass
 
         for i in range(10):
-            envelope = self.recv.recv()
-            self.out.send(envelope)
+            message = self.recv.recv()
+            self.out.send(envelope.repack(message))

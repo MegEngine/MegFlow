@@ -1,0 +1,16 @@
+main="test"
+
+[[graphs]]
+name="test"
+inputs=[{name="inp", cap=1, ports=["t1:inp", "t2:inp"]}]
+outputs=[
+    {name="out1", cap=1, ports=["t1:out"]},
+    {name="out2", cap=1, ports=["t2:out"]}
+]
+
+    [[graphs.nodes]]
+    name="t1"
+    ty="Transform"
+    [[graphs.nodes]]
+    name="t2"
+    ty="Transform"

@@ -1,3 +1,8 @@
+---
+id: download-models
+sidebar_position: 8
+---
+
 # 模型下载
 
 MegFlow 所有模型都压缩成了单个 models.zip 。

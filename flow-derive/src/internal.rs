@@ -10,13 +10,13 @@
  */
 use crate::{lit, utils::*};
 use proc_macro2::{Span, TokenStream};
-use quote::{quote, ToTokens};
+use quote::{quote, quote_spanned, ToTokens};
 use syn::{
     braced,
     parse::{Parse, ParseStream, Result},
     punctuated::Punctuated,
     spanned::Spanned,
-    Field, Ident, Token, VisPublic, Visibility,
+    DeriveInput, Field, Ident, Token, VisPublic, Visibility,
 };
 
 pub struct CollectionSlice<ID> {
@@ -126,6 +126,105 @@ pub fn feature_expand(mut input: FeatureDeclare) -> TokenStream {
                     #name.disable();
                 }),
             });
+        }
+    }
+}
+
+pub fn parser_expand(input: DeriveInput) -> TokenStream {
+    let ident = input.ident;
+    let support_include = fields(&input.data).any(|field| {
+        field
+            .ident
+            .as_ref()
+            .map(|x| x == "include")
+            .unwrap_or(false)
+    });
+    if support_include {
+        let list: Vec<_> = fields(&input.data)
+            .filter(|field| {
+                match_last_ty(&field.ty, "Vec")
+                    || match_last_ty(&field.ty, "VecDeque")
+                    || match_last_ty(&field.ty, "LinkedList")
+            })
+            .map(|field| {
+                let ident = &field.ident;
+                quote_spanned! { ident.span()=>
+                    config.#ident.append(&mut sub_config.#ident);
+                }
+            })
+            .collect();
+        let set: Vec<_> = fields(&input.data)
+            .filter(|field| {
+                match_last_ty(&field.ty, "HashSet") || match_last_ty(&field.ty, "BTreeSet")
+            })
+            .map(|field| {
+                let ident = &field.ident;
+                quote_spanned! {ident.span()=>
+                    for x in std::mem::take(&mut sub_config.#ident) {
+                        config.#ident.insert(x);
+                    }
+                }
+            })
+            .collect();
+        let map: Vec<_> = fields(&input.data)
+            .filter(|field| {
+                match_last_ty(&field.ty, "HashMap") || match_last_ty(&field.ty, "BTreeMap")
+            })
+            .map(|field| {
+                let ident = &field.ident;
+                quote_spanned! {ident.span()=>
+                    for (k, v) in std::mem::take(&mut sub_config.#ident) {
+                        config.#ident.entry(k).or_insert(v);
+                    }
+                }
+            })
+            .collect();
+        quote! {
+            impl<'a> flow_rs::config::parser::Parser<'a> for #ident {
+                fn from_file(root: &std::path::Path) -> anyhow::Result<#ident> {
+                    type PathSet = std::collections::BTreeSet<std::path::PathBuf>;
+                    fn from_file_impl(path: &std::path::Path, mut visit: PathSet) -> anyhow::Result<(#ident, PathSet)> {
+                        visit.insert(path.to_path_buf());
+
+                        let content = std::fs::read_to_string(path)?;
+                        let mut config: #ident = toml::from_str(&content)?;
+                        let include: Vec<_> = config.include.iter().cloned().collect();
+
+                        for clid_path in include {
+                            let abs_path;
+                            if clid_path.is_relative() {
+                                let mut tmp = path.to_path_buf();
+                                tmp.pop();
+                                tmp.push(clid_path);
+                                abs_path = tmp;
+                            } else {
+                                abs_path = clid_path;
+                            }
+                            if visit.contains(&abs_path) {
+                                return Err(anyhow::anyhow!("cyclic include"));
+                            }
+                            let mut ret = from_file_impl(&abs_path, visit)?;
+                            let sub_config = &mut ret.0;
+                            #(#list) *
+                            #(#set) *
+                            #(#map) *
+                            visit = ret.1;
+                        }
+                        Ok((config, visit))
+                    }
+                    from_file_impl(root, std::collections::BTreeSet::new()).map(|x| x.0)
+                }
+            }
+        }
+    } else {
+        quote! {
+            impl<'a> flow_rs::config::parser::Parser<'a> for #ident {
+                fn from_file(path: &std::path::Path) -> anyhow::Result<Self> {
+                    let content = std::fs::read_to_string(path)?;
+                    let config = toml::from_str(&content)?;
+                    Ok(config)
+                }
+            }
         }
     }
 }

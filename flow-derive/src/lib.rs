@@ -66,6 +66,13 @@ pub fn actor_derive(input: TokenStream) -> TokenStream {
     actor::expand(input).into()
 }
 
+#[doc(hidden)]
+#[proc_macro_derive(Parser)]
+pub fn parser_derive(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    internal::parser_expand(input).into()
+}
+
 /// A proc macro used to register a node. `node_register!("NodeType", NodeType)`
 #[proc_macro]
 pub fn node_register(input: TokenStream) -> TokenStream {

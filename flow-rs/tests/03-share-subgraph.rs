@@ -2,11 +2,14 @@ mod nodes_ext;
 
 use anyhow::Result;
 use flow_rs::prelude::*;
+use std::io::Write;
 
 #[rt::test]
 async fn test_basis() -> Result<()> {
-    let mut graph = load(
-        None,
+    let mut file = tempfile::NamedTempFile::new().unwrap();
+    write!(
+        file,
+        "{}",
         r#"
 main="test"
 nodes = [{name="sub", ty="sub"}]
@@ -32,8 +35,10 @@ nodes=[
     {name="t2",ty="Transform"},
     {name="t3",ty="Transform"}
 ]
-        "#,
+        "#
     )?;
+
+    let mut graph = load(None, file.path())?;
 
     let inp = graph.input("inp").unwrap();
     let out = graph.output("out").unwrap();
@@ -52,8 +57,10 @@ nodes=[
 #[test]
 #[should_panic]
 fn test_empty() {
-    let _ = load(
-        None,
+    let mut file = tempfile::NamedTempFile::new().unwrap();
+    write!(
+        file,
+        "{}",
         r#"
 main="test"
 nodes=[
@@ -81,7 +88,8 @@ nodes=[
     {name="t2",ty="Transform"},
     {name="t3",ty="Transform"}
 ]
-        "#,
+        "#
     )
-    .is_ok();
+    .unwrap();
+    let _ = load(None, file.path()).unwrap();
 }

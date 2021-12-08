@@ -84,7 +84,7 @@ impl Sandbox {
                 let chan = ChannelStorage::unbound();
                 actor.set_port(input, Some(0), &chan);
                 let mut input = input.as_str();
-                if input.starts_with('[') {
+                if input.starts_with('[') || input.starts_with('{') {
                     input = &input[1..input.len() - 1];
                 }
                 inputs.insert(input.to_owned(), chan);
@@ -98,7 +98,7 @@ impl Sandbox {
                 let chan = ChannelStorage::unbound();
                 actor.set_port(output, Some(0), &chan);
                 let mut output = output.as_str();
-                if output.starts_with('[') {
+                if output.starts_with('[') || output.starts_with('{') {
                     output = &output[1..output.len() - 1];
                 }
                 outputs.insert(output.to_owned(), chan);

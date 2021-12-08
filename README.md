@@ -16,18 +16,20 @@ MegFlow 提供快速视觉应用落地流程，最快 15 分钟搭建起视频�
 * 提供 pipeline 搭建、测试、调试、部署、结果可视化一条龙服务
 
 ## HowTo
-* 如何编译运行
-  * [使用预编译 .whl](docs/how-to-build-and-run/run-in-15-minutes.zh.md)
-  * [docker 编译](docs/how-to-build-and-run/build-with-docker.zh.md)
-  * [ubuntu 源码编译](docs/how-to-build-and-run/build-from-source.zh.md)
-  * [win10 wsl 编译](docs/how-to-build-and-run/build-on-win10.zh.md)
-  * [armv8 编译](docs/how-to-build-and-run/build-on-aarch64.zh.md)
-  * [生成 RTSP 地址](docs/how-to-build-and-run/generate-rtsp.zh.md)
+* 如何运行
+  * [使用预编译 .whl](docs/02-how-to-run/run-in-15-minutes.zh.md)
+  * [生成 RTSP 地址](docs/02-how-to-run/generate-rtsp.zh.md)
+* 如何编译
+  * [docker 编译](docs/01-how-to-build/build-with-docker.zh.md)
+  * [ubuntu 源码编译](docs/01-how-to-build/build-from-source.zh.md)
+  * [win10 wsl 编译](docs/01-how-to-build/build-on-win10.zh.md)
+  * [armv8 编译](docs/01-how-to-build/build-on-aarch64.zh.md)
+
 * 构建自己的 pipeline
-  * [tutorial01: quickstart 问答式创建应用](docs/how-to-add-my-service/01-quickstart.zh.md)
-  * [tutorial02: detect and classify on video stream](docs/how-to-add-my-service/02-det-attr.zh.md)
-  * [tutorial03: batching and pipeline test](docs/how-to-add-my-service/03-batching-and-pipeline-test.zh.md)
-  * [tutorial04: visualization](docs/how-to-add-my-service/04-web-visualization.zh.md)
+  * [tutorial01: quickstart 问答式创建应用](docs/03-how-to-add-my-service/01-quickstart.zh.md)
+  * [tutorial02: detect and classify on video stream](docs/03-how-to-add-my-service/02-det-attr.zh.md)
+  * [tutorial03: batching and pipeline test](docs/03-how-to-add-my-service/03-batching-and-pipeline-test.zh.md)
+  * [tutorial04: visualization](docs/03-how-to-add-my-service/04-web-visualization.zh.md)
 * [how to debug](docs/how-to-debug.zh.md)
 * [how to contribute](docs/how-to-contribute.zh.md)
 * [FAQ](docs/FAQ.zh.md)
@@ -47,8 +49,8 @@ MegFlow 提供快速视觉应用落地流程，最快 15 分钟搭建起视频�
 | 3.9         | ✔️        |
 
 ## Built-in Applications
-* 猫猫围栏
-* 电梯电动车报警
+* [猫猫围栏](https://github.com/MegEngine/MegFlow/tree/master/flow-python/examples/cat_finder)
+* [电梯电动车报警](https://github.com/MegEngine/MegFlow/tree/master/flow-python/examples/electric_bicycle)
 
 ## Features
 - 基于 [async-std](https://github.com/async-rs/async-std)[features=[tokio1](https://github.com/tokio-rs/tokio)] 的高效异步运行时调度器

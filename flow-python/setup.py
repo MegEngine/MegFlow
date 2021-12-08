@@ -11,21 +11,119 @@
 # coding=utf-8
 import sys
 import os
+import glob
+import re
 
-from setuptools import setup
+from setuptools import setup, Extension
+from setuptools.command.build_ext import build_ext
+from setuptools.command.build_py import build_py
+from distutils.file_util import copy_file
+from distutils.dir_util import copy_tree, mkpath, remove_tree
+import subprocess as sp
+
+import platform
+system = platform.system().lower()
+
+dyn_ext = 'so'
+if system == 'darwin':
+    dyn_ext = 'dylib'
+elif system == 'windows':
+    dyn_ext = 'dll'
 
 devel_version = os.environ.get("DEVEL_VERSION")
-if not devel_version:
-    devel_version = "0.1.0"  # fall back
+debug = os.environ.get("DEBUG")
+target_dir = os.environ.get("CARGO_TARGET_DIR")
 
-py_version = sys.version_info
+if not devel_version:
+    devel_version = "0.3.0"  # fall back
+if not debug:
+    debug = False
+if not target_dir:
+    target_dir = "../target"
+
+
+class FirstBuildExt(build_py):
+    def run(self):
+        self.run_command("build_ext")
+        return super().run()
+
+
+class CargoExtension(Extension):
+    def __init__(self,
+                 target,
+                 src,
+                 dst,
+                features=[]):
+        Extension.__init__(self, target, sources=[])
+        self.target = target
+        self.src = src
+        self.dst = dst
+        self.features = features
+
+    def build(self):
+        command = ['cargo', 'build', '-p', self.target]
+        if len(self.features) != 0:
+            command.append('--features')
+            command.append(' '.join(self.features))
+        if not debug:
+            command.append('--release')
+        sp.check_call(command)
+
+    def install(self, prefix):
+        copy_file('{}/{}'.format(prefix, self.src), 'megflow/{}'.format(self.dst))
+
+
+class CopyExtension(Extension):
+    def __init__(self, pattern, src, dst):
+        Extension.__init__(self, '', sources=[])
+        self.src = src
+        self.dst = dst
+        self.pattern = pattern
+
+    def copy(self):
+        mkpath('megflow/{}'.format(self.dst))
+        paths = glob.glob(self.src)
+        paths = [ x for x in paths if self.pattern.fullmatch(x) ]
+
+        for path in paths:
+            copy_file(path, 'megflow/{}'.format(self.dst))
+
+
+class ExtBuild(build_ext):
+    def run(self):
+        current_dir = os.getcwd()
+        repo = os.path.dirname(current_dir)
+        
+        prefix = target_dir
+        if debug:
+            prefix += '/debug'
+        else:
+            prefix += '/release'
+
+        for ext in self.extensions:
+            if isinstance(ext, CargoExtension):
+                ext.build()
+                ext.install(prefix)
+            if isinstance(ext, CopyExtension):
+                ext.copy()
+
 
 if __name__ == '__main__':
+    ext_modules=[
+        CargoExtension("flow-python", f"libflow_python.{dyn_ext}", f"megflow.{dyn_ext}", features=["extension-module"]), 
+        CargoExtension("flow-quickstart", "megflow_quickstart", "megflow_quickstart_inner"),
+    ]
+
+    ffmpeg_dir = os.getenv('FFMPEG_DIR')
+    prebuild = os.getenv('CARGO_FEATURE_PREBUILD')
+    if prebuild is not None and ffmpeg_dir is not None:
+        pattern = re.compile(f'.*?{dyn_ext}\.[0-9]*')
+        ext_modules.append(CopyExtension(pattern, f"{ffmpeg_dir}/lib/*.{dyn_ext}.*", "lib/"))
+
     setup(
         options={
             'bdist_wheel': {
-                'python_tag': "py{}{}".format(py_version.major,
-                                              py_version.minor),
+                'py_limited_api': "cp36",
             }
         },
         name="megflow",
@@ -42,8 +140,7 @@ if __name__ == '__main__':
             'Natural Language :: English',
             'Operating System :: POSIX :: Linux',
             'Programming Language :: Rust',
-            'Programming Language :: Python :: {}.{}'.format(
-                py_version.major, py_version.minor),
+            'Programming Language :: Python :: 3',
             'Topic :: Software Development :: Libraries :: Application Frameworks',
             'Topic :: Scientific/Engineering',
             'Topic :: Scientific/Engineering :: Mathematics',
@@ -52,9 +149,14 @@ if __name__ == '__main__':
             'Topic :: Software Development :: Libraries',
             'Topic :: Software Development :: Libraries :: Python Modules',
         ],
-        install_requires=open('requirements.txt').read().splitlines(),
-        package_data={"": ['megflow_run_inner', 'megflow_quickstart_inner']},
+        ext_modules=ext_modules,
+        package_data={"": [f'megflow.{dyn_ext}', 'lib/*', 'megflow_quickstart_inner']},
         entry_points={
-            'console_scripts':['megflow_run=megflow.command_line:run', 'megflow_quickstart=megflow.command_line:quickstart', 'run_with_plugins=megflow.command_line:main'],
+            'console_scripts':['megflow_run=megflow.command_line:megflow_run', 'run_with_plugins=megflow.command_line:run_with_plugins', 'megflow_quickstart=megflow.command_line:megflow_quickstart'],
         },
+        cmdclass={
+            'build_ext': ExtBuild,
+            'build_py': FirstBuildExt
+        },
+        zip_safe=False,
     )

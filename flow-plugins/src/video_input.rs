@@ -8,7 +8,7 @@
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT ARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-use super::utils::codec;
+use crate::utils::codec;
 use ::log::error;
 use anyhow::Result;
 use flow_rs::prelude::*;

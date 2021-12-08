@@ -1,0 +1,29 @@
+[package]
+name = "flow-cffi"
+version = "0.3.0"
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib"]
+
+[features]
+python = [ "flow-plugins/python", "flow-rs/python" ]
+
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+flow-rs = { path = "../flow-rs" }
+flow-plugins = { path = "../flow-plugins" }
+flow-message = { path = "../flow-message", features = ["c"] }
+libc = "0.2"
+ffi_helpers = "0.3.0"
+anyhow = "1.0"
+lazy_static = "1"
+
+[dev-dependencies]
+inline-c = "0.1"
+test-cdylib = "1.1.0"
+
+[build-dependencies]
+cbindgen = "0.20.0"

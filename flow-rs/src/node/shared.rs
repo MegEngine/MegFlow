@@ -23,7 +23,6 @@ struct SharedConns {
     outputs: HashMap<String, Sender>,
 }
 
-#[derive(Node)]
 struct Shared {
     nodes: Vec<Box<dyn Actor>>,
     rx: ReceiverT<SharedConns>,
@@ -38,7 +37,6 @@ crate::collect!(String, SharedHandle);
 
 #[derive(Clone)]
 pub struct SharedProxy {
-    ty: String,
     conns: SharedConns,
     tx: SenderT<SharedConns>,
     inputs: Vec<String>,
@@ -113,6 +111,31 @@ impl Shared {
     }
     pub fn boxed(self) -> Box<Shared> {
         Box::new(self)
+    }
+}
+
+impl Node for Shared {
+    fn set_port(&mut self, _port_name: &str, _tag: Option<u64>, _channel: &ChannelStorage) {
+        unimplemented!()
+    }
+
+    fn set_port_dynamic(
+        &mut self,
+        _local_key: u64,
+        _port_name: &str,
+        _target: String,
+        _cap: usize,
+        _brokers: Vec<BrokerClient>,
+    ) {
+        unimplemented!()
+    }
+
+    fn close(&mut self) {
+        unimplemented!()
+    }
+
+    fn is_allinp_closed(&self) -> bool {
+        unimplemented!()
     }
 }
 
@@ -241,7 +264,6 @@ impl SharedProxy {
             .into_iter()
             .collect();
         Ok(SharedProxy {
-            ty: cfg.entity.ty.first().unwrap().to_owned(),
             tx,
             conns: SharedConns {
                 inputs: HashMap::new(),

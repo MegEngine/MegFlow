@@ -1,35 +1,19 @@
 FROM megflow:latest as stage
 
 # build .whl
-RUN eval "$(conda shell.bash hook)" && conda activate py3.6 \
-    && cargo build --release \
-    && cargo build --example megflow_run --release \
-    && cp target/release/examples/megflow_run flow-python/megflow/megflow_run_inner  \
-    && cp target/release/megflow_quickstart flow-python/megflow/megflow_quickstart_inner  \
+RUN eval "$(conda shell.bash hook)" && conda activate py3.6  &&  . /root/myenv \
     && cd flow-python \
     && python3 setup.py bdist_wheel -p linux-x86_64 -d ../dist
 
-RUN eval "$(conda shell.bash hook)" && conda activate py3.7 \
-    && cargo build --release \
-    && cargo build --example megflow_run \
-    && cp target/release/examples/megflow_run flow-python/megflow/megflow_run_inner  \
-    && cp target/release/megflow_quickstart flow-python/megflow/megflow_quickstart_inner  \
+RUN eval "$(conda shell.bash hook)" && conda activate py3.7  &&  . /root/myenv \
     && cd flow-python \
     && python3 setup.py bdist_wheel -p linux-x86_64 -d ../dist
 
-RUN eval "$(conda shell.bash hook)" && conda activate py3.8 \
-    && cargo build --release \
-    && cargo build --example megflow_run  --release \
-    && cp target/release/examples/megflow_run flow-python/megflow/megflow_run_inner  \
-    && cp target/release/megflow_quickstart flow-python/megflow/megflow_quickstart_inner  \
+RUN eval "$(conda shell.bash hook)" && conda activate py3.8  &&  . /root/myenv \
     && cd flow-python \
     && python3 setup.py bdist_wheel -p linux-x86_64 -d ../dist
 
-RUN eval "$(conda shell.bash hook)" && conda activate py3.9 \
-    && cargo build --release \
-    && cargo build --example megflow_run  --release \
-    && cp target/release/examples/megflow_run flow-python/megflow/megflow_run_inner  \
-    && cp target/release/megflow_quickstart flow-python/megflow/megflow_quickstart_inner  \
+RUN eval "$(conda shell.bash hook)" && conda activate py3.9  &&  . /root/myenv \
     && cd flow-python \
     && python3 setup.py bdist_wheel -p linux-x86_64 -d ../dist
 

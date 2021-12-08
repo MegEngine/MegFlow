@@ -16,6 +16,7 @@ use pyo3::{
     prelude::*,
     types::{IntoPyDict, PyDict},
 };
+use std::sync::Arc;
 
 static ERR_MSG: &str = "use after move";
 
@@ -44,10 +45,9 @@ impl PyEnvelope {
             let target = envelope.info_mut();
             macro_rules! restore {
                 ($k:ident) => {
-                    target.$k = info
-                        .get_item(stringify!($k))
-                        .expect(concat!("expect ", stringify!($k), " field"))
-                        .extract()?;
+                    if let Some($k) = info.get_item(stringify!($k)) {
+                        target.$k = $k.extract()?;
+                    }
                 };
             }
             restore!(from_addr);
@@ -55,25 +55,13 @@ impl PyEnvelope {
             restore!(transfer_addr);
             restore!(partial_id);
             restore!(tag);
+            if let Some(extra_data) = info.get_item("extra_data") {
+                target.extra_data = Some(Arc::new(extra_data.to_object(py)))
+            }
         }
         Ok(PyEnvelope {
             imp: Some(envelope),
         })
-    }
-
-    fn __getstate__(&mut self, py: Python) -> PyResult<PyObject> {
-        let envelope = self.imp.as_mut().expect(ERR_MSG);
-        let dict = envelope.info().clone().into_py_dict(py);
-        dict.set_item("msg", envelope.get_mut().clone_ref(py))?;
-        Ok(dict.to_object(py))
-    }
-
-    fn __setstate__(&mut self, py: Python, state: PyObject) -> PyResult<()> {
-        let dict: &PyDict = state.extract(py)?;
-        let msg: PyObject = dict.get_item("msg").expect("expect msg field").into();
-        let envelope = PyEnvelope::pack(py, msg, Some(dict))?;
-        self.imp = envelope.imp;
-        Ok(())
     }
 
     fn repack(&self, msg: PyObject) -> Self {
@@ -81,6 +69,17 @@ impl PyEnvelope {
         PyEnvelope {
             imp: Some(envelope.repack(msg)),
         }
+    }
+
+    #[getter(extra_data)]
+    fn get_extra_data(&self) -> Option<PyObject> {
+        let envelope = self.imp.as_ref().expect(ERR_MSG);
+        envelope
+            .info()
+            .extra_data
+            .as_ref()
+            .map(|x| x.downcast_ref().cloned())
+            .flatten()
     }
 
     #[getter(msg)]
@@ -123,12 +122,6 @@ impl PyEnvelope {
     fn get_partial_id(&self) -> Option<u64> {
         let envelope = self.imp.as_ref().expect(ERR_MSG);
         envelope.info().partial_id
-    }
-
-    #[setter(partial_id)]
-    fn set_partial_id(&mut self, addr: u64) {
-        let envelope = self.imp.as_mut().expect(ERR_MSG);
-        envelope.info_mut().partial_id = Some(addr)
     }
 
     #[getter(tag)]

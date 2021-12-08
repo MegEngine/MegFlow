@@ -11,6 +11,8 @@
 pub mod graphviz;
 mod insert;
 pub mod interlayer;
+
+pub mod parser;
 pub mod presentation;
 
 use crate::node::{inputs, outputs};
@@ -29,6 +31,10 @@ pub(crate) static MAPPING: &[PortUtility] = &[
     PortUtility {
         ty: interlayer::PortTy::List,
         mapping: |p| format!("[{}]", p),
+    },
+    PortUtility {
+        ty: interlayer::PortTy::Dict,
+        mapping: |p| format!("{{{}}}", p),
     },
     PortUtility {
         ty: interlayer::PortTy::Dyn,

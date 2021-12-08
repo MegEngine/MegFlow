@@ -16,6 +16,7 @@ use toml::value::Table;
 pub enum PortTy {
     Unit,
     List,
+    Dict,
     Dyn,
 }
 

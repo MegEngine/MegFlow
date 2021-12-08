@@ -15,7 +15,7 @@ use crate::{
 use proc_macro2::TokenStream;
 use quote::quote_spanned;
 use syn::{
-    bracketed,
+    braced, bracketed,
     parse::{Parse, ParseStream, Result},
     punctuated::Punctuated,
     LitStr, Token,
@@ -24,6 +24,7 @@ use syn::{
 enum PortType {
     Unit,
     List,
+    Dict,
     Dyn,
 }
 
@@ -49,6 +50,13 @@ impl Parse for Port {
                 Port {
                     name,
                     ty: PortType::List,
+                }
+            } else if input.peek(syn::token::Brace) {
+                let _content;
+                braced!(_content in input);
+                Port {
+                    name,
+                    ty: PortType::Dict,
                 }
             } else {
                 return Err(input.error("expect []"));
@@ -96,6 +104,9 @@ fn expand(ports: &PortSequence, extend_ty: &str) -> Vec<TokenStream> {
                 PortType::List => {
                     quote_spanned!(name.span()=> #name: Vec<flow_rs::channel::#extend_ty>)
                 }
+                PortType::Dict => {
+                    quote_spanned!(name.span()=> #name: std::collections::HashMap<u64, flow_rs::channel::#extend_ty>)
+                }
                 PortType::Dyn => {
                     quote_spanned!(name.span()=> #name: flow_rs::node::DynPorts<flow_rs::channel::#extend_ty>)
                 }
@@ -111,6 +122,7 @@ pub fn name_expand(ports: &PortSequence) -> Vec<LitStr> {
         .map(|port| match port.ty {
             PortType::Dyn => string(format!("dyn@{}", port.name)),
             PortType::List => string(format!("[{}]", port.name)),
+            PortType::Dict => string(format!("{{{}}}", port.name)),
             PortType::Unit => string(&port.name),
         })
         .collect()
