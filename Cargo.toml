@@ -6,7 +6,6 @@ members = [
     "flow-debugger",
     "flow-message",
     "flow-quickstart",
-    "flow-cffi",
     "flow-python",
 ]
 
