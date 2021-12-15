@@ -100,9 +100,7 @@ $ python3 setup.py install --user
 ## 三、Python“开机自检”
 ```bash
 $ cd examples
-$ cargo build --example --features="flow-plugins/python" megflow_run --release # 编译出 megflow bin
-$ ln -s ../../target/release/examples/megflow_run
-$ ./megflow_run -p logical_test
+$ megflow_run -p logical_test
 ```
 `logical_test` 是 examples 下最基础的计算图测试用例，运行能正常结束表示 MegFlow 编译成功、基本语义无问题。
 

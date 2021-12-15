@@ -33,6 +33,5 @@ jobs:
       - run: echo 'export PKG_CONFIG_PATH=${FFMPEG_DIR}/lib/pkgconfig:${PKG_CONFIG_PATH}' >> $HOME/myenv
       - run: chmod +x $HOME/myenv
       - run: cat $HOME/myenv
-      - run: . $HOME/myenv && cargo test
-      - run: . $HOME/myenv && cd flow-python && python3.8 setup.py install --user
-      - run: . $HOME/myenv && cd flow-python/examples && cargo run --release --features="flow-plugins/python" --example megflow_run -- -p logical_test
+      - run: . $HOME/myenv && cargo test --release
+      - run: . $HOME/myenv && cd flow-python && python3.8 setup.py install --user && cd examples && megflow_run -p logical_test
