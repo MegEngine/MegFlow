@@ -1,9 +1,0 @@
-language = "C"
-
-cpp_compat = true
-include_version = false
-style = "type"
-
-[enum]
-rename_variants = "QualifiedScreamingSnakeCase"
-

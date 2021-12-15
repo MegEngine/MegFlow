@@ -89,10 +89,7 @@ $ ./myenv # 设置环境变量
 
 ```bash
 $ git clone --recursive https://github.com/MegEngine/MegFlow --depth=1
-$ cd MegFlow
-$ cargo build
-waiting ...
-$ cd flow-python
+$ cd MegFlow/flow-python
 $ python3 setup.py install --user
 ```
 编译成功后，在 Python `import megflow` 正常。
