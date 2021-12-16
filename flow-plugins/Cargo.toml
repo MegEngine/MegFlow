@@ -18,7 +18,7 @@ branch = "dylib"
 flow-rs = { path = "../flow-rs", default-features = false }
 toml = "0.5"
 futures-util = "0.3"
-pyo3 = { git = "https://github.com/pyo3/pyo3",  rev="233a14fa", features=["abi3"], optional=true }
+pyo3 = { version = "0.15.1", features=["abi3"], optional=true }
 numpy = { version = "0.15", optional=true }
 anyhow = "1.0"
 image = "0.23"
