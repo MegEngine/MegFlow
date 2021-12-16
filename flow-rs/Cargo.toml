@@ -15,7 +15,7 @@ serde = { version = "1.0", features = ["derive"] }
 toml = "0.5"
 lazy_static = "1.4"
 ctor = "0.1"
-pyo3 = { version = "0.15.1", features = ["abi3"], optional=true }
+pyo3 = { git = "https://github.com/pyo3/pyo3", rev="233a14fa", features = ["abi3"], optional=true }
 dyn-clone = "1.0"
 async-std = { version = "1.9", features = ["unstable", "attributes", "tokio1"] }
 stackful = { git = "https://github.com/nbdd0121/stackful.git", rev = "4789e26", optional=true }
