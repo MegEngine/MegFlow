@@ -1,19 +1,7 @@
 FROM megflow:latest as stage
 
 # build .whl
-RUN eval "$(conda shell.bash hook)" && conda activate py3.6  &&  . /root/myenv \
-    && cd flow-python \
-    && python3 setup.py bdist_wheel -p linux-x86_64 -d ../dist
-
-RUN eval "$(conda shell.bash hook)" && conda activate py3.7  &&  . /root/myenv \
-    && cd flow-python \
-    && python3 setup.py bdist_wheel -p linux-x86_64 -d ../dist
-
 RUN eval "$(conda shell.bash hook)" && conda activate py3.8  &&  . /root/myenv \
-    && cd flow-python \
-    && python3 setup.py bdist_wheel -p linux-x86_64 -d ../dist
-
-RUN eval "$(conda shell.bash hook)" && conda activate py3.9  &&  . /root/myenv \
     && cd flow-python \
     && python3 setup.py bdist_wheel -p linux-x86_64 -d ../dist
 

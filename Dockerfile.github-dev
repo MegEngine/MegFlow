@@ -36,7 +36,7 @@ WORKDIR $HOME/megflow-runspace
 RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 RUN bash Miniconda3-latest-Linux-x86_64.sh -b -p /conda && rm Miniconda3-latest-Linux-x86_64.sh
 ENV PATH $PATH:/conda/bin
-RUN bash -c "for i in {6..9}; do conda create --name py3.\$i python=3.\$i; done"
+RUN bash -c "conda create --name py3.8 python=3.8"
 RUN echo "PATH=${PATH}" >> ~/.bashrc
 RUN conda init
 
