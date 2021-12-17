@@ -2,11 +2,14 @@ mod nodes_ext;
 
 use anyhow::Result;
 use flow_rs::prelude::*;
+use std::io::Write;
 
 #[rt::test]
 async fn test_basis() -> Result<()> {
-    let _ = load(
-        None,
+    let mut file = tempfile::NamedTempFile::new().unwrap();
+    write!(
+        file,
+        "{}",
         r#"
 main="test"
 [[graphs]]
@@ -32,8 +35,9 @@ nodes=[
     {name="t2",ty="DynOutTransform"},
     {name="t3",ty="DynInTransform"}
 ]
-        "#,
+        "#
     )?;
+    let _ = load(None, file.path())?;
 
     Ok(())
 }

@@ -12,7 +12,7 @@ use anyhow::Result;
 use flow_rs::prelude::*;
 
 #[allow(dead_code)]
-#[inputs(first, second:dyn, third:[])]
+#[inputs(first, second:dyn, third:[], fourth:{})]
 #[outputs(front, last:dyn)]
 #[derive(Node, Actor, Default)]
 struct SubNode {}

@@ -1,3 +1,4 @@
+#[cfg(feature = "python")]
 use pyo3::Python;
 use std::any::{Any, TypeId};
 use std::sync::Arc;
@@ -16,6 +17,7 @@ where
 }
 
 pub trait Resource: Any + DowncastArc + Send + Sync {
+    #[cfg(feature = "python")]
     fn to_python(&self, py: Python) -> pyo3::PyObject;
 }
 

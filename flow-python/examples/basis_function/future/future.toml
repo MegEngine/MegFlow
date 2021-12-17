@@ -1,0 +1,15 @@
+main = "future"
+[[graphs]]
+name = "future"
+
+[[graphs.connections]]
+cap = 64
+ports = ["src:out", "dst:inp"]
+
+[[graphs.nodes]]
+name = "src"
+ty = "Printer"
+[[graphs.nodes]]
+name = "dst"
+ty = "Rnd"
+    

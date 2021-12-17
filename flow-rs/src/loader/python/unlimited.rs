@@ -282,36 +282,3 @@ pub fn restore(limited: *mut ffi::PyThreadState, unlimited: &PyThreadStateUnlimi
         _ => unimplemented!(),
     }
 }
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    use pyo3::Python;
-
-    #[test]
-    fn test_unlimited_ffi() {
-        pyo3::prepare_freethreaded_python();
-        Python::with_gil(|_py| unsafe {
-            let thread = ffi::PyThreadState_Get();
-            let raw_frame = ffi::PyEval_GetFrame();
-            let mut unlimited = store(thread);
-            assert_eq!(unlimited.frame, raw_frame);
-            let mptr = ffi::PyImport_AddModule("__main__\0".as_ptr() as *const _);
-            assert!(mptr != std::ptr::null_mut());
-            let globals = ffi::PyModule_GetDict(mptr);
-            let locals = globals;
-            let code = ffi::PyCode_NewEmpty(
-                "<filename>\0".as_ptr() as *const _,
-                "<function>\0".as_ptr() as *const _,
-                0,
-            );
-            let frame = ffi::PyFrame_New(thread as *mut ffi::PyThreadState, code, globals, locals);
-            unlimited.frame = frame;
-            restore(thread, &unlimited);
-            let frame = ffi::PyEval_GetFrame();
-            assert_eq!(unlimited.frame, frame);
-            unlimited.frame = raw_frame;
-            ffi::Py_XDECREF(frame as *mut ffi::PyObject);
-        });
-    }
-}

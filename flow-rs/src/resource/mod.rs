@@ -37,6 +37,7 @@ mod test {
     use std::sync::Arc;
 
     impl Resource for AtomicBool {
+        #[cfg(feature = "python")]
         fn to_python(&self, _: pyo3::Python) -> pyo3::PyObject {
             unimplemented!()
         }

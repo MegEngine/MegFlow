@@ -1,0 +1,34 @@
+main = "map_reduce"
+
+[[graphs]]
+name = "map_reduce"
+
+connections = [
+    { cap = 10, ports = ["rand:out", "mul1:inp", "mul2:inp"] },
+    { cap = 10, ports = ["mul1:out", "sum:inp"] },
+    { cap = 10, ports = ["mul2:out", "sum:inp"] },
+    { cap = 10, ports = ["sum:out", "printer:inp"] }
+]
+
+[[graphs.nodes]]
+name = "mul1"
+ty = "Multiply"
+c = 1
+
+[[graphs.nodes]]
+name = "mul2"
+ty = "Multiply"
+c = 2
+
+[[graphs.nodes]]
+name = "sum"
+ty = "Summation"
+
+[[graphs.nodes]]
+name = "rand"
+ty = "Rnd"
+n = 3
+
+[[graphs.nodes]]
+name = "printer"
+ty = "Printer"

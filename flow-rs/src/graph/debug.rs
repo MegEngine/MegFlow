@@ -9,7 +9,6 @@
  * "AS IS" BASIS, WITHOUT ARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 use super::Graph;
-use crate::debug::*;
 use crate::rt::task::JoinHandle;
 use futures_util::{pin_mut, select, FutureExt};
 use serde::Serialize;
@@ -31,17 +30,17 @@ impl Graph {
             let wait_graph = ctx.wait().fuse();
             pin_mut!(wait_graph);
             'start: while !ctx.is_closed() {
-                if !QPS.enable() {
+                if !crate::debug::QPS.enable() {
                     first = true;
                 }
-                let wait_qps = QPS.wait().fuse();
+                let wait_qps = crate::debug::QPS.wait().fuse();
                 pin_mut!(wait_qps);
                 select! {
                     _ = wait_qps => {},
                     _ = wait_graph => break 'start,
                 }
 
-                let args = QPS_args
+                let args = crate::debug::QPS_args
                     .read()
                     .unwrap()
                     .iter()
@@ -102,19 +101,19 @@ impl Graph {
                     }));
 
                     let others = into_object(
-                        serde_json::to_value(ResponseMessage {
+                        serde_json::to_value(crate::debug::ResponseMessage {
                             success: true,
                             feature: "QPS".to_owned(),
                             seq_id,
-                            command: CMD_NOOP.to_owned(),
+                            command: crate::debug::CMD_NOOP.to_owned(),
                             args,
                         })
                         .unwrap(),
                     );
                     crate::debug::PORT
                         .0
-                        .send(ProtocolMessage {
-                            ty: TYPE_RESPONSE.to_owned(),
+                        .send(crate::debug::ProtocolMessage {
+                            ty: crate::debug::TYPE_RESPONSE.to_owned(),
                             others,
                         })
                         .await

@@ -16,10 +16,12 @@ extern crate self as flow_rs;
 pub mod broker;
 pub mod channel;
 mod config;
+#[cfg(feature = "debug")]
 mod debug;
 pub mod envelope;
 mod future;
 pub mod graph;
+#[cfg(feature = "python")]
 pub mod helper;
 pub mod loader;
 pub mod node;
@@ -49,23 +51,29 @@ use anyhow::{anyhow, Result};
 pub use async_std as rt;
 #[doc(hidden)]
 pub use ctor::*;
+#[cfg(feature = "debug")]
 pub use debug::Server as DebugServer;
 pub use flow_derive::*;
 use node::NodeInfo;
 use prelude::MainGraph;
 use registry::Collect;
+use std::path::Path;
 
 /// A function to load graph with config
-pub fn load(option: Option<loader::LoaderConfig>, config: &str) -> Result<graph::MainGraph> {
-    load_impl(option, toml::from_str(config)?)
+pub fn load<P: AsRef<Path>>(
+    option: Option<loader::LoaderConfig>,
+    config: P,
+) -> Result<graph::MainGraph> {
+    load_impl(option, config::parser::Parser::from_file(config.as_ref())?)
 }
 /// A convenient function to load single graph
-pub fn load_single_graph(
+pub fn load_single_graph<P: AsRef<Path>>(
     option: Option<loader::LoaderConfig>,
-    config: &str,
+    config: P,
 ) -> Result<graph::MainGraph> {
-    let config: config::presentation::Graph = toml::from_str(config)?;
+    let config: config::presentation::Graph = config::parser::Parser::from_file(config.as_ref())?;
     let config = config::presentation::Config {
+        include: vec![],
         main: config.name.clone(),
         graphs: vec![config],
         nodes: vec![],

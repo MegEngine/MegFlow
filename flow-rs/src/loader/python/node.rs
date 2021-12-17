@@ -8,7 +8,7 @@
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT ARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-use super::channel::*;
+use super::port::*;
 use super::RegistryNodeParams;
 use flow_rs::prelude::*;
 use pyo3::prelude::*;
@@ -19,8 +19,8 @@ use std::sync::Arc;
 
 pub(crate) struct PyNode {
     imp: PyObject,
-    inputs: HashMap<String, Arc<Receiver>>,
-    outputs: HashMap<String, Arc<Sender>>,
+    inputs: HashMap<String, AnyPort<Arc<Receiver>>>,
+    outputs: HashMap<String, AnyPort<Arc<Sender>>>,
     name: String,
     exclusive: bool,
 }
@@ -48,10 +48,12 @@ impl PyNode {
         let mut inputs = HashMap::new();
         let mut outputs = HashMap::new();
         for port in &params.inputs {
-            inputs.insert(port.clone(), Arc::new(Default::default()));
+            let (k, v) = parse(port);
+            inputs.insert(k, v);
         }
         for port in &params.outputs {
-            outputs.insert(port.clone(), Arc::new(Default::default()));
+            let (k, v) = parse(port);
+            outputs.insert(k, v);
         }
         let imp = Python::with_gil(|py| -> _ {
             let pyargs = toml2dict(py, args).expect("convert toml to python dict fault");
@@ -73,21 +75,16 @@ impl PyNode {
     }
 
     async fn initialize(&mut self, res: ResourceCollection) {
-        let inputs = self.inputs.clone();
-        let outputs = self.outputs.clone();
-
-        Python::with_gil(|py| {
-            for (name, input) in inputs {
-                let rp = PyReceiver { imp: input };
-                let cell = PyCell::new(py, rp).unwrap();
-                self.imp.as_ref(py).setattr(name, cell).unwrap();
+        Python::with_gil(|py| -> PyResult<()> {
+            for input in self.inputs.values() {
+                self.imp.as_ref(py).setattr(input.name.clone(), input)?;
             }
-            for (name, output) in outputs {
-                let sp = PySender { imp: output };
-                let cell = PyCell::new(py, sp).unwrap();
-                self.imp.as_ref(py).setattr(name, cell).unwrap();
+            for output in self.outputs.values() {
+                self.imp.as_ref(py).setattr(output.name.clone(), output)?;
             }
-        });
+            Ok(())
+        })
+        .unwrap();
 
         for k in res.keys() {
             let any_r = res
@@ -120,13 +117,17 @@ impl PyNode {
             self.exec().await;
             if !self.inputs.is_empty() {
                 let mut min_empty_n = usize::MAX;
-                for port in self.inputs.values() {
-                    min_empty_n = std::cmp::min(min_empty_n, port.empty_n());
+                for ports in self.inputs.values() {
+                    for port in ports.storage.values() {
+                        min_empty_n = std::cmp::min(min_empty_n, port.empty_n());
+                    }
                 }
 
                 for _ in empty_n..min_empty_n {
-                    for port in self.outputs.values() {
-                        port.send_any(DummyEnvelope {}.seal()).await.ok();
+                    for ports in self.outputs.values() {
+                        for port in ports.storage.values() {
+                            port.send_any(DummyEnvelope {}.seal()).await.ok();
+                        }
                     }
                 }
 
@@ -141,11 +142,15 @@ impl PyNode {
 }
 
 impl Node for PyNode {
-    fn set_port(&mut self, port_name: &str, _: Option<u64>, channel: &ChannelStorage) {
+    fn set_port(&mut self, port_name: &str, tag: Option<u64>, channel: &ChannelStorage) {
         if let Some(port) = self.inputs.get_mut(port_name) {
-            *port = Arc::new(channel.receiver());
+            let storage = &mut port.storage;
+            let id = tag.unwrap_or_else(|| storage.len() as u64);
+            storage.insert(id, Arc::new(channel.receiver()));
         } else if let Some(port) = self.outputs.get_mut(port_name) {
-            *port = Arc::new(channel.sender());
+            let storage = &mut port.storage;
+            let id = tag.unwrap_or_else(|| storage.len() as u64);
+            storage.insert(id, Arc::new(channel.sender()));
         } else {
             unreachable!();
         }
@@ -154,14 +159,19 @@ impl Node for PyNode {
         unimplemented!()
     }
     fn close(&mut self) {
-        for port in self.outputs.values_mut() {
-            unsafe { &mut *(Arc::as_ptr(port) as *mut Sender) }.abort();
+        for ports in self.outputs.values_mut() {
+            for port in ports.storage.values_mut() {
+                // it is safe because there is no other port-ref used.
+                unsafe { &mut *(Arc::as_ptr(port) as *mut Sender) }.abort();
+            }
         }
     }
     fn is_allinp_closed(&self) -> bool {
         let mut is_closed = true;
-        for port in self.inputs.values() {
-            is_closed = is_closed && port.is_closed();
+        for ports in self.inputs.values() {
+            for port in ports.storage.values() {
+                is_closed = is_closed && port.is_closed();
+            }
         }
         is_closed
     }

@@ -10,6 +10,7 @@
  */
 mod channel;
 mod context;
+#[cfg(feature = "debug")]
 mod debug;
 mod node;
 mod subgraph;
@@ -69,8 +70,16 @@ impl MainGraph {
     pub fn output(&self, name: &str) -> Option<Receiver> {
         self.graph.conns.get(name).map(|x| x.get().receiver())
     }
+    /// Get inputs names
+    pub fn input_names(&self) -> Vec<&str> {
+        self.graph.inputs.iter().map(|x| x.as_str()).collect()
+    }
+    /// Get outputs names
+    pub fn output_names(&self) -> Vec<&str> {
+        self.graph.outputs.iter().map(|x| x.as_str()).collect()
+    }
     /// Stop the graph, it is equivalent to drop all inputs of the graph
-    pub fn stop(&mut self) {
+    pub fn stop(mut self) {
         self.graph.close()
     }
     /// Run the graph, and return a `JoinHandle`, which can be cancel or wait
@@ -246,7 +255,10 @@ impl Graph {
             shared.build();
         }
         let mut handles = vec![self.broker.run()];
-        let mut alone_tasks = vec![self.dmon()];
+        let mut alone_tasks = vec![
+            #[cfg(feature = "debug")]
+            self.dmon(),
+        ];
         let nodes: Vec<_> = self
             .nodes
             .values_mut()

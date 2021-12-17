@@ -6,6 +6,7 @@ members = [
     "flow-debugger",
     "flow-message",
     "flow-quickstart",
+    "flow-python",
 ]
 
 [profile.dev]

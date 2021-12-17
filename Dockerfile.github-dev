@@ -8,14 +8,7 @@ RUN apt-get install -y wget yasm clang git build-essential
 RUN apt install -y libssl-dev
 RUN apt update && apt-get install -y pkg-config --fix-missing
 RUN apt-get install -y curl
-
-# build conda env and activate
-RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-RUN bash Miniconda3-latest-Linux-x86_64.sh -b -p /conda && rm Miniconda3-latest-Linux-x86_64.sh
-ENV PATH $PATH:/conda/bin
-RUN bash -c "for i in {6..9}; do conda create --name py3.\$i python=3.\$i; done"
-RUN echo "PATH=${PATH}" >> ~/.bashrc
-RUN conda init
+RUN apt install -y libv4l-dev liblzma-dev
 
 # prepare cargo env
 ENV CARGO_HOME /cargo
@@ -25,27 +18,33 @@ RUN curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf -o run.sh \
 	&& ./run.sh -y && rm run.sh
 ENV PATH $PATH:/cargo/bin
 RUN chmod -R 777 /cargo /rustup
-COPY ci/cargo-config /cargo/config
+COPY ci/cargo-config.github /cargo/config
+
+# prebuild rust-ffmpeg
+RUN git clone https://github.com/tpoisonooo/rust-ffmpeg && cd rust-ffmpeg && git checkout dylib && cargo build --release
+RUN echo "export FFMPEG_DIR=`cat ${HOME}/megflow_ffmpeg_dynamic_link.sh  | head -n 1`" >> /root/myenv \
+	&& echo 'export LD_LIBRARY_PATH=${FFMPEG_DIR}/lib:${LD_LIBRARY_PATH}' >> /root/myenv \
+	&& echo 'export PKG_CONFIG_PATH=${FFMPEG_DIR}/lib/pkgconfig:${PKG_CONFIG_PATH}' >> /root/myenv \
+	&& echo 'export CARGO_FEATURE_PREBUILD="PREBUILD" ' >> /root/myenv \
+	&& chmod a+x /root/myenv
 
 # copy workspace
 RUN mkdir -p $HOME/megflow-runspace
 WORKDIR $HOME/megflow-runspace
+
+# build conda env and activate
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+RUN bash Miniconda3-latest-Linux-x86_64.sh -b -p /conda && rm Miniconda3-latest-Linux-x86_64.sh
+ENV PATH $PATH:/conda/bin
+RUN bash -c "conda create --name py3.8 python=3.8"
+RUN echo "PATH=${PATH}" >> ~/.bashrc
+RUN conda init
+
 COPY . $HOME/megflow-runspace/
 
-# run test
-RUN eval "$(conda shell.bash hook)" && conda activate py3.8 \
-	&& cargo build --example megflow_run --release \
-	&& cargo build
-
-RUN cd flow-python/examples \
-	&& ln -s ../../target/release/examples/megflow_run \
-	&& ln -s ../../target/release/megflow_quickstart
-
 # python install
-RUN eval "$(conda shell.bash hook)" && conda activate py3.8 \
-	&& cd flow-python && python3 setup.py install --user
-
-RUN eval "$(conda shell.bash hook)" && conda activate py3.8 \
+RUN eval "$(conda shell.bash hook)" && conda activate py3.8 &&  . /root/myenv \
+	&& cd flow-python && python3 setup.py install --user \
 	&& export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/conda/envs/py3.8/lib \
-	&& cd flow-python/examples \
-	&& ./megflow_run -p logical_test
+	&& cd examples \
+	&& megflow_run -p logical_test

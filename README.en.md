@@ -16,19 +16,20 @@ Build video analysis service in 15 minutes.
 * Provide one-stop service for construction, testing, debugging, deployment, and visualization
 
 ## HowTo
-* how to build and run
-  * [run with prebuilt .whl](docs/how-to-build-and-run/run-in-15-minutes.zh.md)
-  * [build with docker](docs/how-to-build-and-run/build-with-docker.zh.md)
-  * [build from source](docs/how-to-build-and-run/build-from-source.zh.md)
-  * [build on win10](docs/how-to-build-and-run/build-on-win10.zh.md)
-  * [build  on armv8](docs/how-to-build-and-run/build-on-aarch64.zh.md)
-  * [generate rtsp](docs/how-to-build-and-run/generate-rtsp.zh.md)
+* how to run
+  * [run with prebuilt .whl](docs/02-how-to-run/run-in-15-minutes.zh.md)
+  * [generate RTSP](docs/02-how-to-run/generate-rtsp.zh.md)
+* how to build
+  * [build with docker](docs/01-how-to-build/build-with-docker.zh.md)
+  * [build from source](docs/01-how-to-build/build-from-source.zh.md)
+  * [build with win10 wsl](docs/01-how-to-build/build-on-win10.zh.md)
+  * [build on armv8](docs/01-how-to-build/build-on-aarch64.zh.md)
 * how to use
-  * [tutorial01: quickstart](docs/how-to-add-my-service/01-quickstart.zh.md)
-  * [tutorial02: detect and classify on video stream](docs/how-to-add-my-service/02-det-attr.zh.md)
+  * [tutorial01: quickstart](docs/03-how-to-add-my-service/01-quickstart.zh.md)
+  * [tutorial02: detect and classify on video stream](docs/03-how-to-add-my-service/02-det-attr.zh.md)
 
-  * [tutorial03: batching and pipeline test](docs/how-to-add-my-service/03-batching-and-pipeline-test.zh.md)
-  * [tutorial04: visualization](docs/how-to-add-my-service/04-web-visualization.zh.md)
+  * [tutorial03: batching and pipeline test](docs/03-how-to-add-my-service/03-batching-and-pipeline-test.zh.md)
+  * [tutorial04: visualization](docs/03-how-to-add-my-service/04-web-visualization.zh.md)
 * [how to debug](docs/how-to-debug.zh.md)
 * [how to contribute](docs/how-to-contribute.zh.md)
 * [FAQ](docs/FAQ.zh.md)
@@ -48,8 +49,8 @@ Build video analysis service in 15 minutes.
 | 3.9         | ✔️        |
 
 ## Built-in Applications
-* cat finder
-* electric bicycle detection
+* [cat finder](https://github.com/MegEngine/MegFlow/tree/master/flow-python/examples/cat_finder)
+* [electric bicycle detection](https://github.com/MegEngine/MegFlow/tree/master/flow-python/examples/electric_bicycle)
 
 ## Features
 - Efficient runtime schedule based on [async-std](https://github.com/async-rs/async-std)[features=[tokio1](https://github.com/tokio-rs/tokio)]

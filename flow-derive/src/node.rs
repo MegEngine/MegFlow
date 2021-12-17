@@ -50,28 +50,13 @@ pub fn expand(input: DeriveInput) -> TokenStream {
         if match_last_ty(ty, "Vec") {
             quote_spanned! {ident.span()=>
                 if port_name == concat!('[', stringify!(#ident), ']') {
-                    if tag.is_none() {
-                        if let Some(p) = self.#ident.iter_mut().find(|p| p.is_none()) {
-                            *p = channel.#port_func();
-                        } else {
-                            self.#ident.push(channel.#port_func());
-                        }
-                    } else {
-                        let i = tag.unwrap() as usize;
-                        match self.#ident.len().cmp(&i) {
-                            std::cmp::Ordering::Greater => {
-                                debug_assert!(self.#ident[i].is_none());
-                                self.#ident[i] = channel.#port_func();
-                            }
-                            std::cmp::Ordering::Less => {
-                                self.#ident.resize(i+1, Default::default());
-                                self.#ident[i] = channel.#port_func();
-                            }
-                            std::cmp::Ordering::Equal => {
-                                self.#ident.push(channel.#port_func());
-                            }
-                        }
-                    }
+                    self.#ident.push(channel.#port_func());
+                } else
+            }
+        } else if match_last_ty(ty, "HashMap") {
+            quote_spanned! {ident.span()=>
+                if port_name == concat!('{', stringify!(#ident), '}') {
+                    self.#ident.insert(tag.expect("dict port need a tag"), channel.#port_func());
                 } else
             }
         } else if match_last_ty(ty, "DynPorts") {
@@ -96,7 +81,7 @@ pub fn expand(input: DeriveInput) -> TokenStream {
         }
     }
     fn close_f((_, ident, ty): IterArgs) -> TokenStream {
-        if match_last_ty(ty, "Vec") {
+        if match_last_ty(ty, "Vec") || match_last_ty(ty, "HashMap") {
             quote_spanned! {ident.span()=>
                 self.#ident.clear();
             }
@@ -108,6 +93,12 @@ pub fn expand(input: DeriveInput) -> TokenStream {
         if match_last_ty(ty, "Vec") {
             quote_spanned! {ident.span()=>
                 for chan in &self.#ident {
+                    is_closed = is_closed && chan.is_closed();
+                }
+            }
+        } else if match_last_ty(ty, "HashMap") {
+            quote_spanned! {ident.span()=>
+                for chan in self.#ident.values() {
                     is_closed = is_closed && chan.is_closed();
                 }
             }

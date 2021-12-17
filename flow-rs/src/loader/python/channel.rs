@@ -66,3 +66,21 @@ impl PyReceiver {
         }
     }
 }
+
+pub trait Owned2PyObject {
+    fn into_object(self, py: Python) -> PyResult<PyObject>;
+}
+
+impl Owned2PyObject for std::sync::Arc<Sender> {
+    fn into_object(self, py: Python) -> PyResult<PyObject> {
+        let sender = PySender { imp: self };
+        Ok(PyCell::new(py, sender)?.to_object(py))
+    }
+}
+
+impl Owned2PyObject for std::sync::Arc<Receiver> {
+    fn into_object(self, py: Python) -> PyResult<PyObject> {
+        let receiver = PyReceiver { imp: self };
+        Ok(PyCell::new(py, receiver)?.to_object(py))
+    }
+}

@@ -82,6 +82,7 @@ impl<ID, T> Registry<ID, T>
 where
     ID: Hash + Clone + Eq,
 {
+    #[allow(dead_code)]
     pub(crate) fn keys(&self) -> Vec<ID> {
         let registry = self.inner.read().unwrap();
         registry.elems.keys().cloned().collect()

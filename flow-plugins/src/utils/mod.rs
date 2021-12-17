@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 /**
  * \file flow-plugins/src/utils/mod.rs
  * MegFlow is Licensed under the Apache License, Version 2.0 (the "License")
@@ -8,10 +9,11 @@
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT ARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
+pub mod args_parser;
 pub mod bare_json;
 pub mod codec;
 pub mod either;
 pub mod error;
+pub mod find_lib;
 pub mod image;
-#[allow(dead_code)]
 pub mod multipart;

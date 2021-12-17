@@ -13,14 +13,14 @@ use ffmpeg_next::media::Type;
 use ffmpeg_next::software::scaling::{context::Context, flag::Flags};
 use ffmpeg_next::util::frame::video::Video;
 use flow_rs::prelude::*;
-use numpy::ToPyArray;
-use pyo3::prelude::*;
-use pyo3::types::IntoPyDict;
+
 use std::path::Path;
 use std::sync::Once;
 
 static ONCE_INIT: Once = Once::new();
 
+#[allow(unused_variables)]
+#[allow(unused_labels)]
 pub fn decode_video(
     id: u64,
     path: impl AsRef<Path>,
@@ -63,34 +63,40 @@ pub fn decode_video(
                 let mut bgr_frame = Video::empty();
                 scaler.run(&decoded, &mut bgr_frame)?;
 
-                let ndarray = Python::with_gil(|py| -> PyResult<_> {
-                    let data = bgr_frame.data(0);
-                    let ndarray = data.to_pyarray(py).reshape([
-                        bgr_frame.height() as usize,
-                        bgr_frame.stride(0) / 3,
-                        3,
-                    ])?;
+                #[cfg(feature = "python")]
+                {
+                    use numpy::ToPyArray;
+                    use pyo3::prelude::*;
+                    use pyo3::types::IntoPyDict;
+                    let ndarray = Python::with_gil(|py| -> PyResult<_> {
+                        let data = bgr_frame.data(0);
+                        let ndarray = data.to_pyarray(py).reshape([
+                            bgr_frame.height() as usize,
+                            bgr_frame.stride(0) / 3,
+                            3,
+                        ])?;
 
-                    Ok([("data", ndarray.to_object(py))]
-                        .into_py_dict(py)
-                        .to_object(py))
-                })
-                .unwrap();
+                        Ok([("data", ndarray.to_object(py))]
+                            .into_py_dict(py)
+                            .to_object(py))
+                    })
+                    .unwrap();
 
-                let envelope = Envelope::with_info(
-                    ndarray,
-                    EnvelopeInfo {
-                        from_addr: Some(id),
-                        partial_id: Some(fid),
-                        ..Default::default()
-                    },
-                );
-                let ret = flow_rs::rt::task::block_on(async { sender.send(envelope).await });
-                fid += 1;
-
-                if matches!(ret, Err(_)) {
-                    break 'main;
+                    let envelope = Envelope::with_info(
+                        ndarray,
+                        EnvelopeInfo {
+                            from_addr: Some(id),
+                            partial_id: Some(fid),
+                            ..Default::default()
+                        },
+                    );
+                    let ret = flow_rs::rt::task::block_on(async { sender.send(envelope).await });
+                    if matches!(ret, Err(_)) {
+                        break 'main;
+                    }
                 }
+
+                fid += 1;
             }
         }
     }

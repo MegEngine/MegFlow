@@ -1,3 +1,7 @@
+mod channel;
+mod context;
+mod envelope;
+mod node;
 /**
  * \file flow-rs/src/loader/python/mod.rs
  * MegFlow is Licensed under the Apache License, Version 2.0 (the "License")
@@ -8,10 +12,7 @@
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT ARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-mod channel;
-mod context;
-mod envelope;
-mod node;
+mod port;
 mod unlimited;
 mod utils;
 
@@ -62,8 +63,18 @@ impl Plugin for NodePlugin {
                         Box::new(node::PyNode::new(name, args, &params))
                     }),
                     info: flow_rs::node::NodeInfo {
-                        inputs: self.params.inputs.clone(),
-                        outputs: self.params.outputs.clone(),
+                        inputs: self
+                            .params
+                            .inputs
+                            .iter()
+                            .map(|x| port::port_name(x))
+                            .collect(),
+                        outputs: self
+                            .params
+                            .outputs
+                            .iter()
+                            .map(|x| port::port_name(x))
+                            .collect(),
                     },
                 },
             );

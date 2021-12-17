@@ -13,6 +13,7 @@ use super::protocol::*;
 use crate::{registry::Collect, rt::channel::*};
 use anyhow::{anyhow, Result};
 use futures_util::{SinkExt, StreamExt};
+use std::path::Path;
 use std::sync::atomic::{AtomicBool, Ordering};
 use warp::ws::{Message, WebSocket};
 use warp::Filter;
@@ -123,8 +124,13 @@ pub struct Server {
 }
 
 impl Server {
-    pub fn new(graph: String, port: u16) -> Server {
-        Server { graph, port }
+    pub fn open<P: AsRef<Path>>(path: P, port: u16) -> Result<Server> {
+        let config: crate::config::presentation::Config =
+            crate::config::parser::Parser::from_file(path.as_ref())?;
+        Ok(Server {
+            graph: toml::to_string(&config)?,
+            port,
+        })
     }
     /// listen on 0.0.0.0:`self.port`
     pub async fn listen(self) {

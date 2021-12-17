@@ -9,9 +9,9 @@
  * "AS IS" BASIS, WITHOUT ARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 use anyhow::Result;
-use clap::clap_app;
+use clap::{App, Arg};
 use flow_rs::prelude::*;
-use std::time::Instant;
+use std::{io::Write, time::Instant};
 
 #[inputs(inp)]
 #[outputs(out)]
@@ -44,13 +44,37 @@ node_register!("Transport", Transport);
 
 #[flow_rs::rt::main]
 async fn main() {
-    let matches = clap_app!(graph => 
-        (version: "1.0")
-        (author: "megvii")
-        (@arg NODE_NUM: -n --node [N] "node num")
-        (@arg CONCURRENCY: -c --concurrency [N] "concurrency")
-        (@arg DATA_NUM: -d --data [N] "data num"))
-    .get_matches();
+    let matches = App::new("graph")
+        .version("1.0.0")
+        .author("megengine <megengine@megvii.com>")
+        .arg(
+            Arg::new("DATA_NUM")
+                .long("data")
+                .short('d')
+                .value_name("N")
+                .about("Data number")
+                .multiple_occurrences(false)
+                .required(false),
+        )
+        .arg(
+            Arg::new("CONCURRENCY")
+                .long("concurrency")
+                .short('c')
+                .value_name("N")
+                .about("Concurrency")
+                .multiple_occurrences(false)
+                .required(false),
+        )
+        .arg(
+            Arg::new("NODE_NUM")
+                .long("node")
+                .short('n')
+                .value_name("N")
+                .about("Node number")
+                .multiple_occurrences(false)
+                .required(false),
+        )
+        .get_matches();
     let node_num = matches
         .value_of("NODE_NUM")
         .unwrap_or("1")
@@ -106,7 +130,10 @@ ports = ["trans{}:out", "trans{}:inp"]
     ]
     .join("\n");
 
-    let mut graph = load(None, config.as_str()).unwrap();
+    let mut file = tempfile::NamedTempFile::new().unwrap();
+    file.write_all(config.as_bytes()).unwrap();
+
+    let mut graph = load(None, file.path()).unwrap();
     let input = graph.input("in").unwrap();
     let output = graph.output("out").unwrap();
     let handle = graph.start();

@@ -1,29 +1,32 @@
 [package]
 name = "flow-rs"
-version = "0.1.0"
+version = "0.3.0"
 authors = ["megvii"]
 edition = "2018"
 
+[features]
+python = ["stackful", "numpy", "pyo3"]
+debug = ["warp"]
+
 [dependencies]
 flow-derive = { path="../flow-derive" }
-anyhow = "1.0.38"
+anyhow = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-toml = "0.5.8"
-lazy_static = "1.4.0"
+toml = "0.5"
+lazy_static = "1.4"
 ctor = "0.1"
-pyo3 = "0.14"
-dyn-clone = "1.0.4"
-async-std = { version = "1.9.0", features = ["unstable", "attributes", "tokio1"] }
-stackful = { git = "https://github.com/nbdd0121/stackful.git", rev = "4789e26" }
+pyo3 = { version = "0.15", features = ["abi3"], optional=true }
+dyn-clone = "1.0"
+async-std = { version = "1.9", features = ["unstable", "attributes", "tokio1"] }
+stackful = { git = "https://github.com/nbdd0121/stackful.git", rev = "4789e26", optional=true }
 futures-util = "0.3"
-futures-core = "0.3.15"
-concurrent-queue = "1.2.2"
-event-listener = "2.4.0"
-numpy = "0.14"
-ctrlc = "3.1.9"
-log = "0.4.14"
-oneshot = "0.1.2"
-warp = "0.3"
+futures-core = "0.3"
+concurrent-queue = "1.2"
+event-listener = "2.4"
+numpy = { version = "0.15", optional=true }
+log = "0.4"
+oneshot = "0.1"
+warp = { version = "0.3", optional=true }
 serde_json = "1.0"
 
 [dev-dependencies]
@@ -31,3 +34,5 @@ clap = "3.0.0-beta.2"
 flow-plugins = {path="../flow-plugins"}
 rand = "0.8.4"
 libc = "0.2"
+tempfile = "3.2.0"
+ctrlc = "3.1.9"
