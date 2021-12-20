@@ -11,8 +11,8 @@
 
 import argparse
 import time
-import cv2
 import numpy as np
+import cv2
 import megenginelite as mgelite
 from loguru import logger
 

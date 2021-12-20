@@ -71,7 +71,7 @@ $ python3 lite.py --model model.mge  --path test.jpg  # 测试
 
 ## 生成带预处理的模型
 
-MegEngine 除了不需要转模型，还能消除预处理。我们修改 [dump_resnet.py](https://github.com/MegEngine/MegFlow/blob/master/flow-python/application/examples/misc/dump_resnet.py) 把预处理从 SDK/业务代码提到模型内。这样的好处是：**划清工程和算法的边界**，预处理本来就应该由 scientist 维护，每次只需要 release mge 文件，减少交接内容
+MegEngine 除了不需要转模型，还能消除预处理。我们修改 [dump_resnet.py](https://github.com/MegEngine/MegFlow/blob/master/flow-python/examples/application/misc/dump_resnet.py) 把预处理从 SDK/业务代码提到模型内。这样的好处是：**划清工程和算法的边界**，预处理本来就应该由 scientist 维护，每次只需要 release mge 文件，减少交接内容
 
 ```Python
 ...

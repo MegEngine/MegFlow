@@ -137,7 +137,7 @@ $ curl 'http://127.0.0.1:8085/list'   # list all stream
 
 ### Python Client 方式
 
-[图片 client 代码](https://github.com/MegEngine/MegFlow/blob/master/flow-python/examples/misc/image_client.py)
+[图片 client 代码](https://github.com/MegEngine/MegFlow/blob/master/flow-python/examples/application/misc/image_client.py)
 ```Python
 import requests
 import cv2
@@ -159,7 +159,7 @@ if __name__ == "__main__":
 ```
 
 
-[视频 client 代码](https://github.com/MegEngine/MegFlow/blob/master/flow-python/examples/misc/video_client.py)
+[视频 client 代码](https://github.com/MegEngine/MegFlow/blob/master/flow-python/examples/application/misc/video_client.py)
 
 ```Python
 

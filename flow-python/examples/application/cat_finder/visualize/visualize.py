@@ -12,8 +12,8 @@
 import subprocess
 import time
 
-import numpy as np
 import requests
+import numpy as np
 import cv2
 from loguru import logger
 from megflow import register

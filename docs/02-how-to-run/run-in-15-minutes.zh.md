@@ -85,11 +85,11 @@ $ export LD_LIBRARY_PATH=`conda info --base`/pkgs/python-3.8.11-xxx/lib:${LD_LIB
 
 接下来开始运行好玩的 Python 应用
 
-* [猫猫围栏运行手册](https://github.com/MegEngine/MegFlow/tree/master/flow-python/examples/cat_finder)
+* [猫猫围栏运行手册](https://github.com/MegEngine/MegFlow/tree/master/flow-python/examples/application/cat_finder)
    * 图片注册猫猫
    * 部署视频围栏，注册的猫离开围栏时会发通知
    * 未注册的不会提示
-* [电梯电瓶车告警](https://github.com/MegEngine/MegFlow/tree/master/flow-python/examples/electric_bicycle)
+* [电梯电瓶车告警](https://github.com/MegEngine/MegFlow/tree/master/flow-python/examples/application/electric_bicycle)
    * 电梯里看到电瓶车立即报警
 * [quickstart](../03-how-to-add-my-service/01-quickstart.zh.md)
    *  问答式创建自己的应用

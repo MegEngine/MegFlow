@@ -49,8 +49,8 @@ MegFlow 提供快速视觉应用落地流程，最快 15 分钟搭建起视频�
 | 3.9         | ✔️        |
 
 ## Built-in Applications
-* [猫猫围栏](https://github.com/MegEngine/MegFlow/tree/master/flow-python/examples/cat_finder)
-* [电梯电动车报警](https://github.com/MegEngine/MegFlow/tree/master/flow-python/examples/electric_bicycle)
+* [猫猫围栏](https://github.com/MegEngine/MegFlow/tree/master/flow-python/examples/application/cat_finder)
+* [电梯电动车报警](https://github.com/MegEngine/MegFlow/tree/master/flow-python/examples/application/electric_bicycle)
 
 ## Features
 - 基于 [async-std](https://github.com/async-rs/async-std)[features=[tokio1](https://github.com/tokio-rs/tokio)] 的高效异步运行时调度器
