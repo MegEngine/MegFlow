@@ -12,7 +12,7 @@ sidebar_position: 2
 见 [生成带预处理的模型](appendix-C-dump-model.zh.md)
 
 ## 准备检测模型
-这里直接用现成的 YOLOX mge 模型。复用 [cat_finder 的检测](https://github.com/MegEngine/MegFlow/blob/master/flow-python/examples/cat_finder/det.py) 或者从 [YOLOX 官网](https://github.com/Megvii-BaseDetection/YOLOX/tree/main/demo/MegEngine/python) 下载最新版。
+这里直接用现成的 YOLOX mge 模型。复用 [cat_finder 的检测](https://github.com/MegEngine/MegFlow/blob/master/flow-python/examples/application/cat_finder/det.py) 或者从 [YOLOX 官网](https://github.com/Megvii-BaseDetection/YOLOX/tree/main/demo/MegEngine/python) 下载最新版。
 
 ##  配置计算图
 `flow-python/examples` 增加 `simple_det_classify/video_cpu.toml`

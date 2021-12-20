@@ -8,9 +8,8 @@
 
 #!/usr/bin/env python
 # coding=utf-8
-import cv2
 import requests
-
+import cv2
 
 def test():
     ip = 'localhost'

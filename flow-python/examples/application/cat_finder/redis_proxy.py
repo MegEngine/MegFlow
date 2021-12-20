@@ -12,8 +12,8 @@
 import base64
 import binascii
 import json
-import redis
 import numpy as np
+import redis
 from loguru import logger
 from megflow import register
 

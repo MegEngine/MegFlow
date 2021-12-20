@@ -17,5 +17,4 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: '3.8'
-      - run: python ci/doc_link_checker.py
-      - run: ./ci/run_pylint_check.sh
+      - run: ./ci/run_check.sh

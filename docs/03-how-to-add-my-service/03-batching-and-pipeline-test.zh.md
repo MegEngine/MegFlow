@@ -9,7 +9,7 @@ sidebar_position: 3
 
 ## 分类模型支持动态 batch
 
-resnet 的 dump 需要支持多 batch 输入，样例 [dump_resnet.py](https://github.com/MegEngine/MegFlow/blob/master/flow-python/examples/misc/dump_resnet.py)
+resnet 的 dump 需要支持多 batch 输入，样例 [dump_resnet.py](https://github.com/MegEngine/MegFlow/blob/master/flow-python/examples/application/misc/dump_resnet.py)
 
 ## 分类用 batch_recv 接口
 
@@ -45,7 +45,7 @@ types = self._model.inference_batch(data)
 MegFlow 支持直接输入图片集/视频列表做测试，不需要 http 服务。使用方自行实现 Validation 结点，集成进 CI 做正确性/性能测试。
 
 ### 图片集测试
-以 [simple_classification image_test](https://github.com/MegEngine/MegFlow/blob/master/flow-python/examples/simple_classification/image_test.toml) 为例
+以 [simple_classification image_test](https://github.com/MegEngine/MegFlow/blob/master/flow-python/examples/application/simple_classification/image_test.toml) 为例
 ```bash
 ...
     [[graphs.nodes]]
@@ -62,7 +62,7 @@ $ megflow_run -c simple_classification/image_test.toml  -p simple_classification
 ```
 
 ### 视频列表测试
-以 [simple_det_classify video_test](https://github.com/MegEngine/MegFlow/blob/master/flow-python/examples/simple_det_classify/video_test.toml) 为例：
+以 [simple_det_classify video_test](https://github.com/MegEngine/MegFlow/blob/master/flow-python/examples/application/simple_det_classify/video_test.toml) 为例：
 ```bash
 ...
     [[graphs.nodes]]
