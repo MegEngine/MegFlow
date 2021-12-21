@@ -23,5 +23,7 @@ class Detect:
         if envelope is None:
             return
 
+        data = envelope.msg['data']
+        print(data)
         print('Detect')
         self.out.send(envelope)

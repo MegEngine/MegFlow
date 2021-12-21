@@ -29,10 +29,8 @@ connections = [
 
     [[graphs.nodes]]
     name = "source"
-    ty = "ImageServer"
+    ty = "BytesServer"
     port = 8080
-    # uncomment this line to return json string
-    # response = "json" 
     
     [[graphs.nodes]]
     name = "destination"
