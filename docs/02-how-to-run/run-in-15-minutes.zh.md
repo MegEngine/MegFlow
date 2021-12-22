@@ -1,8 +1,3 @@
----
-id: run-with-whl
-sidebar_position: 1
----
-
 # Run in 15 minutes
 
 ## 安装 python3.x （推荐 conda）

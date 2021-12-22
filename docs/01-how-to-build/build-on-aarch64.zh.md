@@ -1,8 +1,3 @@
----
-id: build-on-aarch64
-sidebar_position: 4
----
-
 # aarch64 源码编译
 
 aarch64 源码编译方式和 [源码编译](build-from-source.zh.md) 相同，此处只说明差异。

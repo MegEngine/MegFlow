@@ -1,8 +1,3 @@
----
-id: det-attr
-sidebar_position: 2
----
-
 # 串联检测和分类
 
 本文将在 [tutorial01](01-quickstart.zh.md) modelserving 的基础上扩展计算图：先检测、再扣图分类。对外提供视频解析服务。完整的代码在 flow-python/examples/simple_det_classify 目录。

@@ -1,8 +1,3 @@
----
-id: faq
-sidebar_position: 9
----
-
 # FAQ
 
 Q：`megflow_run -p logical_test ` 无法运行怎么办？
