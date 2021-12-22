@@ -13,12 +13,13 @@ Welcome to MegFlow's documentation!
   :caption: how to build and run
   :name: sec-introduction
 
-  how-to-build-and-run/run-in-15-minutes.zh
-  how-to-build-and-run/build-with-docker.zh
-  how-to-build-and-run/build-from-source.zh
-  how-to-build-and-run/build-on-win10.zh
-  how-to-build-and-run/build-on-aarch64.zh
-  how-to-build-and-run/generate-rtsp.zh
+  01-how-to-build/build-with-docker.zh
+  01-how-to-build/build-from-source.zh
+  01-how-to-build/build-on-aarch64.zh
+  01-how-to-build/build-on-win10.zh
+  01-how-to-build/appendix-A-build-options.zh
+  02-how-to-run/generate-rtsp.zh
+  02-how-to-run/run-in-15-minutes.zh
   download-models.zh
 
 .. toctree::
@@ -31,12 +32,13 @@ Welcome to MegFlow's documentation!
   :caption: how to use
   :name: sec-how-to-use
 
-  how-to-add-my-service/01-single-classification-model.zh
-  how-to-add-my-service/02-single-det-classify.zh
-  how-to-add-my-service/03-batching-and-pipeline-test.zh
-  how-to-add-my-service/04-web-visualization.zh
-  how-to-add-my-service/appendix-A-graph-definition.zh
-  how-to-add-my-service/appendix-B-python-plugin.zh
+  03-how-to-add-my-service/01-quickstart.zh
+  03-how-to-add-my-service/02-det-attr.zh
+  03-how-to-add-my-service/03-batching-and-pipeline-test.zh
+  03-how-to-add-my-service/04-web-visualization.zh
+  03-how-to-add-my-service/appendix-A-graph-definition.zh
+  03-how-to-add-my-service/appendix-B-python-plugin.zh
+  03-how-to-add-my-service/appendix-C-dump-model.zh
 
 .. toctree::
   :maxdepth: 1
@@ -46,3 +48,4 @@ Welcome to MegFlow's documentation!
   how-to-debug.zh
   how-to-contribute.zh
   how-to-pack-python-whl.zh
+
