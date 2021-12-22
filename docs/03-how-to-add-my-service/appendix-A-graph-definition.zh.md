@@ -1,8 +1,3 @@
----
-id: appendix-A-graph-definition
-sidebar_position: 5
----
-
 # Config
 
 MegFlow 的建图描述文件使用 [toml](https://toml.io/en/)   格式。toml 注重人类可读性，学习难度约等于 markdown，看完下面 2 个例子大约就会写了。

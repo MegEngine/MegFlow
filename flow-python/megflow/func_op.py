@@ -103,7 +103,7 @@ def source_def(self, func):
 @_common_def(inputs=["inp"], outputs=["out"])
 def batch_def(self, func):
     (envelopes, is_closed) = self.inp.batch_recv(self.context.batch_size, self.context.timeout)
-    if is_closed or len(envelopes) == 0:
+    if len(envelopes) == 0:
         return
 
     func([envelope.msg for envelope in envelopes])

@@ -1,8 +1,3 @@
----
-id: appendix-A-graph-definition
-sidebar_position: 7
----
-
 # 生成 MegEngine 模型
 
 ## 生成不带预处理的模型

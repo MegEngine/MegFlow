@@ -1,8 +1,3 @@
----
-id: appendix-B-python-plugin
-sidebar_position: 6
----
-
 # Python Plugins
 
 从一个最简单的例子开始

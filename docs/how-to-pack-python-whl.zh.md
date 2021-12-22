@@ -1,8 +1,3 @@
----
-id: how-to-pack-whl
-sidebar_position: 7
----
-
 # 打包成 Python .whl
 
 ## 作用

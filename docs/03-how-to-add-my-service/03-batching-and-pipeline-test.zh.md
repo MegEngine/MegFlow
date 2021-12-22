@@ -1,8 +1,3 @@
----
-id: batching-and-pipeline-test
-sidebar_position: 3
----
-
 # 批量推理和 Pipeline 级测试
 
 本文将在 [tutorial02](02-det-attr.zh.md) 的基础上扩展功能：动态 batching 测试 QPS 提升。

@@ -1,8 +1,3 @@
----
-id: build-with-docker
-sidebar_position: 1
----
-
 # Building with docker
 
 docker build 方式能够“可复现地”生成运行环境、减少依赖缺失的痛苦

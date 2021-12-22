@@ -1,8 +1,3 @@
----
-id: build-options
-sidebar_position: 5
----
-
 # Build options
 
 | option | function |

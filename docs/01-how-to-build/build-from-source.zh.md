@@ -1,8 +1,3 @@
----
-id: build-from-source
-sidebar_position: 2
----
-
 # Building from Source
 
 ## 一、安装依赖

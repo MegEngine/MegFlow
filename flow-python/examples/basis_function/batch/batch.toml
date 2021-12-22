@@ -15,11 +15,11 @@ ty = "Printer"
 [[graphs.nodes]]
 name = "gen"
 ty = "Gen"
-n = 20
+n = 23
 
 [[graphs.nodes]]
 name = "group"
 ty = "Group"
 id = 0
 batch_size = 5
-timeout = 200
+timeout = 2000

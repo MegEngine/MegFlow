@@ -1,8 +1,3 @@
----
-id: build-on-win10
-sidebar_position: 3
----
-
 # Build on win10
 
 ## 下载模型包

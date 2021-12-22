@@ -1,8 +1,3 @@
----
-id: how-to-debug
-sidebar_position: 6
----
-
 # 如何 Debug 常见问题
 
 一、`megflow_run` 无法启动服务，直接 core dump 报错退出

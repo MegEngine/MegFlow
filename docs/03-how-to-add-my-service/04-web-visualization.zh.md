@@ -1,8 +1,3 @@
----
-id: web-visualization
-sidebar_position: 4
----
-
 # 视频结果 Web 可视化
 
 ## 依赖

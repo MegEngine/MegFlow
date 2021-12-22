@@ -1,8 +1,3 @@
----
-id: gen-rtsp
-sidebar_position: 4
----
-
 # 创建 rtsp 流地址
 
 ## 视频解析概要
