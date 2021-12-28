@@ -1,0 +1,14 @@
+main = "bytes"
+
+[[graphs]]
+name = "bytes"
+connections = [{ cap=16, ports=["server:inp", "server:out"] }]
+
+    # ImageServer: 
+    # @inp: input port, message format: JSON string (python) if response format is json
+    #                                   dict { 'data': <numpy> } (pyobject) if response is image
+    # @out: output port, message format: dict { 'data': <numpy>, 'extra_data': <String> } (pyobject)
+    [[graphs.nodes]]
+    name = "server"
+    ty = "BytesServer"
+    port = 3030 # int, the port on which server will listen

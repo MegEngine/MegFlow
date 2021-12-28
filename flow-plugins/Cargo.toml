@@ -15,6 +15,7 @@ git = "https://github.com/tpoisonooo/rust-ffmpeg"
 branch = "dylib"
 
 [dependencies]
+bytes = "1.1.0"
 flow-rs = { path = "../flow-rs", default-features = false }
 toml = "0.5"
 futures-util = "0.3"

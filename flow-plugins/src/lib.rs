@@ -12,6 +12,7 @@ mod utils;
 #[cfg(feature = "python")]
 #[path = "./"]
 mod python {
+    mod bytes_server;
     mod image_input;
     mod image_server;
     mod video_input;
