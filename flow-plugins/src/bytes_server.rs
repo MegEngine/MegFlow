@@ -8,7 +8,7 @@
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT ARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-use crate::utils::bare_json::BareJson;
+use crate::utils::bytes::Bytes as RwebBytes;
 use crate::utils::error::reject_cause;
 use anyhow::Result;
 use bytes::Bytes;
@@ -17,7 +17,7 @@ use flow_rs::rt::sync::Mutex;
 use futures_util::join;
 use numpy::ToPyArray;
 use pyo3::prelude::*;
-use pyo3::types::IntoPyDict;
+use pyo3::types::{IntoPyDict, PyDict};
 use rweb::*;
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -66,9 +66,12 @@ async fn analyze(#[data] state: State, #[body] body: Bytes) -> Result<impl Reply
         r
     };
     let message = r.await.map_err(reject_cause)?;
-    Python::with_gil(|py| message.extract::<String>(py))
-        .map_err(reject_cause)
-        .map(BareJson::new)
+    Python::with_gil(|py| -> PyResult<_> {
+        let dict: &PyDict = message.extract(py)?;
+        flow_rs::helper::uget_slice(py, dict.get_item("data").expect("error key<data>"))
+    })
+    .map_err(reject_cause)
+    .map(|data| RwebBytes::new(&(data.to_vec())))
 }
 
 impl BytesServer {

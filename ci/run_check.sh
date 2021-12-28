@@ -10,4 +10,4 @@ CHECK_DIR+=" flow-python/examples/application/misc"
 
 pylint $CHECK_DIR 
 
-python ci/doc_link_checker.py --http True
+python ci/doc_link_checker.py

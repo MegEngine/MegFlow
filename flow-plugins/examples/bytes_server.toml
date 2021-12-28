@@ -4,10 +4,9 @@ main = "bytes"
 name = "bytes"
 connections = [{ cap=16, ports=["server:inp", "server:out"] }]
 
-    # ImageServer: 
-    # @inp: input port, message format: JSON string (python) if response format is json
-    #                                   dict { 'data': <numpy> } (pyobject) if response is image
-    # @out: output port, message format: dict { 'data': <numpy>, 'extra_data': <String> } (pyobject)
+    # BytesServer: 
+    # @inp: input port, message format: dict { 'data': <numpy> } (pyobject)
+    # @out: output port, message format: dict { 'data': <numpy> } (pyobject)
     [[graphs.nodes]]
     name = "server"
     ty = "BytesServer"
