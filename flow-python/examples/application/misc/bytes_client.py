@@ -1,0 +1,25 @@
+# MegFlow is Licensed under the Apache License, Version 2.0 (the "License")
+#
+# Copyright (c) 2019-2021 Megvii Inc. All rights reserved.
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT ARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+#!/usr/bin/env python
+# coding=utf-8
+import requests
+
+def test():
+    ip = 'localhost'
+    port = '8080'
+    url = f'http://{ip}:{port}/analyze/bytes'
+    data = b'abcde'
+
+    headers = {'Content-Length': f'{len(data)}', 'Content-Type': '*/*'}
+    res = requests.post(url, data=data, headers=headers)
+    print(res.content)
+
+
+if __name__ == "__main__":
+    test()

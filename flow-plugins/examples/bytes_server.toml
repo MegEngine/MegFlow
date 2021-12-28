@@ -1,0 +1,13 @@
+main = "bytes"
+
+[[graphs]]
+name = "bytes"
+connections = [{ cap=16, ports=["server:inp", "server:out"] }]
+
+    # BytesServer: 
+    # @inp: input port, message format: dict { 'data': <numpy> } (pyobject)
+    # @out: output port, message format: dict { 'data': <numpy> } (pyobject)
+    [[graphs.nodes]]
+    name = "server"
+    ty = "BytesServer"
+    port = 3030 # int, the port on which server will listen

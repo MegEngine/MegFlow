@@ -923,6 +923,7 @@ name = "flow-plugins"
 version = "0.3.0"
 dependencies = [
  "anyhow",
+ "bytes",
  "ffmpeg-next",
  "flow-rs",
  "futures-util",

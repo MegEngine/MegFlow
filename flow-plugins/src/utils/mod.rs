@@ -11,6 +11,7 @@
  */
 pub mod args_parser;
 pub mod bare_json;
+pub mod bytes;
 pub mod codec;
 pub mod either;
 pub mod error;
