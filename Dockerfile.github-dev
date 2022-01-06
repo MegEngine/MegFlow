@@ -28,15 +28,13 @@ WORKDIR $HOME/megflow-runspace
 RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 RUN bash Miniconda3-latest-Linux-x86_64.sh -b -p /conda && rm Miniconda3-latest-Linux-x86_64.sh
 ENV PATH $PATH:/conda/bin
-RUN bash -c "conda create --name py3.8 python=3.8"
 RUN echo "PATH=${PATH}" >> ~/.bashrc
 RUN conda init
 
 COPY . $HOME/megflow-runspace/
 
 # python install
-RUN eval "$(conda shell.bash hook)" && conda activate py3.8 \
-	&& cd flow-python && python3 setup.py install --user \
-	&& export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/conda/envs/py3.8/lib \
-	&& cd examples \
+RUN cd flow-python && python3 setup.py install --user
+
+RUN export PATH=/root/.local/bin:${PATH} && cd flow-python/examples \
 	&& megflow_run -p logical_test

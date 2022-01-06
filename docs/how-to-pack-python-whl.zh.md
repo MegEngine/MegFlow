@@ -13,7 +13,7 @@ $ # 构造开发环境，安装依赖。已执行过 docker 编译可以跳过�
 $ docker build -t megflow -f Dockerfile.github-dev .
 $ # 创建结果目录
 $ mkdir dist
-$ # docker 打包  3.6~3.9 版本 whl
+$ # docker 打包  whl
 $ # https://stackoverflow.com/questions/33377022/how-to-copy-files-from-dockerfile-to-host
 $ DOCKER_BUILDKIT=1 docker build -f Dockerfile.github-release --output dist .
 ```

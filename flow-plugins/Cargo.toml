@@ -14,7 +14,7 @@ open-camera = ["ffmpeg-next/open-camera", "default"]
 
 [dependencies.ffmpeg-next]
 git = "https://github.com/tpoisonooo/rust-ffmpeg"
-rev = "f80c21fd"
+branch = "master"
 optional = true
 
 [dependencies]
