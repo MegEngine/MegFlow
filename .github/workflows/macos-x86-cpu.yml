@@ -24,11 +24,12 @@ jobs:
         with:
           python-version: '3.8'
           architecture: 'x64'
-      - run: cd $HOME && git clone https://github.com/tpoisonooo/rust-ffmpeg && cd rust-ffmpeg && git checkout dylib && cargo build
+      - run: cd $HOME && git clone https://github.com/tpoisonooo/rust-ffmpeg && cd rust-ffmpeg && cargo build
       - run: cat ${HOME}/megflow_ffmpeg_dynamic_link.sh
       - run: ls -alh `cat ${HOME}/megflow_ffmpeg_dynamic_link.sh | head -n 1`/lib/
       - run: echo 'export FFMPEG_DIR=`cat ${HOME}/megflow_ffmpeg_dynamic_link.sh | head -n 1`' >> $HOME/myenv
       - run: echo 'export CARGO_FEATURE_PREBUILD="PREBUILD"' >> $HOME/myenv
+      - run: echo 'export CARGO_FEATURE_DYNAMIC="DYNAMIC"' >> $HOME/myenv
       - run: echo 'export LD_LIBRARY_PATH=${FFMPEG_DIR}/lib:${LD_LIBRARY_PATH}' >> $HOME/myenv
       - run: echo 'export PKG_CONFIG_PATH=${FFMPEG_DIR}/lib/pkgconfig:${PKG_CONFIG_PATH}' >> $HOME/myenv
       - run: chmod +x $HOME/myenv
