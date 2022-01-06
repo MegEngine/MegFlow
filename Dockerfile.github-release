@@ -1,4 +1,4 @@
-FROM megflow-khj-devel:latest as stage
+FROM megflow:latest as stage
 
 # prebuild rust-ffmpeg
 RUN cd / && git clone https://github.com/tpoisonooo/rust-ffmpeg && cd rust-ffmpeg && cargo build --release
