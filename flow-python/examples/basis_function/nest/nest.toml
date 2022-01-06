@@ -1,0 +1,62 @@
+main = "nest"
+
+[[graphs]]
+name = "noop"
+inputs = [{name="inp", cap=16, ports=["noop:inp"]}]
+outputs = [{name="out", cap=16, ports=["noop:out"]}]
+
+[[graphs.nodes]]
+name = "noop"
+ty = "Noop"
+
+[[graphs]]
+name = "ppl"
+inputs = [{name="inp", cap=16, ports=["n1:inp"]}]
+outputs = [{name="out", cap=16, ports=["n5:out"]}]
+connections = [
+    { cap = 16, ports = ["n1:out", "n2:inp"] },
+    { cap = 16, ports = ["n2:out", "n3:inp"] },
+    { cap = 16, ports = ["n3:out", "n4:inp"] },
+    { cap = 16, ports = ["n4:out", "n5:inp"] },
+]
+
+[[graphs.nodes]]
+name = "n1"
+ty = "noop"
+
+[[graphs.nodes]]
+name = "n2"
+ty = "noop"
+
+[[graphs.nodes]]
+name = "n3"
+ty = "noop"
+
+[[graphs.nodes]]
+name = "n4"
+ty = "noop"
+
+[[graphs.nodes]]
+name = "n5"
+ty = "noop"
+
+[[graphs]]
+name = "nest"
+
+connections = [
+    { cap = 16, ports = ["gen:out", "n:inp"] },
+    { cap = 16, ports = ["n:out", "printer:inp"] },
+]
+
+[[graphs.nodes]]
+name = "gen"
+ty = "Gen"
+n = 100
+
+[[graphs.nodes]]
+name = "printer"
+ty = "Printer"
+
+[[graphs.nodes]]
+name = "n"
+ty = "ppl"
