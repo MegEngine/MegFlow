@@ -37,6 +37,7 @@ def _common_def(inputs=[], outputs=[]):
                 class Node:
                     def __init__(self, name, args):
                         self.context = Context(**args)
+                        self.name = name
                         if with_context:
                             self.impl = partial(func, context = self.context) 
                         else:

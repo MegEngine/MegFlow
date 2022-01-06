@@ -8,11 +8,9 @@
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT ARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
-use crate::broker::BrokerClient;
 use crate::prelude::*;
 use crate::registry::Collect;
 use crate::rt::task::JoinHandle;
-use futures_util::{pin_mut, select, FutureExt};
 
 impl Node for Graph {
     fn set_port(&mut self, port_name: &str, tag: Option<u64>, channel: &ChannelStorage) {
@@ -50,7 +48,7 @@ impl Node for Graph {
         }
     }
 
-    fn set_port_dynamic(&mut self, _: u64, _: &str, _: String, _: usize, _: Vec<BrokerClient>) {
+    fn set_port_dynamic(&mut self, _: &str, _: crate::node::DynPortsConfig) {
         unimplemented!()
     }
 
@@ -72,22 +70,9 @@ impl Node for Graph {
 impl Actor for Graph {
     fn start(
         mut self: Box<Self>,
-        context: Context,
+        _: Context,
         resource: ResourceCollection,
-    ) -> JoinHandle<()> {
-        flow_rs::rt::task::spawn(async move {
-            let wait_ctx = context.wait().fuse();
-            let wait_graph = self.as_mut().start(Some(resource)).fuse();
-            pin_mut!(wait_ctx, wait_graph);
-            loop {
-                select! {
-                    _ = wait_ctx => {
-                        self.close()
-                    }
-                    _ = wait_graph => context.close(),
-                    complete => break,
-                }
-            }
-        })
+    ) -> JoinHandle<anyhow::Result<()>> {
+        self.as_mut().start(Some(resource))
     }
 }

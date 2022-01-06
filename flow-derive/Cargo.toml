@@ -1,6 +1,6 @@
 [package]
 name = "flow-derive"
-version = "0.3.0"
+version = "0.3.2"
 authors = ["megvii"]
 edition = "2018"
 

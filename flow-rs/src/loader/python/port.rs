@@ -31,7 +31,7 @@ impl<T> AnyPort<T> {
 
 impl<T> AnyPort<T>
 where
-    T: Owned2PyObject + Clone,
+    T: Owned2PyObject + Clone + Default,
 {
     fn to_list(&self, py: Python) -> PyResult<PyObject> {
         use pyo3::types::PyList;
@@ -50,7 +50,7 @@ where
             .next()
             .cloned()
             .map(|x| x.into_object(py))
-            .ok_or_else(ty_err)?
+            .unwrap_or_else(|| T::default().into_object(py))
     }
 
     fn to_dict(&self, py: Python) -> PyResult<PyObject> {
@@ -67,7 +67,7 @@ where
 
 impl<T> ToPyObject for AnyPort<T>
 where
-    T: Owned2PyObject + Clone,
+    T: Owned2PyObject + Clone + Default,
 {
     fn to_object(&self, py: Python) -> PyObject {
         match self.ty {
@@ -115,8 +115,4 @@ pub(super) fn port_name(s: &str) -> String {
             }
         })
         .unwrap_or_else(|| name.to_owned())
-}
-
-fn ty_err() -> PyErr {
-    pyo3::exceptions::PyTypeError::new_err("port type not match")
 }

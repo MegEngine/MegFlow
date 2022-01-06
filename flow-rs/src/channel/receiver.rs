@@ -71,16 +71,26 @@ impl Receiver {
         }
     }
     pub fn len(&self) -> usize {
-        let imp = self.imp.as_ref().expect("not init");
-        imp.len()
+        if let Some(imp) = self.imp.as_ref() {
+            imp.len()
+        } else {
+            0
+        }
     }
     pub fn is_empty(&self) -> bool {
-        let imp = self.imp.as_ref().expect("not init");
-        imp.is_empty()
+        if let Some(imp) = self.imp.as_ref() {
+            imp.is_empty()
+        } else {
+            true
+        }
     }
     #[doc(hidden)]
     pub fn empty_n(&self) -> usize {
         self.m_epoch.load(Ordering::Relaxed)
+    }
+    /// Drop self, and closes the channel if there are no receivers left.
+    pub fn abort(&mut self) {
+        self.imp.take();
     }
     /// Receives a envelope from the channel.
     ///
@@ -109,7 +119,7 @@ impl Receiver {
             self.m_epoch.fetch_add(1, Ordering::Relaxed);
             return Err(RecvError {});
         }
-        let imp = self.imp.as_ref().expect("not init");
+        let imp = self.imp.as_ref().ok_or(RecvError {})?;
         let envelope = imp.recv().await.map_err(|e| {
             self.is_closed.store(true, Ordering::Relaxed);
             e
@@ -163,6 +173,9 @@ impl Receiver {
         n: usize,
         dur: Duration,
     ) -> Result<Vec<SealedEnvelope>, BatchRecvError<SealedEnvelope>> {
+        if n == 0 {
+            return Ok(vec![]);
+        }
         let mut wait_recv = FuturesUnordered::new();
         wait_recv.push(self.recv_any());
         let timeout = crate::rt::task::sleep(dur).fuse();

@@ -10,11 +10,20 @@
  * "AS IS" BASIS, WITHOUT ARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 pub mod args_parser;
+#[cfg(feature = "external")]
 pub mod bare_json;
+#[cfg(feature = "external")]
 pub mod bytes;
+#[cfg(feature = "external")]
 pub mod codec;
+#[cfg(feature = "external")]
 pub mod either;
+#[cfg(feature = "external")]
 pub mod error;
 pub mod find_lib;
+#[cfg(feature = "internal")]
+pub mod frame;
+#[cfg(feature = "external")]
 pub mod image;
+#[cfg(feature = "external")]
 pub mod multipart;

@@ -15,13 +15,13 @@ use pyo3::prelude::*;
 use stackful::wait;
 use std::{sync::Arc, time::Duration};
 
-#[pyclass]
-pub(crate) struct PySender {
+#[pyclass(unsendable)]
+pub struct PySender {
     pub imp: Arc<Sender>,
 }
 
-#[pyclass]
-pub(crate) struct PyReceiver {
+#[pyclass(unsendable)]
+pub struct PyReceiver {
     pub imp: Arc<Receiver>,
 }
 

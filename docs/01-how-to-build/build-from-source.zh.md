@@ -43,44 +43,20 @@ $ conda create --name py38 python=3.8
 $ conda activate py38
 ```
 
+### 安装基础依赖库
+
+megflow的构建需要一些基础依赖库, 下面以ubuntu系统为例:
+```bash
+$ sudo apt update
+$ sudo apt install -y wget yasm clang git build-essential
+$ sudo apt install -y libssl-dev
+$ sudo apt install -y pkg-config --fix-missing
+```
+
 
 ## 二、编译
 
-**安装依赖**
-
-megflow_run 内置 VideoServer 需要 ffmpeg 解码；megflow_quickstart 需要 OpenSSL 拉取模板。
-
-```bash
-$ sudo apt install yasm git build-essential ffmpeg
-$ sudo apt install -y libssl-dev
-$ sudo apt update && apt-get install -y pkg-config --fix-missing
-
-$ ffmpeg 
-ffmpeg version 3.4.8...
-$ sudo apt install clang
-$ clang --version
-clang version 6.0.0-1ubuntu2...
-```
-
-**编译 rust-ffmpeg 动态库**
-
-因为 ffmpeg 使用 LGPL 协议，而 MegFlow 遵循 Apache 协议，需要以 .so 方式分离二者，详见 [ffmpeg License Compliance Checklist
-](https://ffmpeg.org/legal.html)。
-
-```bash
-$ git clone https://github.com/tpoisonooo/rust-ffmpeg && cd rust-ffmpeg && git checkout dylib && cargo build --release
-$ echo "export FFMPEG_DIR=`cat ${HOME}/megflow_ffmpeg_dynamic_link.sh  | head -n 1`" >> ~/myenv \
-	&& echo 'export LD_LIBRARY_PATH=${FFMPEG_DIR}/lib:${LD_LIBRARY_PATH}' >> ~/myenv \
-	&& echo 'export PKG_CONFIG_PATH=${FFMPEG_DIR}/lib/pkgconfig:${PKG_CONFIG_PATH}' >> ~/myenv \
-	&& echo 'export CARGO_FEATURE_PREBUILD="PREBUILD" ' >> ~/myenv \
-	&& chmod a+x ~/myenv
-$ ./myenv # 设置环境变量
-```
-`rust-ffmpeg` 编译结束后，会在 `$HOME` 下生成文件，记录 lib 和头文件存放路径。
-
-**编译 Python MegFlow**
-
-编译底层 Rust 组件，安装 Python module 
+编译并安装Python包到当前用户下
 
 ```bash
 $ git clone --recursive https://github.com/MegEngine/MegFlow --depth=1

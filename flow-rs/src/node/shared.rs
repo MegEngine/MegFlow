@@ -30,7 +30,7 @@ struct Shared {
     outputs: HashMap<String, Receiver>,
 }
 
-pub struct SharedHandle(pub rt::task::JoinHandle<()>);
+pub struct SharedHandle(pub rt::task::JoinHandle<Result<()>>);
 // is safe because we visit it only in single thread
 unsafe impl Sync for SharedHandle {}
 crate::collect!(String, SharedHandle);
@@ -119,14 +119,7 @@ impl Node for Shared {
         unimplemented!()
     }
 
-    fn set_port_dynamic(
-        &mut self,
-        _local_key: u64,
-        _port_name: &str,
-        _target: String,
-        _cap: usize,
-        _brokers: Vec<BrokerClient>,
-    ) {
+    fn set_port_dynamic(&mut self, _: &str, _: crate::node::DynPortsConfig) {
         unimplemented!()
     }
 
@@ -144,7 +137,7 @@ impl Actor for Shared {
         mut self: Box<Self>,
         ctx: Context,
         resources: ResourceCollection,
-    ) -> rt::task::JoinHandle<()> {
+    ) -> rt::task::JoinHandle<Result<()>> {
         let (s1, r1) = unbounded::<u64>();
         let mut s2s = vec![];
         let mut r2s = vec![];
@@ -245,7 +238,8 @@ impl Actor for Shared {
         }
 
         crate::rt::task::spawn(async move {
-            futures_util::future::join_all(handles).await;
+            futures_util::future::try_join_all(handles).await?;
+            Ok(())
         })
     }
 }

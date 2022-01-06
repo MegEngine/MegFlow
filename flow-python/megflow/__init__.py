@@ -10,3 +10,4 @@
 # coding=utf-8
 
 from .registry import register, collect, res_register
+from .megflow import *

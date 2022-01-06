@@ -12,10 +12,15 @@ mod utils;
 #[cfg(feature = "python")]
 #[path = "./"]
 mod python {
+    #[cfg(feature = "default")]
     mod bytes_server;
+    #[cfg(feature = "default")]
     mod image_input;
+    #[cfg(feature = "default")]
     mod image_server;
+    #[cfg(feature = "default")]
     mod video_input;
+    #[cfg(feature = "default")]
     mod video_server;
 
     pub(super) fn export() {

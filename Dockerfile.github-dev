@@ -20,14 +20,6 @@ ENV PATH $PATH:/cargo/bin
 RUN chmod -R 777 /cargo /rustup
 COPY ci/cargo-config.github /cargo/config
 
-# prebuild rust-ffmpeg
-RUN git clone https://github.com/tpoisonooo/rust-ffmpeg && cd rust-ffmpeg && git checkout dylib && cargo build --release
-RUN echo "export FFMPEG_DIR=`cat ${HOME}/megflow_ffmpeg_dynamic_link.sh  | head -n 1`" >> /root/myenv \
-	&& echo 'export LD_LIBRARY_PATH=${FFMPEG_DIR}/lib:${LD_LIBRARY_PATH}' >> /root/myenv \
-	&& echo 'export PKG_CONFIG_PATH=${FFMPEG_DIR}/lib/pkgconfig:${PKG_CONFIG_PATH}' >> /root/myenv \
-	&& echo 'export CARGO_FEATURE_PREBUILD="PREBUILD" ' >> /root/myenv \
-	&& chmod a+x /root/myenv
-
 # copy workspace
 RUN mkdir -p $HOME/megflow-runspace
 WORKDIR $HOME/megflow-runspace
@@ -43,7 +35,7 @@ RUN conda init
 COPY . $HOME/megflow-runspace/
 
 # python install
-RUN eval "$(conda shell.bash hook)" && conda activate py3.8 &&  . /root/myenv \
+RUN eval "$(conda shell.bash hook)" && conda activate py3.8 \
 	&& cd flow-python && python3 setup.py install --user \
 	&& export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/conda/envs/py3.8/lib \
 	&& cd examples \

@@ -40,7 +40,7 @@ pub mod prelude {
     pub use super::node::*;
     pub use super::registry::*;
     pub use super::resource::*;
-    pub use super::{load, load_single_graph};
+    pub use super::Builder;
     /// Re-exports async_std as rt
     pub use async_std as rt;
     pub use flow_derive::*;
@@ -59,27 +59,61 @@ use prelude::MainGraph;
 use registry::Collect;
 use std::path::Path;
 
-/// A function to load graph with config
-pub fn load<P: AsRef<Path>>(
-    option: Option<loader::LoaderConfig>,
-    config: P,
-) -> Result<graph::MainGraph> {
-    load_impl(option, config::parser::Parser::from_file(config.as_ref())?)
+/// A builder to load graph with config
+pub struct Builder {
+    local_key: u64,
+    template: String,
+    dynamic: String,
 }
-/// A convenient function to load single graph
-pub fn load_single_graph<P: AsRef<Path>>(
-    option: Option<loader::LoaderConfig>,
-    config: P,
-) -> Result<graph::MainGraph> {
-    let config: config::presentation::Graph = config::parser::Parser::from_file(config.as_ref())?;
-    let config = config::presentation::Config {
-        include: vec![],
-        main: config.name.clone(),
-        graphs: vec![config],
-        nodes: vec![],
-        resources: vec![],
-    };
-    load_impl(option, config)
+
+impl Default for Builder {
+    fn default() -> Self {
+        Builder::new()
+    }
+}
+
+impl Builder {
+    pub fn new() -> Self {
+        let local_key = LOCAL_KEY.fetch_add(1, Ordering::Relaxed);
+        registry::initialize(local_key);
+        Builder {
+            local_key,
+            template: Default::default(),
+            dynamic: Default::default(),
+        }
+    }
+
+    pub fn load_plugins(self, cfg: loader::LoaderConfig) -> Self {
+        loader::load(self.local_key, &cfg).unwrap();
+        self
+    }
+
+    pub fn template_file<P: AsRef<Path>>(mut self, path: P) -> Result<Self> {
+        self.template = std::fs::read_to_string(path.as_ref())?;
+        Ok(self)
+    }
+
+    pub fn dynamic_file<P: AsRef<Path>>(mut self, path: P) -> Result<Self> {
+        self.dynamic = std::fs::read_to_string(path.as_ref())?;
+        Ok(self)
+    }
+
+    pub fn template(mut self, template: String) -> Self {
+        self.template = template;
+        self
+    }
+
+    pub fn dynamic(mut self, dynamic: String) -> Self {
+        self.dynamic = dynamic;
+        self
+    }
+
+    pub fn build(self) -> Result<MainGraph> {
+        load_impl(
+            self.local_key,
+            config::parser::Parser::from_str(self.template.as_ref(), Some(self.dynamic.as_ref()))?,
+        )
+    }
 }
 
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -88,17 +122,7 @@ lazy_static::lazy_static!(
     static ref LOCAL_KEY: AtomicU64 = AtomicU64::new(0);
 );
 
-fn load_impl(
-    option: Option<loader::LoaderConfig>,
-    config: config::presentation::Config,
-) -> Result<graph::MainGraph> {
-    // init graph local resources
-    let local_key = LOCAL_KEY.fetch_add(1, Ordering::Relaxed);
-    registry::initialize(local_key);
-    // load plugins
-    if let Some(option) = option {
-        loader::load(local_key, &option).unwrap();
-    }
+fn load_impl(local_key: u64, config: config::presentation::Config) -> Result<graph::MainGraph> {
     // register subgraph info
     for cfg in &config.graphs {
         let info = NodeInfo {
@@ -108,7 +132,7 @@ fn load_impl(
         graph::GraphSlice::registry_local().get(local_key).insert(
             cfg.name.clone(),
             graph::GraphSlice {
-                cons: Box::new(move |_| Err(anyhow!("graph is not loaded"))),
+                cons: Box::new(move |_, _| Err(anyhow!("graph is not loaded"))),
                 info,
             },
         );
@@ -133,8 +157,12 @@ fn load_impl(
         graph::GraphSlice::registry_local().get(local_key).insert(
             cfg.name.clone(),
             graph::GraphSlice {
-                cons: Box::new(move |name| {
-                    graph::Graph::load(graph::context(name, cfg.name.clone(), local_key), &cfg)
+                cons: Box::new(move |name, table| {
+                    graph::Graph::load(
+                        graph::context(name, cfg.name.clone(), local_key),
+                        &cfg,
+                        table,
+                    )
                 }),
                 info,
             },
@@ -157,7 +185,7 @@ fn load_impl(
     match graph::GraphSlice::registry_local()
         .get(local_key)
         .get(&config.main)
-        .map(|slice| (slice.cons)(config.main.clone()))
+        .map(|slice| (slice.cons)(config.main.clone(), &Default::default()))
     {
         Some(ret) => ret.map(|g| MainGraph::new(g, ctx, global_resources)),
         _ => Err(anyhow!("graph {} is not exist", config.main)),

@@ -164,7 +164,7 @@ impl VideoServer {
                 // spawn subgraph
                 ret = spawn_decode.select_next_some() => {
                     if let Ok((id, url, waker)) = ret {
-                        self.out.create(id, self.resources.clone().unwrap()).await.expect("broker has closed");
+                        self.out.create(id, self.resources.clone().unwrap(), Default::default()).await.expect("broker has closed");
                         let (_, port) = self.out.fetch().await.expect("broker has closed");
                         let url = urlencoding::decode(&url).unwrap().into_owned();
                         let url_cloned = url.clone();

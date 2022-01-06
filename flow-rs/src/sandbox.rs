@@ -90,7 +90,16 @@ impl Sandbox {
                 inputs.insert(input.to_owned(), chan);
             } else {
                 let client = broker.subscribe("_NoopProducer_".to_owned());
-                actor.set_port_dynamic(local_key, input, "out".to_owned(), 16, vec![client]);
+                actor.set_port_dynamic(
+                    input,
+                    crate::node::DynPortsConfig {
+                        local_key,
+                        target: "out".to_owned(),
+                        cap: 16,
+                        brokers: vec![client],
+                        args: Default::default(),
+                    },
+                );
             }
         }
         for output in &outputs_name {
@@ -104,7 +113,16 @@ impl Sandbox {
                 outputs.insert(output.to_owned(), chan);
             } else {
                 let client = broker.subscribe("_NoopConsumer_".to_owned());
-                actor.set_port_dynamic(local_key, output, "inp".to_owned(), 16, vec![client]);
+                actor.set_port_dynamic(
+                    output,
+                    crate::node::DynPortsConfig {
+                        local_key,
+                        target: "inp".to_owned(),
+                        cap: 16,
+                        brokers: vec![client],
+                        args: Default::default(),
+                    },
+                );
             }
         }
         Ok(Sandbox {
@@ -125,19 +143,20 @@ impl Sandbox {
         self.outputs.get(name).map(|x| x.receiver())
     }
 
-    pub fn start(mut self) -> JoinHandle<()> {
+    pub fn start(mut self) -> JoinHandle<Result<()>> {
         let local_key = self.local_key;
         let ctx = context("Sandbox".to_owned(), self.ty.clone(), local_key);
         crate::rt::task::spawn(async move {
-            futures_util::join!(
+            futures_util::try_join!(
                 self.actor.start(
                     ctx.clone(),
                     UniqueResourceCollection::new(ctx.local_key, ctx.id, &Default::default())
                         .take_into_arc()
                 ),
                 self.broker.run()
-            );
+            )?;
             crate::registry::finalize(local_key);
+            Ok(())
         })
     }
 }
@@ -197,8 +216,12 @@ fn graph_register(local_key: u64, ty: &str, port_name: &str) {
         .insert(
             cfg.name.clone(),
             crate::graph::GraphSlice {
-                cons: Box::new(move |name| {
-                    crate::graph::Graph::load(context(name, cfg.name.clone(), local_key), &cfg)
+                cons: Box::new(move |name, args| {
+                    crate::graph::Graph::load(
+                        context(name, cfg.name.clone(), local_key),
+                        &cfg,
+                        args,
+                    )
                 }),
                 info,
             },

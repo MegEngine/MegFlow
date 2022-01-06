@@ -180,47 +180,88 @@ pub fn parser_expand(input: DeriveInput) -> TokenStream {
             })
             .collect();
         quote! {
-            impl<'a> flow_rs::config::parser::Parser<'a> for #ident {
-                fn from_file(root: &std::path::Path) -> anyhow::Result<#ident> {
-                    type PathSet = std::collections::BTreeSet<std::path::PathBuf>;
-                    fn from_file_impl(path: &std::path::Path, mut visit: PathSet) -> anyhow::Result<(#ident, PathSet)> {
-                        visit.insert(path.to_path_buf());
+            type PathSet = std::collections::BTreeSet<std::path::PathBuf>;
+            impl<'a> #ident {
+                fn from_impl(path: &std::path::Path, template: &str, dynamic: &templar::InnerData, mut visit: PathSet) -> anyhow::Result<(#ident, PathSet)> {
+                    use templar::Context;
 
-                        let content = std::fs::read_to_string(path)?;
-                        let mut config: #ident = toml::from_str(&content)?;
-                        let include: Vec<_> = config.include.iter().cloned().collect();
+                    let template = flow_rs::config::parser::TEMPLAR.parse_template(template)?;
+                    let context = templar::StandardContext::new();
+                    context.set(dynamic.clone())?;
+                    let content = template.render(&context)?;
+                    let mut config: #ident = toml::from_str(&content)?;
 
-                        for clid_path in include {
-                            let abs_path;
-                            if clid_path.is_relative() {
-                                let mut tmp = path.to_path_buf();
-                                tmp.pop();
-                                tmp.push(clid_path);
-                                abs_path = tmp;
-                            } else {
-                                abs_path = clid_path;
-                            }
-                            if visit.contains(&abs_path) {
-                                return Err(anyhow::anyhow!("cyclic include"));
-                            }
-                            let mut ret = from_file_impl(&abs_path, visit)?;
-                            let sub_config = &mut ret.0;
-                            #(#list) *
-                            #(#set) *
-                            #(#map) *
-                            visit = ret.1;
+                    let include: Vec<_> = config.include.iter().cloned().collect();
+
+                    for clid_path in include {
+                        let abs_path;
+                        if clid_path.is_relative() {
+                            let mut tmp = path.to_path_buf();
+                            tmp.pop();
+                            tmp.push(clid_path);
+                            abs_path = tmp;
+                        } else {
+                            abs_path = clid_path;
                         }
-                        Ok((config, visit))
+                        if visit.contains(&abs_path) {
+                            return Err(anyhow::anyhow!("cyclic include"));
+                        }
+                        let sub_template = std::fs::read_to_string(&abs_path)?;
+                        visit.insert(abs_path.clone());
+                        let mut ret = Self::from_impl(&abs_path, &sub_template, dynamic, visit)?;
+                        let sub_config = &mut ret.0;
+                        #(#list) *
+                        #(#set) *
+                        #(#map) *
+                        visit = ret.1;
                     }
-                    from_file_impl(root, std::collections::BTreeSet::new()).map(|x| x.0)
+                    Ok((config, visit))
+                }
+            }
+            impl<'a> flow_rs::config::parser::Parser<'a> for #ident {
+                fn from_file(template: &std::path::Path, dynamic: Option<&std::path::Path>) -> anyhow::Result<#ident> {
+                    let mut set = std::collections::BTreeSet::new();
+                    set.insert(template.to_owned());
+
+                    let dynamic = if let Some(dynamic) = dynamic {
+                        std::fs::read_to_string(dynamic)?
+                    } else {
+                        "".to_owned()
+                    };
+                    let dynamic_data: templar::InnerData = toml::from_str(&dynamic)?;
+                    let template_content = std::fs::read_to_string(template)?;
+
+                    Self::from_impl(template, &template_content, &dynamic_data, set).map(|x| x.0)
+                }
+
+                fn from_str(template: &str, dynamic: Option<&str>) -> anyhow::Result<#ident> {
+                    let dynamic_data: templar::InnerData = toml::from_str(dynamic.unwrap_or(""))?;
+                    let cur = std::env::current_dir()?;
+                    Self::from_impl(&cur, template, &dynamic_data, std::collections::BTreeSet::new()).map(|x| x.0)
                 }
             }
         }
     } else {
         quote! {
             impl<'a> flow_rs::config::parser::Parser<'a> for #ident {
-                fn from_file(path: &std::path::Path) -> anyhow::Result<Self> {
-                    let content = std::fs::read_to_string(path)?;
+                fn from_file(template: &std::path::Path, dynamic: Option<&std::path::Path>) -> anyhow::Result<Self> {
+                    let dynamic = if let Some(dynamic) = dynamic {
+                        Some(std::fs::read_to_string(dynamic)?)
+                    } else {
+                        None
+                    };
+                    let template = std::fs::read_to_string(template)?;
+                    Self::from_str(&template, dynamic.as_ref().map(|x| x.as_ref()))
+                }
+
+                fn from_str(template: &str, dynamic: Option<&str>) -> anyhow::Result<Self> {
+                    use templar::Context;
+                    use flow_rs::config::parser::TEMPLAR;
+                    let dynamic_data: templar::InnerData = toml::from_str(dynamic.unwrap_or(""))?;
+                    let template = TEMPLAR.parse_template(&template)?;
+                    let context = templar::StandardContext::new();
+                    context.set(dynamic_data)?;
+                    let content = template.render(&context)?;
                     let config = toml::from_str(&content)?;
                     Ok(config)
                 }

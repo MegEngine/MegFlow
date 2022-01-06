@@ -22,7 +22,7 @@ struct NodeQps {
 }
 
 impl Graph {
-    pub(super) fn dmon(&self) -> JoinHandle<()> {
+    pub(super) fn dmon(&self) -> JoinHandle<anyhow::Result<()>> {
         let conns: Vec<_> = self.conns.values().cloned().collect();
         let ctx = self.ctx.clone();
         let mut first = true; // drop qps result fetched first
@@ -100,16 +100,14 @@ impl Graph {
                         "nodes": nodes.into_iter().map(|(_, v)| v).collect::<Vec<_>>(),
                     }));
 
-                    let others = into_object(
-                        serde_json::to_value(crate::debug::ResponseMessage {
+                    let others =
+                        into_object(serde_json::to_value(crate::debug::ResponseMessage {
                             success: true,
                             feature: "QPS".to_owned(),
                             seq_id,
                             command: crate::debug::CMD_NOOP.to_owned(),
                             args,
-                        })
-                        .unwrap(),
-                    );
+                        })?);
                     crate::debug::PORT
                         .0
                         .send(crate::debug::ProtocolMessage {
@@ -126,6 +124,7 @@ impl Graph {
                     flow_rs::rt::task::sleep(std::time::Duration::from_secs(1)).await;
                 }
             }
+            Ok(())
         })
     }
 }

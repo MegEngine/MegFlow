@@ -73,6 +73,7 @@ connections = [
     name = "destination"
     ty = "TransGraph0|TransGraph1"
     res = ["parent_buf"]
+    tag = "arg from graph"
 
     [[graphs.resources]]
     name = "parent_buf"

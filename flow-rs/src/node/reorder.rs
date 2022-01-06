@@ -109,6 +109,6 @@ mod test {
 
         join!(send_fut, recv_fut);
 
-        handle.await;
+        handle.await.unwrap();
     }
 }

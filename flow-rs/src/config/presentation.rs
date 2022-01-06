@@ -60,7 +60,7 @@ pub struct Graph {
     pub connections: Vec<Connection>,
 }
 
-#[derive(Serialize, Deserialize, Parser)]
+#[derive(Serialize, Deserialize, Debug, Parser)]
 #[serde(deny_unknown_fields)]
 pub struct Config {
     #[serde(default)]
