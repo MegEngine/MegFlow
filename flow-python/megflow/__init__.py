@@ -11,3 +11,5 @@
 
 from .registry import register, collect, res_register
 from .megflow import *
+
+__version__ = version()

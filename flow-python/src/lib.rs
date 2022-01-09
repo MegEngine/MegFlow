@@ -14,6 +14,7 @@ use flow_rs::loader::python::envelope::envelope_register;
 use flow_rs::loader::python::utils::utils_register;
 use flow_rs::prelude::*;
 use pyo3::prelude::*;
+use pyo3::wrap_pyfunction;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::{Arc, Once};
@@ -27,6 +28,11 @@ pub struct Graph {
 }
 
 static ONCE_INIT: Once = Once::new();
+
+#[pyfunction]
+fn version() -> &'static str {
+    env!("CARGO_PKG_VERSION")
+}
 
 #[pymethods]
 impl Graph {
@@ -80,9 +86,9 @@ impl Graph {
     )]
     fn new(
         mut config_path: Option<PathBuf>,
-        config_str: Option<&str>,
+        config_str: Option<String>,
         dynamic_path: Option<PathBuf>,
-        dynamic_str: Option<&str>,
+        dynamic_str: Option<String>,
         plugin_path: Option<PathBuf>,
         module_path: Option<PathBuf>,
         dump: bool,
@@ -133,7 +139,7 @@ impl Graph {
                 .unwrap_or_else(|_| panic!("file[{:?}] not found", config_path));
         }
         if let Some(config_str) = config_str {
-            builder = builder.template(config_str.to_owned());
+            builder = builder.template(config_str);
         }
         if let Some(dynamic_path) = dynamic_path {
             builder = builder
@@ -141,7 +147,7 @@ impl Graph {
                 .unwrap_or_else(|_| panic!("file[{:?}] not found", dynamic_path));
         }
         if let Some(dynamic_str) = dynamic_str {
-            builder = builder.dynamic(dynamic_str.to_owned());
+            builder = builder.dynamic(dynamic_str);
         }
 
         let mut graph = builder.load_plugins(plugin_cfg).build().unwrap();
@@ -179,6 +185,7 @@ impl Graph {
 #[pymodule]
 fn megflow(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<Graph>()?;
+    m.add_function(wrap_pyfunction!(version, m)?)?;
     utils_register(m)?;
     envelope_register(m)?;
     Ok(())

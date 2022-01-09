@@ -30,12 +30,9 @@ if system == 'darwin':
 elif system == 'windows':
     dyn_ext = 'dll'
 
-devel_version = os.environ.get("DEVEL_VERSION")
 debug = os.environ.get("DEBUG")
 target_dir = os.environ.get("CARGO_TARGET_DIR")
 
-if not devel_version:
-    devel_version = "0.3.2"  # fall back
 if not debug:
     debug = False
 if not target_dir:
@@ -120,6 +117,14 @@ if __name__ == '__main__':
         pattern = re.compile(f'.*?{dyn_ext}\.[0-9]*')
         ext_modules.append(CopyExtension(pattern, f"{ffmpeg_dir}/lib/*.{dyn_ext}.*", "lib/"))
 
+    current_dir = os.getcwd()
+    with open(current_dir+'/Cargo.toml') as f:
+        pattern = re.compile(r'\d+\.(?:\d+\.)*\d+')
+        for line in f:
+            if line.startswith('version'):
+                version = re.search(pattern, line).group()
+                break
+
     setup(
         options={
             'bdist_wheel': {
@@ -127,7 +132,7 @@ if __name__ == '__main__':
             }
         },
         name="megflow",
-        version=devel_version,
+        version=version,
         packages=["megflow"],
         author="Megvii IPU-SDK Team",
         author_email="megengine@megvii.com",
