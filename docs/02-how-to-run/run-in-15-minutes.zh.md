@@ -65,10 +65,6 @@ $ megflow_run -p logical_test
 `logical_test` 是 examples 下最基础的计算图测试用例，运行能正常结束表示 MegFlow 编译成功、基本语义无问题。
 目前版本输出为 logical_test pass 即为正确
 
-此处常见问题：`error while loading shared libraries: libpython3.8.xxx`。如果使用 conda 只需要
-```bash
-$ export LD_LIBRARY_PATH=`conda info --base`/pkgs/python-3.8.11-xxx/lib:${LD_LIBRARY_PATH}
-```
 `megflow_run` 是计算图的实现。使用者不需要关心 Rust/cargo，只需要
 
   * `import megflow` 成功

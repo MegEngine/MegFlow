@@ -1,0 +1,10 @@
+main = "unused"
+
+[[graphs]]
+name = "unused"
+
+[[graphs.nodes]]
+name = "gen"
+ty = "Gen"
+n = 10
+

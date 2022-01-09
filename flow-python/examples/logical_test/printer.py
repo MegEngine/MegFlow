@@ -20,6 +20,7 @@ class Node:
         self.id = instance_id
         instance_id += 1
         self.count = 0
+        self.tag = args['tag']
 
     def exec(self):
         envelope = self.inp.recv()
@@ -30,7 +31,7 @@ class Node:
             buf = self.buf.get()
 
             # print(
-            #     'Printer[{}] get msg: {}, buf(global, parent, local): ({}, {}, {})'
-            #     .format(self.id, envelope.msg['message'], gbuf, pbuf, buf))
+            #     'Printer[{}] get msg: {}, with tag: {}, buf(global, parent, local): ({}, {}, {})'
+            #     .format(self.id, envelope.msg['message'], self.tag, gbuf, pbuf, buf))
         else:
             assert self.count == 10

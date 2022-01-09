@@ -133,7 +133,11 @@ ports = ["trans{}:out", "trans{}:inp"]
     let mut file = tempfile::NamedTempFile::new().unwrap();
     file.write_all(config.as_bytes()).unwrap();
 
-    let mut graph = load(None, file.path()).unwrap();
+    let mut graph = Builder::new()
+        .template_file(file.path())
+        .unwrap()
+        .build()
+        .unwrap();
     let input = graph.input("in").unwrap();
     let output = graph.output("out").unwrap();
     let handle = graph.start();
@@ -159,5 +163,5 @@ ports = ["trans{}:out", "trans{}:inp"]
         node_num, concurrency, data_num, duration
     );
     input.close();
-    handle.await;
+    handle.await.unwrap();
 }

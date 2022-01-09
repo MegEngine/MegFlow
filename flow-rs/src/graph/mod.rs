@@ -17,6 +17,7 @@ mod subgraph;
 
 use crate::broker::Broker;
 use crate::config::interlayer as config;
+use crate::config::table::merge_table;
 use crate::prelude::*;
 use crate::rt::task::JoinHandle;
 use anyhow::{anyhow, Result};
@@ -25,9 +26,10 @@ pub use context::*;
 use futures_util::{pin_mut, select, FutureExt};
 use node::AnyNode;
 use std::collections::HashMap;
+use toml::value::Table;
 
 pub(crate) struct GraphSlice {
-    pub cons: Box<dyn Fn(String) -> Result<Graph> + Send + Sync>,
+    pub cons: Box<dyn Fn(String, &Table) -> Result<Graph> + Send + Sync>,
     pub info: NodeInfo,
 }
 crate::collect!(String, GraphSlice);
@@ -83,13 +85,13 @@ impl MainGraph {
         self.graph.close()
     }
     /// Run the graph, and return a `JoinHandle`, which can be cancel or wait
-    pub fn start(&mut self) -> JoinHandle<()> {
+    pub fn start(&mut self) -> JoinHandle<Result<()>> {
         let handle = self
             .graph
             .start(Some(std::mem::take(&mut self.global_resources)));
         let global_ctx = self.global_ctx.clone();
         crate::rt::task::spawn(async move {
-            handle.await;
+            handle.await?;
             SharedProxy::registry_local()
                 .get(global_ctx.local_key)
                 .for_each(|proxy| proxy.close());
@@ -101,10 +103,11 @@ impl MainGraph {
             for handle in handles {
                 let handle =
                     std::sync::Arc::try_unwrap(handle).unwrap_or_else(|_| panic!("internal error"));
-                handle.0.await;
+                handle.0.await?;
             }
             // clear graph local resources
             finalize(global_ctx.local_key);
+            Ok(())
         })
     }
 }
@@ -122,7 +125,7 @@ pub(crate) struct Graph {
 }
 
 impl Graph {
-    pub(crate) fn load(ctx: Context, config: &config::Graph) -> Result<Graph> {
+    pub(crate) fn load(ctx: Context, config: &config::Graph, args: &Table) -> Result<Graph> {
         let mut nodes = HashMap::new();
         let mut conns = HashMap::new();
         let mut broker = Broker::new();
@@ -133,7 +136,10 @@ impl Graph {
 
         for (name, cfg) in &config.nodes {
             if !cfg.is_dyn {
-                nodes.insert(name.clone(), AnyNode::new(ctx.local_key, cfg)?);
+                nodes.insert(
+                    name.clone(),
+                    AnyNode::new(ctx.local_key, cfg.clone(), args.clone())?,
+                );
             }
         }
 
@@ -164,8 +170,9 @@ impl Graph {
                     for port in cfg.rx.iter().chain(cfg.tx.iter()) {
                         if port.is_dyn() {
                             // add dyn subgraph resources into trigger node
-                            let mut res =
-                                config.nodes.get(&subgraph.node_name).unwrap().res.clone();
+                            let subgraph_cfg = config.nodes.get(&subgraph.node_name).unwrap();
+                            let subgraph_args = subgraph_cfg.entity.args.clone();
+                            let mut res = subgraph_cfg.res.clone();
                             let nodes = nodes.get_mut(&port.node_name).unwrap();
                             let info = nodes.info_mut();
                             info.res.append(&mut res);
@@ -175,11 +182,14 @@ impl Graph {
                                     clients.push(broker.subscribe(topic.trim().to_owned()));
                                 }
                                 node.set_port_dynamic(
-                                    ctx.local_key,
                                     &port.port_name,
-                                    subgraph.port_name.clone(),
-                                    cfg.cap,
-                                    clients,
+                                    crate::node::DynPortsConfig {
+                                        local_key: ctx.local_key,
+                                        target: subgraph.port_name.clone(),
+                                        cap: cfg.cap,
+                                        brokers: clients,
+                                        args: merge_table(args.clone(), subgraph_args.clone()),
+                                    },
                                 );
                             }
                         }
@@ -244,7 +254,7 @@ impl Graph {
         })
     }
 
-    pub(crate) fn start(&mut self, resource: Option<ResourceCollection>) -> JoinHandle<()> {
+    pub(crate) fn start(&mut self, resource: Option<ResourceCollection>) -> JoinHandle<Result<()>> {
         let ext_resource = resource.unwrap_or_else(|| {
             UniqueResourceCollection::new(self.ctx.local_key, self.ctx.id, &Default::default())
                 .take_into_arc()
@@ -306,7 +316,7 @@ impl Graph {
             }
 
             let wait_ctx = context.wait().fuse();
-            let wait_tasks = futures_util::future::join_all(handles).fuse();
+            let wait_tasks = futures_util::future::try_join_all(handles).fuse();
             let mut wait_i =
                 futures_util::future::join_all(inputs.iter().map(|conn| conn.wait_rx_closed()))
                     .fuse();
@@ -323,6 +333,7 @@ impl Graph {
                 }
             };
 
+            let mut ret = Ok(());
             loop {
                 select! {
                     _ = wait_ctx => {
@@ -330,8 +341,14 @@ impl Graph {
                             input.close();
                         }
                     }
-                    _ = wait_tasks => {
-                        cb()
+                    task_ret = wait_tasks => {
+                        match task_ret {
+                            Ok(_) => cb(),
+                            err => {
+                                ret = err.map(|_| ());
+                                context.close()
+                            },
+                        }
                     },
                     _ = wait_o => {
                         cb()
@@ -345,7 +362,8 @@ impl Graph {
                 }
             }
 
-            futures_util::future::join_all(alone_tasks).await;
+            futures_util::future::try_join_all(alone_tasks).await?;
+            ret
         });
 
         if direct_term {

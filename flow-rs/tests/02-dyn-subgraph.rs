@@ -2,15 +2,12 @@ mod nodes_ext;
 
 use anyhow::Result;
 use flow_rs::prelude::*;
-use std::io::Write;
 
 #[rt::test]
 async fn test_basis() -> Result<()> {
-    let mut file = tempfile::NamedTempFile::new().unwrap();
-    write!(
-        file,
-        "{}",
-        r#"
+    let _ = Builder::default()
+        .template(
+            r#"
 main="test"
 [[graphs]]
 name="sub"
@@ -36,8 +33,9 @@ nodes=[
     {name="t3",ty="DynInTransform"}
 ]
         "#
-    )?;
-    let _ = load(None, file.path())?;
+            .to_owned(),
+        )
+        .build()?;
 
     Ok(())
 }

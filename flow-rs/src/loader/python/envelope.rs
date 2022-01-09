@@ -20,7 +20,7 @@ use std::sync::Arc;
 
 static ERR_MSG: &str = "use after move";
 
-#[pyclass(name = "Envelope", module = "megflow")]
+#[pyclass(name = "Envelope")]
 pub(crate) struct PyEnvelope {
     pub imp: Option<Envelope<PyObject>>,
 }
@@ -34,7 +34,7 @@ impl PyEnvelope {
 
     #[staticmethod]
     #[args(info = "None")]
-    fn pack(py: Python, msg: PyObject, info: Option<&PyDict>) -> PyResult<Self> {
+    fn pack(py: Python, msg: PyObject, info: Option<Py<PyDict>>) -> PyResult<Self> {
         let mut envelope = if msg.is_none(py) {
             Envelope::<PyObject>::empty()
         } else {
@@ -42,6 +42,7 @@ impl PyEnvelope {
         };
 
         if let Some(info) = info {
+            let info = info.as_ref(py);
             let target = envelope.info_mut();
             macro_rules! restore {
                 ($k:ident) => {

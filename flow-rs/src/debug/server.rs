@@ -124,9 +124,11 @@ pub struct Server {
 }
 
 impl Server {
-    pub fn open<P: AsRef<Path>>(path: P, port: u16) -> Result<Server> {
-        let config: crate::config::presentation::Config =
-            crate::config::parser::Parser::from_file(path.as_ref())?;
+    pub fn open<P: AsRef<Path>>(path: P, dynamic: Option<P>, port: u16) -> Result<Server> {
+        let config: crate::config::presentation::Config = crate::config::parser::Parser::from_file(
+            path.as_ref(),
+            dynamic.as_ref().map(|x| x.as_ref()),
+        )?;
         Ok(Server {
             graph: toml::to_string(&config)?,
             port,

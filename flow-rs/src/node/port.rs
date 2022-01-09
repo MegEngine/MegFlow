@@ -10,6 +10,7 @@
  */
 use crate::broker::BrokerClient;
 use crate::channel::{ChannelStorage, Receiver, Sender};
+use crate::config::table::merge_table;
 use crate::future::select_ok;
 use crate::graph::GraphSlice;
 use crate::prelude::ChannelBase;
@@ -19,6 +20,7 @@ use crate::rt::task::JoinHandle;
 use anyhow::{anyhow, Result};
 use std::collections::HashMap;
 use std::marker::PhantomData;
+use toml::value::Table;
 
 use super::Node;
 
@@ -29,6 +31,14 @@ struct DynConns {
     outputs: HashMap<String, Receiver>,
 }
 
+pub struct DynPortsConfig {
+    pub(crate) local_key: u64,
+    pub(crate) target: String,
+    pub(crate) cap: usize,
+    pub(crate) brokers: Vec<BrokerClient>,
+    pub(crate) args: Table,
+}
+
 #[derive(Default)]
 pub struct DynPorts<V> {
     local_key: u64,
@@ -36,25 +46,23 @@ pub struct DynPorts<V> {
     cap: usize,
     brokers: HashMap<String, BrokerClient>,
     cache: HashMap<u64, V>,
+    args: Table,
     _v_holder: PhantomData<V>,
 }
 
 impl<V> DynPorts<V> {
-    pub fn new(
-        local_key: u64,
-        target: String,
-        cap: usize,
-        brokers: Vec<BrokerClient>,
-    ) -> DynPorts<V> {
+    pub fn new(config: DynPortsConfig) -> DynPorts<V> {
         DynPorts {
-            local_key,
-            target,
-            cap,
-            brokers: brokers
+            local_key: config.local_key,
+            target: config.target,
+            cap: config.cap,
+            brokers: config
+                .brokers
                 .into_iter()
                 .map(|x| (x.topic().to_owned(), x))
                 .collect(),
             cache: HashMap::new(),
+            args: config.args,
             _v_holder: Default::default(),
         }
     }
@@ -63,7 +71,8 @@ impl<V> DynPorts<V> {
         &mut self,
         key: u64,
         resource: ResourceCollection,
-    ) -> Result<JoinHandle<()>> {
+        args: Table,
+    ) -> Result<JoinHandle<Result<()>>> {
         self.create_spec(
             key,
             self.brokers
@@ -73,6 +82,7 @@ impl<V> DynPorts<V> {
                 .clone()
                 .as_str(),
             resource,
+            args,
         )
         .await
     }
@@ -82,7 +92,8 @@ impl<V> DynPorts<V> {
         key: u64,
         which: &str,
         resource: ResourceCollection,
-    ) -> Result<JoinHandle<()>> {
+        args: Table,
+    ) -> Result<JoinHandle<Result<()>>> {
         let broker = self
             .brokers
             .get(which)
@@ -91,7 +102,8 @@ impl<V> DynPorts<V> {
             .get(self.local_key)
             .get(broker.topic())
         {
-            let mut g = (slice.cons)(format!("{}_instance", broker.topic()))?;
+            let args = merge_table(self.args.clone(), args);
+            let mut g = (slice.cons)(format!("{}_instance", broker.topic()), &args)?;
 
             let mut inputs = HashMap::new();
             let mut outputs = HashMap::new();

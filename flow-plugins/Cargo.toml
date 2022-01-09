@@ -1,18 +1,21 @@
 [package]
 name = "flow-plugins"
-version = "0.3.0"
+version = "0.3.2"
 authors = ["megvii"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
+default = ["external"]
+external = ["ffmpeg-next", "rweb", "mime", "indexmap", "hyper", "headers", "serde_json", "urlencoding", "image"]
 python = [ "pyo3", "numpy", "flow-rs/python" ]
-open-camera = ["ffmpeg-next/open-camera"]
+open-camera = ["ffmpeg-next/open-camera", "default"]
 
 [dependencies.ffmpeg-next]
 git = "https://github.com/tpoisonooo/rust-ffmpeg"
-branch = "dylib"
+rev = "f80c21fd"
+optional = true
 
 [dependencies]
 bytes = "1.1.0"
@@ -22,18 +25,20 @@ futures-util = "0.3"
 pyo3 = { version = "0.15", features=["abi3"], optional=true }
 numpy = { version = "0.15", optional=true }
 anyhow = "1.0"
-image = "0.23"
 oneshot = "0.1"
 log = "0.4"
 pretty_env_logger = "0.3"
-rweb = { version="0.12.5", features=["openapi"] }
-mime = "0.3"
-indexmap = "1"
-hyper = "0.14"
-headers = "0.3"
+
+image = { version = "0.23", optional=true }
+rweb = { version="0.12.5", features=["openapi"], optional=true }
+mime = { version="0.3", optional=true }
+indexmap = { version="1", optional=true }
+hyper = { version="0.14", optional=true }
+headers = { version="0.3", optional=true }
+serde_json = { version="1.0", optional=true }
+urlencoding = { version="2.1", optional=true }
+
 serde = "1.0"
-urlencoding = "2.1"
 rand = "0.8"
-serde_json = "1.0"
 samotop-async-trait = "0.2"
 num = "0.4"

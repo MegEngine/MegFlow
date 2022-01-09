@@ -2,29 +2,34 @@ main = "Example"
 [[graphs]]
 name = "Example"
 
+{{ Args = { 'Node': 10, 'Data': 1 } -}}
+
 [[graphs.connections]]
 cap = 64
 ports = ["src:out", "trans0:inp"]
 [[graphs.connections]]
 cap = 64
-ports = ["sink:inp", "trans1:out"]
+ports = ["sink:inp", "trans{{Args.Node-1}}:out"]
 
+{% for i in range(Args.Node-1) %}
 [[graphs.connections]]
 cap = 64
-ports = ["trans1:inp", "trans0:out"]
-[[graphs.nodes]]
-name = "trans0"
-ty = "Transport"
-[[graphs.nodes]]
-name = "trans1"
-ty = "Transport"
+ports = ["trans{{i+1}}:inp", "trans{{i}}:out"]
+{% end for %}
 
-[[graphs.nodes]]
-name = "src"
-ty = "Source"
-n = 1
-[[graphs.nodes]]
-name = "sink"
-ty = "Sink"
-n = 1
+    {% for i in range(Args.Node) %}
+    [[graphs.nodes]]
+    name = "trans{{i}}"
+    ty = "Transport"
+    {% end for %}
     
+    [[graphs.nodes]]
+    name = "src"
+    ty = "Source"
+    n = {{Args.Data}}
+    
+    [[graphs.nodes]]
+    name = "sink"
+    ty = "Sink"
+    data_n = {{Args.Data}}
+    node_n = {{Args.Node}}

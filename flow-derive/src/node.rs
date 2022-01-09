@@ -73,7 +73,7 @@ pub fn expand(input: DeriveInput) -> TokenStream {
         if match_last_ty(ty, "DynPorts") {
             quote_spanned! {ident.span()=>
                 if port_name == concat!("dyn@", stringify!(#ident)) {
-                    self.#ident = flow_rs::node::DynPorts::new(local_key, target, cap, brokers);
+                    self.#ident = flow_rs::node::DynPorts::new(cfg);
                 } else
             }
         } else {
@@ -125,11 +125,8 @@ pub fn expand(input: DeriveInput) -> TokenStream {
                 }
                 fn set_port_dynamic(
                     &mut self,
-                    local_key: u64,
                     port_name: &str,
-                    target: String,
-                    cap: usize,
-                    brokers: Vec<flow_rs::broker::BrokerClient>,
+                    cfg: flow_rs::node::DynPortsConfig,
                 ) {
                     #(#set_dyni) *
                     #(#set_dyno) *

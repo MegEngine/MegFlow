@@ -2,15 +2,12 @@ mod nodes_ext;
 
 use anyhow::Result;
 use flow_rs::prelude::*;
-use std::io::Write;
 
 #[rt::test]
 async fn test_error() -> Result<()> {
-    let mut file = tempfile::NamedTempFile::new().unwrap();
-    write!(
-        file,
-        "{}",
-        r#"
+    let mut graph = Builder::default()
+        .template(
+            r#"
 main="test"
 [[graphs]]
 name="sub"
@@ -36,20 +33,19 @@ connections=[
     {cap=1,ports=["a:out", "b:inp"]},
     {cap=1,ports=["b:out", "c:inp"]}
 ]
-        "#,
-    )?;
-    let mut graph = load(None, file.path())?;
-    graph.start().await;
+        "#
+            .to_owned(),
+        )
+        .build()?;
+    assert!(graph.start().await.is_err());
     Ok(())
 }
 
 #[rt::test]
 async fn test_basis() -> Result<()> {
-    let mut file = tempfile::NamedTempFile::new().unwrap();
-    write!(
-        file,
-        "{}",
-        r#"
+    let mut graph = Builder::default()
+        .template(
+            r#"
 main="test"
 [[graphs]]
 name="sub"
@@ -75,8 +71,9 @@ nodes=[
     {name="t3",ty="Transform"}
 ]
         "#
-    )?;
-    let mut graph = load(None, file.path())?;
+            .to_owned(),
+        )
+        .build()?;
     let inp = graph.input("inp").unwrap();
     let out = graph.output("out").unwrap();
     let handle = graph.start();
@@ -87,18 +84,16 @@ nodes=[
     assert!(out.recv::<usize>().await.is_ok());
     assert!(out.recv::<usize>().await.is_err());
 
-    handle.await;
+    handle.await?;
 
     Ok(())
 }
 
 #[rt::test]
 async fn test_empty() -> Result<()> {
-    let mut file = tempfile::NamedTempFile::new().unwrap();
-    write!(
-        file,
-        "{}",
-        r#"
+    let mut graph = Builder::default()
+        .template(
+            r#"
 main="test"
 nodes=[{name="gb",ty="BinaryOpr"}]
 [[graphs]]
@@ -124,8 +119,9 @@ nodes=[
     {name="t3",ty="Transform"}
 ]
         "#
-    )?;
-    let mut graph = load(None, file.path())?;
+            .to_owned(),
+        )
+        .build()?;
     let inp = graph.input("inp").unwrap();
     let out = graph.output("out").unwrap();
     let handle = graph.start();
@@ -135,6 +131,6 @@ nodes=[
     assert!(out.recv::<usize>().await.is_ok());
     assert!(out.recv::<usize>().await.is_ok());
     assert!(out.recv::<usize>().await.is_err());
-    handle.await;
+    handle.await?;
     Ok(())
 }

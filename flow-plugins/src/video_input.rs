@@ -56,7 +56,7 @@ impl Actor for VideoInput {
         mut self: Box<Self>,
         _: Context,
         resources: ResourceCollection,
-    ) -> rt::task::JoinHandle<()> {
+    ) -> rt::task::JoinHandle<Result<()>> {
         rt::task::spawn(async move {
             let mut recv_conns = vec![];
 
@@ -67,7 +67,7 @@ impl Actor for VideoInput {
                         id += 1;
                         // create multiple stream
                         self.out
-                            .create(id.to_owned(), resources.clone())
+                            .create(id.to_owned(), resources.clone(), Default::default())
                             .await
                             .expect("broker has closed");
                         let (_, port) = self.out.fetch().await.expect("broker has closed");
@@ -94,6 +94,7 @@ impl Actor for VideoInput {
             }
 
             join_all(recv_conns).await;
+            Ok(())
         })
     }
 }

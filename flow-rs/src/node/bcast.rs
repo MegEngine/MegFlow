@@ -58,6 +58,6 @@ mod test {
         assert_eq!(envelope.get_ref(), &0);
         assert!(output.is_empty());
         input.close();
-        handle.await;
+        handle.await.unwrap();
     }
 }

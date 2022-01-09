@@ -9,7 +9,7 @@
  * "AS IS" BASIS, WITHOUT ARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 #[cfg(feature = "python")]
-mod python;
+pub mod python;
 
 use crate::registry::Collect;
 use anyhow::Result;
@@ -21,12 +21,13 @@ trait Plugin {
 }
 
 trait Loader: Send + Sync {
-    fn load(
+    fn load_from_file(
         &self,
         local_key: u64,
-        module_path: &Path,
+        module_path: Option<&Path>,
         plugin_path: &Path,
     ) -> Result<Vec<Box<dyn Plugin>>>;
+    fn load_from_scope(&self, local_key: u64) -> Result<Vec<Box<dyn Plugin>>>;
 }
 
 #[derive(Copy, Clone, Hash, Eq, PartialEq)]
@@ -37,23 +38,42 @@ pub enum PluginType {
 crate::collect!(PluginType, Box<dyn Loader>);
 
 pub struct LoaderConfig {
-    pub plugin_path: PathBuf,
-    pub module_path: PathBuf,
+    pub plugin_path: Option<PathBuf>,
+    pub module_path: Option<PathBuf>,
     pub ty: PluginType,
 }
 
+use std::sync::Once;
+static ONCE_LOAD_FROM_SCOPE: Once = Once::new();
+
 pub(crate) fn load(local_key: u64, cfg: &LoaderConfig) -> Result<()> {
-    for entry in fs::read_dir(&cfg.plugin_path)? {
-        let entry = entry?;
-        let pathbuf = entry.path();
-        let path: &Path = pathbuf.as_ref();
-        if let Some(path) = cfg.ty.check(path) {
-            let loader = <Box<dyn Loader>>::registry_global().get(&cfg.ty).unwrap();
-            for plugin in loader.load(local_key, cfg.module_path.as_ref(), path.as_path())? {
-                plugin.submit();
+    let loader = <Box<dyn Loader>>::registry_global().get(&cfg.ty).unwrap();
+    ONCE_LOAD_FROM_SCOPE.call_once(|| {
+        for plugin in loader
+            .load_from_scope(local_key)
+            .expect("cannot load plugins from current scope")
+        {
+            plugin.submit();
+        }
+    });
+
+    if let Some(plugin_path) = &cfg.plugin_path {
+        for entry in fs::read_dir(&plugin_path)? {
+            let entry = entry?;
+            let pathbuf = entry.path();
+            let path: &Path = pathbuf.as_ref();
+            if let Some(path) = cfg.ty.check(path) {
+                for plugin in loader.load_from_file(
+                    local_key,
+                    cfg.module_path.as_ref().map(|x| x.as_ref()),
+                    path.as_path(),
+                )? {
+                    plugin.submit();
+                }
             }
         }
     }
+
     Ok(())
 }
 
@@ -68,11 +88,7 @@ impl PluginType {
         if path.is_file() {
             if let Some(ext) = path.extension() {
                 if ext == "py" {
-                    if let Some(file_stem) = path.file_stem() {
-                        if file_stem != "__init__" {
-                            return Some(path.to_path_buf());
-                        }
-                    }
+                    return Some(path.to_path_buf());
                 }
             }
             None

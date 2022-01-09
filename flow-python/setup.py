@@ -35,7 +35,7 @@ debug = os.environ.get("DEBUG")
 target_dir = os.environ.get("CARGO_TARGET_DIR")
 
 if not devel_version:
-    devel_version = "0.3.0"  # fall back
+    devel_version = "0.3.2"  # fall back
 if not debug:
     debug = False
 if not target_dir:
@@ -115,7 +115,7 @@ if __name__ == '__main__':
     ]
 
     ffmpeg_dir = os.getenv('FFMPEG_DIR')
-    prebuild = os.getenv('CARGO_FEATURE_PREBUILD')
+    prebuild = os.getenv('CARGO_FEATURE_DYNAMIC')
     if prebuild is not None and ffmpeg_dir is not None:
         pattern = re.compile(f'.*?{dyn_ext}\.[0-9]*')
         ext_modules.append(CopyExtension(pattern, f"{ffmpeg_dir}/lib/*.{dyn_ext}.*", "lib/"))

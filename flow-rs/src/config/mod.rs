@@ -11,6 +11,7 @@
 pub mod graphviz;
 mod insert;
 pub mod interlayer;
+pub mod table;
 
 pub mod parser;
 pub mod presentation;

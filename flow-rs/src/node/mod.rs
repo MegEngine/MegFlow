@@ -20,16 +20,17 @@ use crate::channel::ChannelStorage;
 use crate::graph::Context;
 use crate::graph::GraphSlice;
 use crate::registry::Collect;
+use crate::resource::ResourceCollection;
 use crate::rt::task::JoinHandle;
-use crate::{broker::BrokerClient, resource::ResourceCollection};
 use anyhow::{anyhow, Result};
 pub use port::*;
 pub(crate) use shared::*;
 use std::collections::BTreeSet;
+use toml::value::Table;
 
 #[doc(hidden)]
 pub struct NodeSlice {
-    pub cons: Box<dyn Fn(String, &toml::value::Table) -> Box<dyn Actor> + Send + Sync>,
+    pub cons: Box<dyn Fn(String, &Table) -> Box<dyn Actor> + Send + Sync>,
     pub info: NodeInfo,
 }
 #[doc(hidden)]
@@ -42,14 +43,7 @@ crate::collect!(String, NodeSlice);
 /// Trait for interactiving with graph, which can be derived by `#[derive(Node)]`.
 pub trait Node {
     fn set_port(&mut self, port_name: &str, tag: Option<u64>, channel: &ChannelStorage);
-    fn set_port_dynamic(
-        &mut self,
-        local_key: u64,
-        port_name: &str,
-        target: String,
-        cap: usize,
-        brokers: Vec<BrokerClient>,
-    );
+    fn set_port_dynamic(&mut self, port_name: &str, config: DynPortsConfig);
     fn close(&mut self);
     fn is_allinp_closed(&self) -> bool;
 }
@@ -57,7 +51,7 @@ pub trait Node {
 /// Trait for interactiving with schedule, which can be derived by `#[derive(Actor)]`.
 pub trait Actor: Node + Send + 'static {
     /// Run the actor
-    fn start(self: Box<Self>, _: Context, _: ResourceCollection) -> JoinHandle<()> {
+    fn start(self: Box<Self>, _: Context, _: ResourceCollection) -> JoinHandle<Result<()>> {
         unimplemented!()
     }
 }
@@ -78,7 +72,7 @@ pub(crate) fn load_static(
     } else if let Some(graph) = GraphSlice::registry_local().get(local_key).get(ty) {
         (0..config.cloned.unwrap_or(1))
             .into_iter()
-            .map(|_| (graph.cons)(config.entity.name.clone()))
+            .map(|_| (graph.cons)(config.entity.name.clone(), &config.entity.args))
             .map(|g| g.map(|g| Box::new(g) as Box<dyn Actor>))
             .collect()
     } else {

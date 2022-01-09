@@ -155,10 +155,16 @@ impl Node for PyNode {
             unreachable!();
         }
     }
-    fn set_port_dynamic(&mut self, _: u64, _: &str, _: String, _: usize, _: Vec<BrokerClient>) {
+    fn set_port_dynamic(&mut self, _: &str, _: crate::node::DynPortsConfig) {
         unimplemented!()
     }
     fn close(&mut self) {
+        for ports in self.inputs.values_mut() {
+            for port in ports.storage.values_mut() {
+                // it is safe because there is no other port-ref used.
+                unsafe { &mut *(Arc::as_ptr(port) as *mut Receiver) }.abort();
+            }
+        }
         for ports in self.outputs.values_mut() {
             for port in ports.storage.values_mut() {
                 // it is safe because there is no other port-ref used.
@@ -178,16 +184,22 @@ impl Node for PyNode {
 }
 
 impl Actor for PyNode {
-    fn start(mut self: Box<Self>, _: Context, res: ResourceCollection) -> rt::task::JoinHandle<()> {
+    fn start(
+        mut self: Box<Self>,
+        _: Context,
+        res: ResourceCollection,
+    ) -> rt::task::JoinHandle<anyhow::Result<()>> {
         if self.exclusive {
             flow_rs::rt::task::spawn_blocking(move || {
                 flow_rs::rt::task::block_on(async move {
                     self.start_loop(res).await;
                 });
+                Ok(())
             })
         } else {
             flow_rs::rt::task::spawn_local(async move {
                 self.start_loop(res).await;
+                Ok(())
             })
         }
     }

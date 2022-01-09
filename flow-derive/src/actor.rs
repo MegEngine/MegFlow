@@ -78,13 +78,12 @@ pub fn expand(input: DeriveInput) -> TokenStream {
     quote! {
         impl#imp_g flow_rs::node::Actor for #ident#ty_g
             #where_g {
-                fn start(mut self: Box<Self>, ctx: flow_rs::graph::Context, resources: flow_rs::resource::ResourceCollection) -> flow_rs::rt::task::JoinHandle<()> {
+                fn start(mut self: Box<Self>, ctx: flow_rs::graph::Context, resources: flow_rs::resource::ResourceCollection) -> flow_rs::rt::task::JoinHandle<anyhow::Result<()>> {
                     flow_rs::rt::task::#spawn_func(async move {
-
                         self.initialize(resources).await;
                         let mut empty_n = 0;
                         loop  {
-                            let ret = self.exec(&ctx).await;
+                            self.exec(&ctx).await?;
                             if #inputs_n > 0 {
                                 let mut min_empty_n = usize::MAX;
                                 #(#recv_empty_n )*
@@ -95,17 +94,13 @@ pub fn expand(input: DeriveInput) -> TokenStream {
 
                                 empty_n = min_empty_n;
                             }
-                            match ret {
-                                Ok(_) if self.is_allinp_closed() => break,
-                                Err(_) => {
-                                    ctx.close();
-                                    break;
-                                },
-                                _ => (),
+                            if self.is_allinp_closed() {
+                                break
                             }
                         }
                         self.close();
                         self.finalize().await;
+                        Ok(())
                     })
                 }
             }

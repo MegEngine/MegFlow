@@ -18,7 +18,7 @@ use toml::value::Table;
 #[outputs(out:dyn)]
 #[derive(Node, Actor, Default)]
 struct DynDemux {
-    tasks: HashMap<u64, JoinHandle<()>>,
+    tasks: HashMap<u64, JoinHandle<Result<()>>>,
     resources: Option<ResourceCollection>,
 }
 
@@ -32,7 +32,7 @@ impl DynDemux {
     }
     async fn finalize(&mut self) {
         for (_, task) in std::mem::take(&mut self.tasks) {
-            task.await;
+            task.await.ok();
         }
     }
 
@@ -46,7 +46,7 @@ impl DynDemux {
             if msg.is_none() {
                 self.out.fetch_with_cache().await.remove(&id);
                 if let Some(task) = self.tasks.remove(&id) {
-                    task.await;
+                    task.await.ok();
                 }
             } else {
                 if !self.out.cache().contains_key(&id) {
@@ -54,7 +54,12 @@ impl DynDemux {
                         self.tasks.insert(
                             id,
                             self.out
-                                .create_spec(id, tag, self.resources.clone().unwrap())
+                                .create_spec(
+                                    id,
+                                    tag,
+                                    self.resources.clone().unwrap(),
+                                    Default::default(),
+                                )
                                 .await
                                 .expect("create subgraph fault"),
                         );
@@ -62,7 +67,7 @@ impl DynDemux {
                         self.tasks.insert(
                             id,
                             self.out
-                                .create(id, self.resources.clone().unwrap())
+                                .create(id, self.resources.clone().unwrap(), Default::default())
                                 .await
                                 .expect("create subgraph fault"),
                         );
@@ -125,6 +130,6 @@ mod test {
         let envelope = envelope.unwrap();
         assert_eq!(envelope.info().to_addr, Some(0));
         input.close();
-        handle.await;
+        handle.await.unwrap();
     }
 }

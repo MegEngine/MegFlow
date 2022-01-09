@@ -46,8 +46,11 @@ impl Clone for Sender {
 
 impl ChannelBase for Sender {
     fn is_closed(&self) -> bool {
-        let imp = self.imp.as_ref().expect("not init or had abort");
-        imp.is_closed()
+        if let Some(imp) = self.imp.as_ref() {
+            imp.is_closed()
+        } else {
+            true
+        }
     }
     fn is_none(&self) -> bool {
         self.imp.is_none()
@@ -76,8 +79,11 @@ impl Sender {
         self.epoch.load(Ordering::Relaxed)
     }
     pub fn len(&self) -> usize {
-        let imp = self.imp.as_ref().expect("not init or had abort");
-        imp.len()
+        if let Some(imp) = self.imp.as_ref() {
+            imp.len()
+        } else {
+            0
+        }
     }
     pub fn is_empty(&self) -> bool {
         self.len() == 0
@@ -85,8 +91,9 @@ impl Sender {
     /// Closes the channel.
     /// The remaining envelopes can still be received.
     pub fn close(&self) {
-        let imp = self.imp.as_ref().expect("not init or had abort");
-        imp.close();
+        if let Some(imp) = self.imp.as_ref() {
+            imp.close();
+        }
     }
     /// Drop self, and closes the channel if there are no senders left.
     pub fn abort(&mut self) {
@@ -114,27 +121,30 @@ impl Sender {
     }
     /// Sends a any envelope into the channel. see document of `send` for more detail
     pub async fn send_any(&self, msg: SealedEnvelope) -> Result<(), SendError<SealedEnvelope>> {
-        let imp = self.imp.as_ref().expect("not init or had abort");
-        if msg.is::<DummyEnvelope>() {
-            let mut record = self.record.lock().await;
-            let epoch = self.epoch.load(Ordering::Relaxed);
-            let count = record.entry(epoch).or_insert_with(|| imp.sender_count());
-            *count -= 1;
+        if let Some(imp) = self.imp.as_ref() {
+            if msg.is::<DummyEnvelope>() {
+                let mut record = self.record.lock().await;
+                let epoch = self.epoch.load(Ordering::Relaxed);
+                let count = record.entry(epoch).or_insert_with(|| imp.sender_count());
+                *count -= 1;
 
-            self.max_epoch.fetch_max(
-                self.epoch.fetch_add(1, Ordering::Relaxed) + 1,
-                Ordering::Relaxed,
-            );
+                self.max_epoch.fetch_max(
+                    self.epoch.fetch_add(1, Ordering::Relaxed) + 1,
+                    Ordering::Relaxed,
+                );
 
-            if *count == 0 {
-                record.remove(&epoch);
-                imp.send(msg).await
+                if *count == 0 {
+                    record.remove(&epoch);
+                    imp.send(msg).await
+                } else {
+                    Ok(())
+                }
             } else {
-                Ok(())
+                self.counter.fetch_add(1, Ordering::Relaxed);
+                imp.send(msg).await
             }
         } else {
-            self.counter.fetch_add(1, Ordering::Relaxed);
-            imp.send(msg).await
+            Ok(())
         }
     }
 }

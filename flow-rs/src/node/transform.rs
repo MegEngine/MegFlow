@@ -47,7 +47,11 @@ impl DynOutTransform {
 }
 
 impl Actor for DynOutTransform {
-    fn start(mut self: Box<Self>, _: Context, _: ResourceCollection) -> rt::task::JoinHandle<()> {
+    fn start(
+        mut self: Box<Self>,
+        _: Context,
+        _: ResourceCollection,
+    ) -> rt::task::JoinHandle<Result<()>> {
         let (s, r) = rt::channel::unbounded();
         rt::task::spawn(async move {
             while let Ok((_, out)) = self.out.fetch().await {
@@ -76,6 +80,7 @@ impl Actor for DynOutTransform {
             while let Ok(handle) = r.recv().await {
                 handle.await;
             }
+            Ok(())
         })
     }
 }
@@ -94,7 +99,11 @@ impl DynInTransform {
 }
 
 impl Actor for DynInTransform {
-    fn start(self: Box<Self>, _: Context, _: ResourceCollection) -> rt::task::JoinHandle<()> {
+    fn start(
+        self: Box<Self>,
+        _: Context,
+        _: ResourceCollection,
+    ) -> rt::task::JoinHandle<Result<()>> {
         let (s, r) = rt::channel::unbounded();
         rt::task::spawn(async move {
             while let Ok((_, inp)) = self.inp.fetch().await {
@@ -118,6 +127,7 @@ impl Actor for DynInTransform {
             while let Ok(handle) = r.recv().await {
                 handle.await;
             }
+            Ok(())
         })
     }
 }

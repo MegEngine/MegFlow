@@ -1,7 +1,3 @@
-mod channel;
-mod context;
-mod envelope;
-mod node;
 /**
  * \file flow-rs/src/loader/python/mod.rs
  * MegFlow is Licensed under the Apache License, Version 2.0 (the "License")
@@ -12,9 +8,13 @@ mod node;
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT ARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
+pub mod channel;
+mod context;
+pub mod envelope;
+mod node;
 mod port;
 mod unlimited;
-mod utils;
+pub mod utils;
 
 use crate::registry::Collect;
 use crate::resource::Resource;
@@ -138,35 +138,10 @@ struct PythonLoader;
 const ERR_MSG: &str = "python plugin parse fault";
 
 impl Loader for PythonLoader {
-    fn load(
-        &self,
-        local_key: u64,
-        module_path: &Path,
-        plugin_path: &Path,
-    ) -> Result<Vec<Box<dyn Plugin>>> {
+    fn load_from_scope(&self, local_key: u64) -> Result<Vec<Box<dyn Plugin>>> {
         pyo3::prepare_freethreaded_python();
         let mut plugins = vec![];
-
-        let module_name = path_to_module(module_path, plugin_path)?;
-
-        Python::with_gil(|py| -> PyResult<_> {
-            let module_path = module_path.display().to_string();
-            let syspath: &PyList = py.import("sys")?.getattr("path")?.try_into()?;
-            if !syspath
-                .iter()
-                .any(|path| module_path.as_str() == path.extract::<&str>().unwrap())
-            {
-                syspath.insert(0, module_path)?;
-            }
-
-            ONCE_REGISTER.call_once(|| {
-                let module = py.import("megflow").expect("module megflow not found");
-                utils::utils_register(module).expect("python utility functions register fault");
-                envelope::envelope_register(module).expect("python envelope register fault");
-            });
-
-            py.import(module_name.as_str())?;
-
+        Python::with_gil(|py| -> PyResult<()> {
             let plugins_param: HashMap<String, Vec<&PyDict>> = py
                 .import("megflow")?
                 .getattr("collect")?
@@ -213,6 +188,40 @@ impl Loader for PythonLoader {
         })?;
 
         Ok(plugins)
+    }
+    fn load_from_file(
+        &self,
+        local_key: u64,
+        module_path: Option<&Path>,
+        plugin_path: &Path,
+    ) -> Result<Vec<Box<dyn Plugin>>> {
+        pyo3::prepare_freethreaded_python();
+        let cur = std::env::current_dir()?;
+        let module_path = module_path.unwrap_or(&cur);
+        let module_name = path_to_module(module_path, plugin_path)?;
+
+        Python::with_gil(|py| -> PyResult<_> {
+            let module_path = module_path.display().to_string();
+            let syspath: &PyList = py.import("sys")?.getattr("path")?.try_into()?;
+            if !syspath
+                .iter()
+                .any(|path| module_path.as_str() == path.extract::<&str>().unwrap())
+            {
+                syspath.insert(0, module_path)?;
+            }
+
+            ONCE_REGISTER.call_once(|| {
+                let module = py.import("megflow").expect("module megflow not found");
+                utils::utils_register(module).expect("python utility functions register fault");
+                envelope::envelope_register(module).expect("python envelope register fault");
+            });
+
+            py.import(module_name.as_str())?;
+
+            Ok(())
+        })?;
+
+        self.load_from_scope(local_key)
     }
 }
 

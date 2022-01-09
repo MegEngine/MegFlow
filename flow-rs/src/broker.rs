@@ -67,7 +67,7 @@ impl Broker {
         }
     }
 
-    pub fn run(&mut self) -> JoinHandle<()> {
+    pub fn run(&mut self) -> JoinHandle<anyhow::Result<()>> {
         self.running.store(true, Ordering::Relaxed);
         let running = self.running.clone();
         let subs = std::mem::take(&mut self.subs);
@@ -79,7 +79,12 @@ impl Broker {
                     while running.load(Ordering::Acquire) {
                         if let Ok(msg) = notifier.recv().await {
                             for (i, sub) in subs.iter().enumerate() {
-                                if i == msg.info().from_addr.unwrap() as usize {
+                                if i == msg
+                                    .info()
+                                    .from_addr
+                                    .expect("message from address is lost in broker")
+                                    as usize
+                                {
                                     continue;
                                 }
                                 let msg = msg.clone();
@@ -92,6 +97,7 @@ impl Broker {
             for handle in handles {
                 handle.await;
             }
+            Ok(())
         })
     }
 }

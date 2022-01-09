@@ -9,8 +9,10 @@
  * "AS IS" BASIS, WITHOUT ARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 use crate::config::interlayer as config;
+use crate::config::table::merge_table;
 use crate::node::Actor;
 use anyhow::Result;
+use toml::value::Table;
 
 pub struct AnyNode {
     nodes: Vec<Box<dyn Actor>>,
@@ -19,10 +21,11 @@ pub struct AnyNode {
 }
 
 impl AnyNode {
-    pub fn new(local_key: u64, cfg: &config::Node) -> Result<AnyNode> {
+    pub fn new(local_key: u64, mut info: config::Node, extra_args: Table) -> Result<AnyNode> {
+        info.entity.args = merge_table(extra_args, info.entity.args);
         Ok(AnyNode {
-            nodes: crate::node::load_static(local_key, cfg)?,
-            info: cfg.clone(),
+            nodes: crate::node::load_static(local_key, &info)?,
+            info,
         })
     }
 
