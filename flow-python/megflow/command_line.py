@@ -23,7 +23,7 @@ def megflow_run():
                 sys.exit(1)
 
     import argparse
-    from megflow import Graph
+    import megflow
 
     parser = argparse.ArgumentParser(prog='megflow_run', description='run a pipeline with plugins.')
     parser.add_argument('--dump', help='the path to dump graph', action='store_true')
@@ -31,10 +31,11 @@ def megflow_run():
     parser.add_argument('-m', '--module', type=str, help='module path')
     parser.add_argument('-c', '--config', type=str, help='config path')
     parser.add_argument('--dynamic', type=str, help='dynamic config path')
+    parser.add_argument('--version', action='version', version='%(prog)s {version}'.format(version=megflow.__version__))
 
     args = parser.parse_args()
 
-    Graph(
+    megflow.Graph(
         dump=args.dump, 
         plugin_path=args.plugin, 
         module_path=args.module, 

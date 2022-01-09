@@ -22,7 +22,7 @@ connections = [
 
 [[graphs.nodes]]
 name = "n1"
-ty = "noop"
+ty = "Noop"
 
 [[graphs.nodes]]
 name = "n2"
@@ -30,7 +30,7 @@ ty = "noop"
 
 [[graphs.nodes]]
 name = "n3"
-ty = "noop"
+ty = "Noop"
 
 [[graphs.nodes]]
 name = "n4"
@@ -38,7 +38,7 @@ ty = "noop"
 
 [[graphs.nodes]]
 name = "n5"
-ty = "noop"
+ty = "Noop"
 
 [[graphs]]
 name = "nest"
