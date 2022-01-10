@@ -1,14 +1,5 @@
 FROM megflow:latest as stage
 
-# prebuild rust-ffmpeg
-RUN cd / && git clone https://github.com/tpoisonooo/rust-ffmpeg && cd rust-ffmpeg && cargo build --release
-RUN mkdir -p /ffmpeg_dir && cp -rf `cat /tmp/megflow_ffmpeg_dynamic_link.sh  | head -n 1`/*  /ffmpeg_dir/  && rm /tmp/megflow_ffmpeg_dynamic_link.sh
-ENV LD_LIBRARY_PATH /ffmpeg_dir/lib:$LD_LIBRARY_PATH
-ENV PKG_CONFIG_PATH /ffmpeg_dir/lib/pkgconfig:$PKG_CONFIG_PATH
-ENV FFMPEG_DIR /ffmpeg_dir
-ENV CARGO_FEATURE_PREBUILD ""
-ENV CARGO_FEATURE_DYNAMIC ""
-
 # build .whl
 RUN cd flow-python \
     && python3 setup.py bdist_wheel -p linux-x86_64 -d ../dist
