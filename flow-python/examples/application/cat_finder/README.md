@@ -38,7 +38,7 @@ $ python3
 
 启动图片服务
 ```bash
-$ cd flow-python/examples
+$ cd ${path/to/MegFlow}/flow-python/examples/application
 $ pip3 install -r requires.txt
 $ megflow_run -c cat_finder/image_gpu.toml  -p cat_finder    # 有 GPU 的机器执行这个
 $ megflow_run -c cat_finder/image_cpu.toml  -p cat_finder    # 无 GPU 的 laptop 执行这句
@@ -83,7 +83,7 @@ $ curl http://127.0.0.1:8081/analyze/my_cat_name  -X POST --header "Content-Type
 
 启动解析服务
 ```bash
-$ cd flow-python/examples
+$ cd ${path/to/MegFlow}/flow-python/examples/application
 $ megflow_run -c cat_finder/video_gpu.toml  -p cat_finder  # 有 GPU 的机器
 $ megflow_run -c cat_finder/video_cpu.toml  -p cat_finder  # 无 GPU 的设备用这句
 ```
