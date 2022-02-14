@@ -35,7 +35,7 @@ $ ffmpeg -re -stream_loop -1 -i ${models}/cat_finder_testdata/test1.ts -c copy -
 
 启动服务
 ```bash
-$ cd flow-python/examples
+$ cd ${path/to/MegFlow}/flow-python/examples/application
 $ megflow_run -c electric_bicycle/electric_bicycle.toml  -p electric_bicycle
 ```
 服务配置文件在`electric_bicycle/electric_bicycle.toml`，解释参考 [graph definition](../../../../docs/03-how-to-add-my-service/appendix-A-graph-definition.zh.md) 。这里只需要打开 8083 端口服务，操作和[猫猫围栏](../cat_finder/README.md) 近似。
