@@ -116,6 +116,8 @@ fn translate_conn(
             parse(node)?;
         } else if let Some(node) = shared_nodes.get_mut(n) {
             parse(node)?;
+        } else {
+            return Err(anyhow!("unexpected node name [{}]", n));
         }
     }
 
