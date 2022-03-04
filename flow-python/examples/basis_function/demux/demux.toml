@@ -1,0 +1,27 @@
+main = "demux"
+
+[[graphs]]
+name = "demux"
+connections = [
+{ cap = 16, ports = ["source:out", "demux:inp"] },
+{ cap = 16, ports = ["demux:out:0", "even:inp"] },
+{ cap = 16, ports = ["demux:out:1", "odd:inp"] },
+]
+
+[[graphs.nodes]]
+name = "demux"
+ty = "Demux"
+
+[[graphs.nodes]]
+name = "odd"
+ty = "Sink"
+
+[[graphs.nodes]]
+name = "even"
+ty = "Sink"
+
+[[graphs.nodes]]
+name = "source"
+ty = "Source"
+n = 100
+
