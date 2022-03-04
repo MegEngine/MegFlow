@@ -70,6 +70,7 @@ disable=print-statement,
         too-many-locals,              # TBD
         too-many-attributes,          # TBD
         too-many-arguments,           # TBD
+        too-many-function-args,       # TBD
         too-many-instance-attributes, # TBD
         too-few-public-methods,       # TBD
         protected-access,             # TBD

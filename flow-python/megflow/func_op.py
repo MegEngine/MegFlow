@@ -7,7 +7,8 @@ from functools import partial
 import re
 
 class Context:
-    def __init__(self, **entries):
+    def __init__(self, name, **entries):
+        self.name = name
         self.__dict__.update(entries)
 
 def name_convert_to_camel(name):
@@ -36,8 +37,7 @@ def _common_def(inputs=[], outputs=[]):
                 @register(name=name, inputs=inputs, outputs=outputs, exclusive=exclusive)
                 class Node:
                     def __init__(self, name, args):
-                        self.context = Context(**args)
-                        self.name = name
+                        self.context = Context(name, **args)
                         if with_context:
                             self.impl = partial(func, context = self.context) 
                         else:

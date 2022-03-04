@@ -38,6 +38,25 @@ connections=[
         )
         .build()?;
     assert!(graph.start().await.is_err());
+    assert!(Builder::default()
+        .template(
+            r#"
+main="test"
+[[graphs]]
+name="test"
+nodes=[
+    {name="a", ty="NeverOpr"},
+    {name="c", ty="NoopConsumer"},
+]
+connections=[
+    {cap=1,ports=["a:out", "b:inp"]},
+    {cap=1,ports=["b:out", "c:inp"]}
+]
+        "#
+            .to_owned(),
+        )
+        .build()
+        .is_err());
     Ok(())
 }
 

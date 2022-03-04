@@ -76,11 +76,7 @@ pub(crate) fn load_static(
             .map(|g| g.map(|g| Box::new(g) as Box<dyn Actor>))
             .collect()
     } else {
-        Err(anyhow!(
-            "unexpected node {}:{:?}",
-            config.entity.name,
-            config.entity.ty
-        ))
+        Err(anyhow!("unexpected node type {:?}", config.entity.ty))
     }
 }
 
@@ -90,7 +86,7 @@ pub(crate) fn inputs(local_key: u64, ty: &str) -> Result<BTreeSet<String>> {
     } else if let Some(graph) = GraphSlice::registry_local().get(local_key).get(ty) {
         Ok(graph.info.inputs.iter().cloned().collect())
     } else {
-        Err(anyhow!("unexpected node {}", ty))
+        Err(anyhow!("unexpected node type [{}]", ty))
     }
 }
 
@@ -100,6 +96,6 @@ pub(crate) fn outputs(local_key: u64, ty: &str) -> Result<BTreeSet<String>> {
     } else if let Some(graph) = GraphSlice::registry_local().get(local_key).get(ty) {
         Ok(graph.info.outputs.iter().cloned().collect())
     } else {
-        Err(anyhow!("unexpected node {}", ty))
+        Err(anyhow!("unexpected node type [{}]", ty))
     }
 }
