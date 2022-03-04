@@ -51,6 +51,7 @@ Build video analysis service in 15 minutes.
 ## Built-in Applications
 * [cat finder](https://github.com/MegEngine/MegFlow/tree/master/flow-python/examples/application/cat_finder)
 * [electric bicycle detection](https://github.com/MegEngine/MegFlow/tree/master/flow-python/examples/application/electric_bicycle)
+* [video super resolution](https://github.com/MegEngine/MegFlow/tree/master/flow-python/examples/application/video_super_resolution)
 
 ## Features
 - Efficient runtime schedule based on [async-std](https://github.com/async-rs/async-std)[features=[tokio1](https://github.com/tokio-rs/tokio)]

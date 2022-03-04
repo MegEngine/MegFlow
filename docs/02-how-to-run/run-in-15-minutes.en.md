@@ -74,3 +74,4 @@ Next, start running Python application
 * [cat finder](https://github.com/MegEngine/MegFlow/tree/master/flow-python/examples/application/cat_finder)
 * [electric bicycle detection](https://github.com/MegEngine/MegFlow/tree/master/flow-python/examples/application/electric_bicycle)
 * [quickstart](../03-how-to-add-my-service/01-quickstart.zh.md)
+* [video super resolution](https://github.com/MegEngine/MegFlow/tree/master/flow-python/examples/application/video_super_resolution)

@@ -84,3 +84,4 @@ $ megflow_run -p logical_test
    * 电梯里看到电瓶车立即报警
 * [quickstart](../03-how-to-add-my-service/01-quickstart.zh.md)
    *  问答式创建自己的应用
+* [视频实时超分](https://github.com/MegEngine/MegFlow/tree/master/flow-python/examples/application/video_super_resolution)
