@@ -1,0 +1,38 @@
+main = "vsr"
+
+[[graphs]]
+name = "subgraph"
+inputs = [{ name = "inp", cap = 128, ports = ["model:inp"] }]
+outputs = [{ name = "out", cap = 128, ports = ["save:out"] }]
+connections = [
+  { cap = 128, ports = ["model:out", "save:inp"] }
+]
+
+    [[graphs.nodes]]
+    name = "model"
+    ty = "Model"
+    dir = "models/vsr_models"
+    device = "gpu"
+    device_id = 0
+    
+    [[graphs.nodes]]
+    name = "save"
+    ty = "Save"
+    path = "./"
+    
+[[graphs]]
+name = "vsr"
+connections = [
+  { cap = 16, ports = ["source:out", "destination:inp"] },
+  { cap = 16, ports = ["source:inp", "destination:out"] }
+]
+
+    [[graphs.nodes]]
+    name = "source"
+    ty = "VideoServer"
+    port = 8087
+    response = "json"
+    
+    [[graphs.nodes]]
+    name = "destination"
+    ty = "subgraph"
