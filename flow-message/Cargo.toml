@@ -13,7 +13,7 @@ c = ["libc"]
 byteorder = {version="1.4", optional=true}
 dashmap = {version="4.0", optional=true}
 enum-as-inner = {version="0.3", optional=true}
-im = {version="15.0", optional=true}
+im = {version="15.1", optional=true}
 paste = {version="1.0",optional=true}
 pyo3 = {version="0.15", features=["abi3"], optional=true}
 libc = {version="0.2",optional=true}
