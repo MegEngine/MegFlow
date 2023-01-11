@@ -6,8 +6,8 @@
 
 ## MegFlow [Documentation](https://megflow.readthedocs.io/zh_CN/latest/)
 [![GitHub license](https://img.shields.io/badge/license-apache--2--Clause-brightgreen.svg)](./LICENSE)
-[![ubuntu](https://img.shields.io/github/workflow/status/MegEngine/MegFlow/ubuntu-x86-cpu?label=ubuntu)](https://github.com/MegEngine/MegFlow/actions/workflows/ubuntu-x86-cpu.yml?query=workflow%3A)
-[![macos](https://img.shields.io/github/workflow/status/MegEngine/MegFlow/ubuntu-x86-cpu?label=macos)](https://github.com/MegEngine/MegFlow/actions/workflows/macos-x86-cpu.yml?query=workflow%3A)
+![ubuntu](https://img.shields.io/github/actions/workflow/status/megengine/megflow/ubuntu-x86-cpu.yml?branch=master)
+![macos](https://img.shields.io/github/actions/workflow/status/megengine/megflow/macos-x86-cpu.yml?branch=master)
 
 MegFlow 提供快速视觉应用落地流程，最快 15 分钟搭建起视频分析服务。其特性体现在：
 
