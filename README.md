@@ -20,9 +20,9 @@ Build video analysis service in 15 minutes.
   * [run with prebuilt .whl](docs/02-how-to-run/run-in-15-minutes.en.md)
   * [generate RTSP](docs/02-how-to-run/generate-rtsp.zh.md)
 * how to build
-  * [build with docker](docs/01-how-to-build/build-with-docker.zh.md)
+  * [build on docker](docs/01-how-to-build/build-with-docker.zh.md)
   * [build from source](docs/01-how-to-build/build-from-source.zh.md)
-  * [build with win10 wsl](docs/01-how-to-build/build-on-win10.zh.md)
+  * [build on win10 wsl](docs/01-how-to-build/build-on-win10.zh.md)
   * [build on armv8](docs/01-how-to-build/build-on-aarch64.zh.md)
 * how to use
   * [tutorial01: quickstart](docs/03-how-to-add-my-service/01-quickstart.zh.md)
