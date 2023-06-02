@@ -7,5 +7,5 @@ authors = ["megvii"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tokio = { version="1.10.0", features=["macros", "rt-multi-thread"] }
+tokio = { version="1.16.1", features=["macros", "rt-multi-thread"] }
 warp = "0.3.1"
