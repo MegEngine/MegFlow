@@ -20,7 +20,7 @@
     "react-dom": "^17.0.2",
     "react-popper": "^2.2.5",
     "react-redux": "^7.2.3",
-    "react-scripts": "^2.0.0",
+    "react-scripts": "^5.0.1",
     "react-wait": "^0.3.0",
     "reactjs-popup": "^2.0.5",
     "rodemirror": "^1.6.3",
